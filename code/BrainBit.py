@@ -1,5 +1,6 @@
-import brainflow
 import numpy as np
+import threading
+from time import sleep
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 import matplotlib.pyplot as plt
 
@@ -28,7 +29,7 @@ class Eeg:
     def capture(self):
 
         BUFFER_SIZE = SAMPLERATE
-        buff = np.zeros((BUFFER_SIZE, len(self.exg_channels)))
+        self.buff = np.zeros((BUFFER_SIZE, len(self.exg_channels)))
 
         # fill the buffer
         i = 0
@@ -36,47 +37,47 @@ class Eeg:
             data = self.board_shim.get_board_data(1)
             if np.any(data):
                 # current_num = data[self.num_channel]
-                current_exg = data[self.exg_channels]
-                buff[i, :] = current_exg[:, 0]
+                self.current_exg = data[self.exg_channels]
+                self.buff[i, :] = self.current_exg[:, 0]
                 # print(current_exg[:,0])
                 # print(buff[i])
                 i += 1
+
+        t_thread = threading.Thread(target=self._capture)
+        t_thread.daemon = True
+        t_thread.start()
 
         # !!! Включить интерактивный режим для анимации
         plt.ion()
         # Создание окна и осей для графика
         fig, ax = plt.subplots()
         # Отобразить график фукнции в начальный момент времени
-        buff_spectrum = get_fft(buff[:, 9])
+        buff_spectrum = get_fft(self.buff[:, 9])
         line, = ax.plot(buff_spectrum[:41])
 
-        # renew the buffer like queue
-        j = 0
-        i = 0
-        while i < 1000:
-            data = self.board_shim.get_board_data(1)
-            if np.any(data):
-                # current_num = data[self.num_channel]
-                current_exg = data[self.exg_channels]
-                buff = np.roll(buff, -1, axis=0)
-                buff[-1] = current_exg[:, 0]
-                i += 1
-                # print(f'\r{i} : 1000', end='')
-
-                if j == 10:
-                    j = 0
-                    buff_spectrum = get_fft(buff[:, 9])
-                    line.set_ydata(buff_spectrum[:41])
-                    # !!! Следующие два вызова требуются для обновления графика
-                    plt.draw()
-                    plt.gcf().canvas.flush_events()
-                else:
-                    j += 1
+        while t_thread.is_alive():
+            buff_spectrum = get_fft(self.buff[:, 9])
+            line.set_ydata(buff_spectrum[:41])
+            # !!! Следующие два вызова требуются для обновления графика
+            plt.draw()
+            plt.gcf().canvas.flush_events()
+            sleep(0.04)
 
         # Отключить интерактивный режим по завершению анимации
         plt.ioff()
         # Нужно, чтобы график не закрывался после завершения анимации
         plt.show()
+
+    def _capture(self):
+        i = 0
+        while i < 1000:
+            data = self.board_shim.get_board_data(1)
+            if np.any(data):
+                self.current_exg = data[self.exg_channels]
+                self.buff = np.roll(self.buff, -1, axis=0)
+                self.buff[-1] = self.current_exg[:, 0]
+                i += 1
+                # print(i)
 
 
 def main():
