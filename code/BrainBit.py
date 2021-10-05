@@ -6,9 +6,11 @@ import matplotlib.pyplot as plt
 SAMPLERATE = 250
 AVERAGE_LENGTH = 7 * SAMPLERATE
 
+
 def get_fft(signal):
     amps = np.absolute(np.fft.rfft(signal))
     return amps / signal.shape[0]
+
 
 class Eeg:
     def __init__(self, board_shim):
@@ -35,7 +37,7 @@ class Eeg:
             if np.any(data):
                 # current_num = data[self.num_channel]
                 current_exg = data[self.exg_channels]
-                buff[i, :] = current_exg[:,0]
+                buff[i, :] = current_exg[:, 0]
                 # print(current_exg[:,0])
                 # print(buff[i])
                 i += 1
@@ -57,7 +59,7 @@ class Eeg:
                 # current_num = data[self.num_channel]
                 current_exg = data[self.exg_channels]
                 buff = np.roll(buff, -1, axis=0)
-                buff[-1] = current_exg[:,0]                
+                buff[-1] = current_exg[:, 0]
                 i += 1
                 # print(f'\r{i} : 1000', end='')
 
@@ -71,12 +73,11 @@ class Eeg:
                 else:
                     j += 1
 
-
-                
         # Отключить интерактивный режим по завершению анимации
         plt.ioff()
         # Нужно, чтобы график не закрывался после завершения анимации
         plt.show()
+
 
 def main():
 
@@ -94,7 +95,7 @@ def main():
         eeg = Eeg(board_shim)
     finally:
         if board_shim.is_prepared():
-            board_shim.release_session()        
+            board_shim.release_session()
 
 
 if __name__ == "__main__":
