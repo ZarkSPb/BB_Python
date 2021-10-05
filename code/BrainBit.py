@@ -4,7 +4,7 @@ import threading
 from time import sleep
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 import matplotlib.pyplot as plt
-from PySide6.QtWidgets import QApplication, QDialog, QPushButton
+from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout
 
 SAMPLERATE = 250
 AVERAGE_LENGTH = 7 * SAMPLERATE
@@ -19,6 +19,19 @@ class Form(QDialog):
     def __init__(self, parent=None):
         super(Form, self).__init__(parent)
         self.setWindowTitle("Brain Bit BAK")
+
+        # Create widgets
+        self.button_start = QPushButton("Start")
+        self.button_stop = QPushButton("Stop")
+
+        # Create layouts and add widgets
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.button_start)
+        layout.addWidget(self.button_stop)
+
+        # Add button signal to start capture
+        self.button_start.clicked.connect(start_capture)
+        self.button_stop.clicked.connect(stop_capture)
 
 
 class Eeg:
@@ -132,16 +145,6 @@ def main():
 
     # Run the main Qt loop
     sys.exit(app.exec())
-
-    # button_start = QPushButton("Start")
-    # button_start.clicked.connect(start_capture)
-    # button_start.show()
-
-    # button_stop = QPushButton("Stop")
-    # button_stop.clicked.connect(stop_capture)
-    # button_stop.show()
-
-    # app.exec()
 
 
 if __name__ == "__main__":
