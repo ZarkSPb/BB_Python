@@ -1,8 +1,6 @@
 import numpy as np
 
-
 # x = np.arange(9)
-
 
 # print(x)
 
@@ -14,23 +12,19 @@ import numpy as np
 
 # print(x)
 
-
 # x = np.array([[],[]])
 # print(x.shape)
-
 
 # import time
 
 # import matplotlib.pyplot as plt
 # import numpy
 
-
 # def gaussian(x, delay, sigma):
 #     '''
 #     Функция, график которой будет отображаться процессе анимации
 #     '''
 #     return numpy.exp(-((x - delay) / sigma) ** 2)
-
 
 # if __name__ == '__main__':
 #     # Параметры отображаемой функции
@@ -73,20 +67,16 @@ import numpy as np
 #     # Нужно, чтобы график не закрывался после завершения анимации
 #     plt.show()
 
-
-
 # import time
 
 # import matplotlib.pyplot as plt
 # import numpy
-
 
 # def gaussian(x, delay, sigma):
 #     '''
 #     Функция, график которой будет отображаться процессе анимации
 #     '''
 #     return numpy.exp(-((x - delay) / sigma) ** 2)
-
 
 # if __name__ == '__main__':
 #     # Параметры отображаемой функции
@@ -130,8 +120,6 @@ import numpy as np
 #     plt.ioff()
 #     plt.show()
 
-
-
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy
@@ -141,7 +129,7 @@ def gaussian(x, delay, sigma):
     '''
     Функция, график которой будет отображаться процессе анимации.
     '''
-    return numpy.exp(-((x - delay) / sigma) ** 2)
+    return numpy.exp(-((x - delay) / sigma)**2)
 
 
 # Функция, вызываемая для каждого кадра
@@ -191,12 +179,11 @@ if __name__ == '__main__':
     repeat = False
 
     # !!! Создание анимации
-    animation = FuncAnimation(
-            fig,
-            func=main_func,
-            frames=frames,
-            fargs=(line, x, sigma),
-            interval=interval,
-            blit=blit,
-            repeat=repeat)
+    animation = FuncAnimation(fig,
+                              func=main_func,
+                              frames=frames,
+                              fargs=(line, x, sigma),
+                              interval=interval,
+                              blit=blit,
+                              repeat=repeat)
     plt.show()
