@@ -1,8 +1,11 @@
+import sys
 import numpy as np
 import threading
 from time import sleep
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 import matplotlib.pyplot as plt
+from PySide6.QtWidgets import QApplication, QPushButton
+from PySide6.QtCore import Slot
 
 SAMPLERATE = 250
 AVERAGE_LENGTH = 7 * SAMPLERATE
@@ -92,14 +95,21 @@ class Eeg:
                 # print(i)
 
 
-def main():
+def start_capture():
+    print("START")
 
+def main():
     board_id = BoardIds.SYNTHETIC_BOARD.value
     # board_id = BoardIds.BRAINBIT_BOARD.value
-
     BoardShim.enable_dev_board_logger()
-
     params = BrainFlowInputParams()
+
+    # Create the Qt application
+    app = QApplication(sys.argv)
+    button = QPushButton("Start")
+    button.clicked.connect(start_capture)
+    button.show()
+    app.exec()
 
     try:
         board_shim = BoardShim(board_id, params)
