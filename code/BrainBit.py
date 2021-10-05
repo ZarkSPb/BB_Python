@@ -31,22 +31,24 @@ class Eeg:
         BUFFER_SIZE = SAMPLERATE
         self.buff = np.zeros((BUFFER_SIZE, len(self.exg_channels)))
 
-        # fill the buffer
-        i = 0
-        while i < SAMPLERATE:
-            data = self.board_shim.get_board_data(1)
-            if np.any(data):
-                # current_num = data[self.num_channel]
-                self.current_exg = data[self.exg_channels]
-                self.buff[i, :] = self.current_exg[:, 0]
-                # print(current_exg[:,0])
-                # print(buff[i])
-                i += 1
+        # Filling the buffer
+        t_thread = threading.Thread(target=self._buffer_fill)
+        t_thread.daemon = True
+        t_thread.start()
 
+        # Waiting for filling SAMPLERATE count
+        while t_thread.is_alive():
+            sleep(0.001)
+
+        # make and start main thread
         t_thread = threading.Thread(target=self._capture)
         t_thread.daemon = True
         t_thread.start()
 
+        # plotting data
+        self.plotting(t_thread)
+
+    def plotting(self, t_thread):
         # !!! Включить интерактивный режим для анимации
         plt.ion()
         # Создание окна и осей для графика
@@ -68,9 +70,20 @@ class Eeg:
         # Нужно, чтобы график не закрывался после завершения анимации
         plt.show()
 
+    def _buffer_fill(self):
+        i = 0
+        while i < SAMPLERATE:
+            data = self.board_shim.get_board_data(1)
+            if np.any(data):
+                # current_num = data[self.num_channel]
+                self.current_exg = data[self.exg_channels]
+                self.buff[i, :] = self.current_exg[:, 0]
+                i += 1
+                # print(i)
+
     def _capture(self):
         i = 0
-        while i < 1000:
+        while i < 500:
             data = self.board_shim.get_board_data(1)
             if np.any(data):
                 self.current_exg = data[self.exg_channels]
