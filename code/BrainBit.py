@@ -4,8 +4,13 @@ import threading
 from time import sleep
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 import matplotlib.pyplot as plt
-from PySide6.QtWidgets import QApplication, QDialog, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QMainWindow
 
+from ui_mainwindow import Ui_MainWindow
+
+# configuring BB
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLERATE = 250
 AVERAGE_LENGTH = 7 * SAMPLERATE
 
@@ -15,23 +20,48 @@ def get_fft(signal):
     return amps / signal.shape[0]
 
 
-class Form(QDialog):
-    def __init__(self, parent=None):
-        super(Form, self).__init__(parent)
-        self.setWindowTitle("Brain Bit BAK")
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
 
-        # Create widgets
-        self.button_start = QPushButton("Start")
-        self.button_stop = QPushButton("Stop")
+        self.ui.ButtonConnect.clicked.connect(self.connect)
+        self.ui.ButtonStart.clicked.connect(self.start_capture)
+        self.ui.ButtonStop.clicked.connect(self.stop_capture)
 
-        # Create layouts and add widgets
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.button_start)
-        layout.addWidget(self.button_stop)
+    def connect(self):
+        BoardShim.enable_dev_board_logger()
+        params = BrainFlowInputParams()
 
-        # Add button signal to start capture
-        self.button_start.clicked.connect(start_capture)
-        self.button_stop.clicked.connect(stop_capture)
+        try:
+            self.board_shim = BoardShim(BOARD_ID, params)
+            self.board_shim.prepare_session()
+            # self.board_shim.start_stream(45000)
+            print()
+            print()
+            print(self.board_shim.get_board_descr(BOARD_ID))
+            print()
+            print()
+        finally:
+            # тут можно энаблить кнопку старт
+            print("!!!PRESS START!!!")
+
+    def start_capture(self):
+        BoardShim.enable_dev_board_logger()
+        params = BrainFlowInputParams()
+
+        try:
+            # board_shim = BoardShim(BOARD_ID, params)
+            # self.board_shim.prepare_session()
+            self.board_shim.start_stream(45000)
+            eeg = Eeg(self.board_shim)
+        finally:
+            if self.board_shim.is_prepared():
+                self.board_shim.release_session()
+
+    def stop_capture(self):
+        print("STOP")
 
 
 class Eeg:
@@ -58,37 +88,37 @@ class Eeg:
 
         # Waiting for filling SAMPLERATE count
         while t_thread.is_alive():
-            sleep(0.001)
+            sleep(0.002)
 
         # make and start main thread
         t_thread = threading.Thread(target=self._capture)
         t_thread.daemon = True
         t_thread.start()
 
-        # plotting data
-        self.plotting(t_thread)
-
-    def plotting(self, t_thread):
-        # !!! Включить интерактивный режим для анимации
-        plt.ion()
-        # Создание окна и осей для графика
-        fig, ax = plt.subplots()
-        # Отобразить график фукнции в начальный момент времени
-        buff_spectrum = get_fft(self.buff[:, 9])
-        line, = ax.plot(buff_spectrum[:41])
+        # # !!! Включить интерактивный режим для анимации
+        # plt.ion()
+        # # Создание окна и осей для графика
+        # fig, ax = plt.subplots()
+        # # Отобразить график фукнции в начальный момент времени
+        # buff_spectrum = get_fft(self.buff[:, 9])
+        # self.line, = ax.plot(buff_spectrum[:41])
 
         while t_thread.is_alive():
-            buff_spectrum = get_fft(self.buff[:, 9])
-            line.set_ydata(buff_spectrum[:41])
-            # !!! Следующие два вызова требуются для обновления графика
-            plt.draw()
-            plt.gcf().canvas.flush_events()
-            sleep(0.04)
+            # plotting data
+            # self.plotting()
+            sleep(0.1)
 
-        # Отключить интерактивный режим по завершению анимации
-        plt.ioff()
-        # Нужно, чтобы график не закрывался после завершения анимации
-        plt.show()
+        # # Отключить интерактивный режим по завершению анимации
+        # plt.ioff()
+        # # Нужно, чтобы график не закрывался после завершения анимации
+        # plt.show()
+
+    def plotting(self):
+        buff_spectrum = get_fft(self.buff[:, 9])
+        self.line.set_ydata(buff_spectrum[:41])
+        # !!! Следующие два вызова требуются для обновления графика
+        plt.draw()
+        plt.gcf().canvas.flush_events()
 
     def _buffer_fill(self):
         i = 0
@@ -99,7 +129,7 @@ class Eeg:
                 self.current_exg = data[self.exg_channels]
                 self.buff[i, :] = self.current_exg[:, 0]
                 i += 1
-                # print(i)
+                print(i)
 
     def _capture(self):
         i = 0
@@ -110,38 +140,15 @@ class Eeg:
                 self.buff = np.roll(self.buff, -1, axis=0)
                 self.buff[-1] = self.current_exg[:, 0]
                 i += 1
-                # print(i)
-
-
-def start_capture():
-    print("START")
-
-    board_id = BoardIds.SYNTHETIC_BOARD.value
-    # board_id = BoardIds.BRAINBIT_BOARD.value
-    BoardShim.enable_dev_board_logger()
-    params = BrainFlowInputParams()
-
-    try:
-        board_shim = BoardShim(board_id, params)
-        board_shim.prepare_session()
-        board_shim.start_stream(45000)
-        eeg = Eeg(board_shim)
-    finally:
-        if board_shim.is_prepared():
-            board_shim.release_session()
-
-
-def stop_capture():
-    print("STOP")
+                print(i)
 
 
 def main():
     # Create the Qt application
     app = QApplication(sys.argv)
 
-    # Create and show he form
-    form = Form()
-    form.show()
+    window = MainWindow()
+    window.show()
 
     # Run the main Qt loop
     sys.exit(app.exec())
