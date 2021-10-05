@@ -27,7 +27,6 @@ class Eeg:
         self.capture()
 
     def capture(self):
-
         BUFFER_SIZE = SAMPLERATE
         self.buff = np.zeros((BUFFER_SIZE, len(self.exg_channels)))
 
