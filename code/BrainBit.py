@@ -4,8 +4,7 @@ import threading
 from time import sleep
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
 import matplotlib.pyplot as plt
-from PySide6.QtWidgets import QApplication, QPushButton
-from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QApplication, QDialog, QPushButton
 
 SAMPLERATE = 250
 AVERAGE_LENGTH = 7 * SAMPLERATE
@@ -14,6 +13,12 @@ AVERAGE_LENGTH = 7 * SAMPLERATE
 def get_fft(signal):
     amps = np.absolute(np.fft.rfft(signal))
     return amps / signal.shape[0]
+
+
+class Form(QDialog):
+    def __init__(self, parent=None):
+        super(Form, self).__init__(parent)
+        self.setWindowTitle("Brain Bit BAK")
 
 
 class Eeg:
@@ -98,18 +103,10 @@ class Eeg:
 def start_capture():
     print("START")
 
-def main():
     board_id = BoardIds.SYNTHETIC_BOARD.value
     # board_id = BoardIds.BRAINBIT_BOARD.value
     BoardShim.enable_dev_board_logger()
     params = BrainFlowInputParams()
-
-    # Create the Qt application
-    app = QApplication(sys.argv)
-    button = QPushButton("Start")
-    button.clicked.connect(start_capture)
-    button.show()
-    app.exec()
 
     try:
         board_shim = BoardShim(board_id, params)
@@ -119,6 +116,32 @@ def main():
     finally:
         if board_shim.is_prepared():
             board_shim.release_session()
+
+
+def stop_capture():
+    print("STOP")
+
+
+def main():
+    # Create the Qt application
+    app = QApplication(sys.argv)
+
+    # Create and show he form
+    form = Form()
+    form.show()
+
+    # Run the main Qt loop
+    sys.exit(app.exec())
+
+    # button_start = QPushButton("Start")
+    # button_start.clicked.connect(start_capture)
+    # button_start.show()
+
+    # button_stop = QPushButton("Stop")
+    # button_stop.clicked.connect(stop_capture)
+    # button_stop.show()
+
+    # app.exec()
 
 
 if __name__ == "__main__":
