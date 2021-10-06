@@ -1,14 +1,14 @@
 import sys
-from time import sleep
 import threading
+from time import sleep
 
 import numpy as np
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, LogLevels
-import matplotlib.pyplot as plt
-
+from brainflow.board_shim import (BoardIds, BoardShim, BrainFlowInputParams,
+                                  LogLevels)
+from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
+from PySide6.QtCore import QPointF, Slot
 from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis
-from PySide6.QtCore import QPointF
+from PySide6.QtGui import QPainter
 
 from ui_mainwindow import Ui_MainWindow
 
@@ -42,20 +42,18 @@ class MainWindow(QMainWindow):
         self.charts.append(chart_view)
 
         chart_view = QChartView(self.create_line_chart("Line chart 2"))
+        chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.gridLayout.addWidget(chart_view, 1, 1)
         self.charts.append(chart_view)
 
     def create_line_chart(self, chartname):
         chart = QChart()
         self._series = QLineSeries()
-
         chart.addSeries(self._series)
-
         chart.setTitle(chartname)
         chart.legend().hide()
         axis_x = QValueAxis()
         axis_x.setRange(0, SAMPLE_RATE)
-        # axis_x.setTitleVisible(False)
         axis_y = QValueAxis()
         axis_y.setRange(-200, 200)
         chart.setAxisX(axis_x, self._series)
@@ -66,6 +64,7 @@ class MainWindow(QMainWindow):
 
         return chart
 
+    @Slot()
     def connect(self):
         BoardShim.enable_dev_board_logger()
         params = BrainFlowInputParams()
@@ -79,6 +78,7 @@ class MainWindow(QMainWindow):
             self.ui.ButtonStart.setEnabled(True)
             self.ui.ButtonConnect.setEnabled(False)
 
+    @Slot()
     def start_capture(self):
         try:
             self.board_shim.start_stream(45000)
@@ -89,12 +89,21 @@ class MainWindow(QMainWindow):
                 self._buffer[s].setY(value)
             self._series.replace(self._buffer)
 
+            self.ui.ButtonStop.setEnabled(True)
+            
             eeg.capture()
+            
+            # t_thread = threading.Thread(target=eeg.capture)
+            # t_thread.daemon = True
+            # t_thread.start()
+            # while t_thread.is_alive():
+            #     sleep(0.01)
 
         finally:
             if self.board_shim.is_prepared():
                 self.board_shim.release_session()
 
+    @Slot()
     def stop_capture(self):
         print("STOP")
 
@@ -107,8 +116,8 @@ class Eeg:
         self.exg_channels = BoardShim.get_exg_channels(self.board_id)
 
         # create buffer
-        BUFFER_SIZE = SAMPLE_RATE
-        self.buff = np.zeros((BUFFER_SIZE, len(self.exg_channels)))
+        self.BUFFER_SIZE = SAMPLE_RATE
+        self.buff = np.zeros((self.BUFFER_SIZE, len(self.exg_channels)))
 
         # print(f'{BoardShim.get_board_descr(self.board_id)}\n')
         # print(f'num channel = {self.num_channel}')
@@ -119,14 +128,13 @@ class Eeg:
 
     def buffer_fill(self):
         i = 0
-        while i < SAMPLE_RATE:
+        while i < self.BUFFER_SIZE:
             data = self.board_shim.get_board_data(1)
             if np.any(data):
                 # current_num = data[self.num_channel]
                 self.current_exg = data[self.exg_channels]
                 self.buff[i, :] = self.current_exg[:, 0]
                 i += 1
-                print(i)
 
     def capture(self):
         i = 0
@@ -137,7 +145,6 @@ class Eeg:
                 self.buff = np.roll(self.buff, -1, axis=0)
                 self.buff[-1] = self.current_exg[:, 0]
                 i += 1
-                print(i)
 
 
 def main():
@@ -145,7 +152,7 @@ def main():
 
     # Create the Qt application
     app = QApplication(sys.argv)
-
+    # Create window
     window = MainWindow()
     window.show()
 
