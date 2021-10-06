@@ -9,21 +9,22 @@
 ################################################################################
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-    QVBoxLayout, QWidget)
+                            QMetaObject, QObject, QPoint, QRect, QSize, QTime,
+                            QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
+                           QFontDatabase, QGradient, QIcon, QImage,
+                           QKeySequence, QLinearGradient, QPainter, QPalette,
+                           QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QMainWindow,
+                               QMenuBar, QPushButton, QSizePolicy, QSpacerItem,
+                               QStatusBar, QVBoxLayout, QWidget)
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(166, 215)
+        MainWindow.resize(600, 400)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -47,10 +48,10 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.ButtonStop)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum,
+                                          QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
-
 
         self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
@@ -66,12 +67,17 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.ButtonConnect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
-        self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
-        self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
-    # retranslateUi
+        MainWindow.setWindowTitle(
+            QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.ButtonConnect.setText(
+            QCoreApplication.translate("MainWindow", u"Connect", None))
+        self.ButtonStart.setText(
+            QCoreApplication.translate("MainWindow", u"Start", None))
+        self.ButtonStop.setText(
+            QCoreApplication.translate("MainWindow", u"Stop", None))
 
+    # retranslateUi
