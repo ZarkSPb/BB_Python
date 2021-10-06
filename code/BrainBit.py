@@ -1,10 +1,13 @@
 import sys
-import numpy as np
-import threading
 from time import sleep
-from brainflow.board_shim import BoardShim, BrainFlowInputParams, LogLevels, BoardIds
+import threading
+
+import numpy as np
+from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds, LogLevels
 import matplotlib.pyplot as plt
+
 from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis
 
 from ui_mainwindow import Ui_MainWindow
 
@@ -23,12 +26,40 @@ def get_fft(signal):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+
+        self.charts = []
+
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.ui.ButtonConnect.clicked.connect(self.connect)
         self.ui.ButtonStart.clicked.connect(self.start_capture)
         self.ui.ButtonStop.clicked.connect(self.stop_capture)
+
+        # self._series = QLineSeries()
+        chart_view = QChartView(self.create_line_chart("Line chart 1"))
+        self.ui.gridLayout.addWidget(chart_view, 0, 1)
+        self.charts.append(chart_view)
+
+        chart_view = QChartView(self.create_line_chart("Line chart 2"))
+        self.ui.gridLayout.addWidget(chart_view, 1, 1)
+        self.charts.append(chart_view)
+
+        chart_view = QChartView(self.create_line_chart("Line chart 3"))
+        self.ui.gridLayout.addWidget(chart_view, 2, 1)
+        self.charts.append(chart_view)
+
+    def create_line_chart(self, chartname):
+        chart = QChart()
+        chart.setTitle(chartname)
+        axis_x = QValueAxis()
+        axis_x.setRange(0, SAMPLERATE)
+        axis_y = QValueAxis()
+        axis_y.setRange(-100, 100)
+        chart.setAxisX(axis_x)
+        chart.setAxisY(axis_y)
+
+        return chart
 
     def connect(self):
         BoardShim.enable_dev_board_logger()
@@ -140,6 +171,8 @@ class Eeg:
 
 
 def main():
+    print('\n\n\n')
+
     # Create the Qt application
     app = QApplication(sys.argv)
 
