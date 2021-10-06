@@ -6,35 +6,58 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>94</width>
-    <height>145</height>
+    <width>166</width>
+    <height>215</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QPushButton" name="ButtonConnect">
-      <property name="text">
-       <string>Connect</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="ButtonStart">
-      <property name="text">
-       <string>Start</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="ButtonStop">
-      <property name="text">
-       <string>Stop</string>
-      </property>
-     </widget>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+      <item>
+       <widget class="QPushButton" name="ButtonConnect">
+        <property name="text">
+         <string>Connect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ButtonStart">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ButtonStop">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -43,7 +66,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>94</width>
+     <width>166</width>
      <height>22</height>
     </rect>
    </property>

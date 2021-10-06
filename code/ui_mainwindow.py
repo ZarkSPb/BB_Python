@@ -15,17 +15,20 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QMainWindow, QMenuBar, QPushButton,
-    QSizePolicy, QStatusBar, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(94, 145)
+        MainWindow.resize(166, 215)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.verticalLayout = QVBoxLayout(self.centralwidget)
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.verticalLayout = QVBoxLayout()
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.ButtonConnect = QPushButton(self.centralwidget)
         self.ButtonConnect.setObjectName(u"ButtonConnect")
@@ -34,18 +37,27 @@ class Ui_MainWindow(object):
 
         self.ButtonStart = QPushButton(self.centralwidget)
         self.ButtonStart.setObjectName(u"ButtonStart")
+        self.ButtonStart.setEnabled(False)
 
         self.verticalLayout.addWidget(self.ButtonStart)
 
         self.ButtonStop = QPushButton(self.centralwidget)
         self.ButtonStop.setObjectName(u"ButtonStop")
+        self.ButtonStop.setEnabled(False)
 
         self.verticalLayout.addWidget(self.ButtonStop)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer)
+
+
+        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 94, 22))
+        self.menubar.setGeometry(QRect(0, 0, 166, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -62,3 +74,4 @@ class Ui_MainWindow(object):
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
     # retranslateUi
+

@@ -38,14 +38,10 @@ class MainWindow(QMainWindow):
             self.board_shim = BoardShim(BOARD_ID, params)
             self.board_shim.prepare_session()
             # self.board_shim.start_stream(45000)
-            print()
-            print()
-            print(self.board_shim.get_board_descr(BOARD_ID))
-            print()
-            print()
         finally:
-            # тут можно энаблить кнопку старт
-            print("!!!PRESS START!!!")
+            # энаблим кнопку старт
+            self.ui.ButtonStart.setEnabled(True)
+            self.ui.ButtonConnect.setEnabled(False)
 
     def start_capture(self):
         BoardShim.enable_dev_board_logger()
