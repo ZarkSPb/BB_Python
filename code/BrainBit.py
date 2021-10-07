@@ -3,8 +3,7 @@ import traceback
 import time
 
 import numpy as np
-from brainflow.board_shim import (BoardIds, BoardShim, BrainFlowInputParams,
-                                  LogLevels)
+from brainflow.board_shim import BoardIds
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import (QObject, QPointF, QRunnable, QThreadPool, Signal,
                             Slot)
@@ -101,29 +100,14 @@ class MainWindow(QMainWindow):
 
         return chart
 
-    def connect(self):
-        BoardShim.enable_dev_board_logger()
-        params = BrainFlowInputParams()
-
-        try:
-            self.board_shim = BoardShim(BOARD_ID, params)
-            self.board_shim.prepare_session()
-            # self.board_shim.start_stream(45000)
-        finally:
-            # энаблим кнопку старт
-            self.ui.ButtonStart.setEnabled(True)
-            self.ui.ButtonConnect.setEnabled(False)
-
     def capture_execute(self, progress_callback):
         self.ui.ButtonStop.setEnabled(True)
-        try:
-            self.board_shim.start_stream(45000)
-            eeg = Eeg(self.board_shim)
-            eeg.buffer_fill(progress_callback)
-            eeg.capture(progress_callback)
-        finally:
-            if self.board_shim.is_prepared():
-                self.board_shim.release_session()
+        self.ui.ButtonStart.setEnabled(False)
+        
+        self.eeg.prepare()
+        self.eeg.buffer_fill(progress_callback)
+        self.eeg.work = True
+        self.eeg.capture(progress_callback)
 
     def progress_fn(self, n):
         data = n[:, 10]
@@ -134,6 +118,14 @@ class MainWindow(QMainWindow):
     def thread_complite(self):
         print("Thread complete!")
 
+    # -------BUTTONS-------
+    def connect(self):
+        self.eeg = Eeg(BOARD_ID)
+
+        # энаблим кнопку старт
+        self.ui.ButtonStart.setEnabled(True)
+        self.ui.ButtonConnect.setEnabled(False)
+
     def start_capture(self):
         worker = Worker(self.capture_execute)
         worker.signals.progress.connect(self.progress_fn)
@@ -143,7 +135,9 @@ class MainWindow(QMainWindow):
         self.threadpool.start(worker)
 
     def stop_capture(self):
-        print("STOP")
+        self.eeg.work = False
+        self.ui.ButtonStart.setEnabled(True)
+        self.ui.ButtonConnect.setEnabled(True)
 
 
 def main():
