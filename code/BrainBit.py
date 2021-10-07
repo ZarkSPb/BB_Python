@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
         axis_x = QValueAxis()
         axis_x.setRange(0, SAMPLE_RATE)
         axis_y = QValueAxis()
-        axis_y.setRange(-200, 200)
+        axis_y.setRange(-50000, 50000)
         chart.setAxisX(axis_x, self._series)
         chart.setAxisY(axis_y, self._series)
 
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         self.eeg.capture(progress_callback)
 
     def progress_fn(self, n):
-        data = n[:, 10]
+        data = n[:, 0]
         for s, value in enumerate(data):
             self._buffer[s].setY(value)
         self._series.replace(self._buffer)
