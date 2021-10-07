@@ -1,6 +1,5 @@
 import numpy as np
 from brainflow import BoardShim
-from time import sleep
 
 class Eeg:
     def __init__(self, board_shim):
@@ -31,7 +30,7 @@ class Eeg:
                 self.buff[i, :] = self.current_exg[:, 0]
                 i += 1
 
-    def capture(self):
+    def capture(self, progress_callback):
         i = 0
         while i < 500:
             data = self.board_shim.get_board_data(1)
@@ -40,3 +39,4 @@ class Eeg:
                 self.buff = np.roll(self.buff, -1, axis=0)
                 self.buff[-1] = self.current_exg[:, 0]
                 i += 1
+                progress_callback.emit(self.buff)

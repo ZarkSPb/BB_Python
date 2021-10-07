@@ -321,6 +321,7 @@ class Worker(QRunnable):
         Initialise the runner function with passed args, kwargs.
         '''
         # Retrieve args/kwargs here; and fire processing using them
+
         try:
             result = self.fn(*self.args, **self.kwargs)
         except:

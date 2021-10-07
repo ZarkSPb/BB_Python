@@ -1,5 +1,6 @@
 import sys
 import traceback
+import time
 
 import numpy as np
 from brainflow.board_shim import (BoardIds, BoardShim, BrainFlowInputParams,
@@ -24,7 +25,7 @@ class WorkerSignals(QObject):
     finished = Signal()
     error = Signal()
     result = Signal()
-    progress = Signal()
+    progress = Signal(np.ndarray)
 
 
 class Worker(QRunnable):
@@ -35,7 +36,7 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-        # self.kwargs['progress_callback'] = self.signals.progress
+        self.kwargs['progress_callback'] = self.signals.progress
 
     @Slot()  #QtCore.Slot
     def run(self):
@@ -100,7 +101,6 @@ class MainWindow(QMainWindow):
 
         return chart
 
-    @Slot()
     def connect(self):
         BoardShim.enable_dev_board_logger()
         params = BrainFlowInputParams()
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
             self.ui.ButtonStart.setEnabled(True)
             self.ui.ButtonConnect.setEnabled(False)
 
-    def capture_execute(self):
+    def capture_execute(self, progress_callback):
         try:
             self.board_shim.start_stream(45000)
             eeg = Eeg(self.board_shim)
@@ -125,18 +125,26 @@ class MainWindow(QMainWindow):
             self._series.replace(self._buffer)
             self.ui.ButtonStop.setEnabled(True)
 
-            eeg.capture()
+            eeg.capture(progress_callback)
+
+            # for i in range(5):
+            #     time.sleep(1)
+            #     progress_callback.emit(i)
+
         finally:
             if self.board_shim.is_prepared():
                 self.board_shim.release_session()
 
-    @Slot()
+    def progress_fn(self, n):
+        print(n)
+
     def start_capture(self):
         worker = Worker(self.capture_execute)
+        worker.signals.progress.connect(self.progress_fn)
+
         # Execute
         self.threadpool.start(worker)
 
-    @Slot()
     def stop_capture(self):
         print("STOP")
 
