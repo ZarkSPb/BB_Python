@@ -1,5 +1,6 @@
 import numpy as np
 from brainflow import BoardShim
+from time import sleep
 
 class Eeg:
     def __init__(self, board_shim):

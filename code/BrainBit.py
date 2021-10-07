@@ -1,17 +1,16 @@
 import sys
-import threading
-from time import sleep
+import traceback
 
 import numpy as np
 from brainflow.board_shim import (BoardIds, BoardShim, BrainFlowInputParams,
                                   LogLevels)
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
-from PySide6.QtCore import QPointF, Slot
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtCore import (QObject, QPointF, QRunnable, QThreadPool, Signal,
+                            Slot)
 from PySide6.QtGui import QPainter
+from PySide6.QtWidgets import QApplication, QMainWindow
 
 from eeg import Eeg
-
 from ui_mainwindow import Ui_MainWindow
 
 # configuring BB
@@ -19,6 +18,39 @@ BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
 # BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = 250
 AVERAGE_LENGTH = 7 * SAMPLE_RATE
+
+
+class WorkerSignals(QObject):
+    finished = Signal()
+    error = Signal()
+    result = Signal()
+    progress = Signal()
+
+
+class Worker(QRunnable):
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+        # self.kwargs['progress_callback'] = self.signals.progress
+
+    @Slot()  #QtCore.Slot
+    def run(self):
+        # Retrieve args/kwargs here; and fire processing using them
+        try:
+            result = self.fn(*self.args, **self.kwargs)
+        except:
+            traceback.print_exc()
+            extype, value = sys.exc_info()[:2]
+            self.signals.error.emit((extype, value, traceback.format_exc()))
+        # else:
+        #     # Return the result of the processing
+        #     self.signals.result.emit(result)
+        finally:
+            self.signals.finished.emit()  # Done
 
 
 def get_fft(signal):
@@ -29,6 +61,8 @@ def get_fft(signal):
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+
+        self.threadpool = QThreadPool()
 
         self.charts = []
 
@@ -80,8 +114,7 @@ class MainWindow(QMainWindow):
             self.ui.ButtonStart.setEnabled(True)
             self.ui.ButtonConnect.setEnabled(False)
 
-    @Slot()
-    def start_capture(self):
+    def capture_execute(self):
         try:
             self.board_shim.start_stream(45000)
             eeg = Eeg(self.board_shim)
@@ -90,27 +123,22 @@ class MainWindow(QMainWindow):
             for s, value in enumerate(data):
                 self._buffer[s].setY(value)
             self._series.replace(self._buffer)
-
             self.ui.ButtonStop.setEnabled(True)
-            
-            eeg.capture()
-            
-            # t_thread = threading.Thread(target=eeg.capture)
-            # t_thread.daemon = True
-            # t_thread.start()
-            # while t_thread.is_alive():
-            #     sleep(0.01)
 
+            eeg.capture()
         finally:
             if self.board_shim.is_prepared():
                 self.board_shim.release_session()
 
     @Slot()
+    def start_capture(self):
+        worker = Worker(self.capture_execute)
+        # Execute
+        self.threadpool.start(worker)
+
+    @Slot()
     def stop_capture(self):
         print("STOP")
-
-
-
 
 
 def main():
@@ -123,6 +151,7 @@ def main():
     window.show()
 
     # Run the main Qt loop
+    # app.exec()
     sys.exit(app.exec())
 
 
