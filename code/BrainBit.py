@@ -23,8 +23,8 @@ AVERAGE_LENGTH = 7 * SAMPLE_RATE
 
 class WorkerSignals(QObject):
     finished = Signal()
-    error = Signal()
-    result = Signal()
+    error = Signal(tuple)
+    result = Signal(object)
     progress = Signal(np.ndarray)
 
 
@@ -47,9 +47,9 @@ class Worker(QRunnable):
             traceback.print_exc()
             extype, value = sys.exc_info()[:2]
             self.signals.error.emit((extype, value, traceback.format_exc()))
-        # else:
-        #     # Return the result of the processing
-        #     self.signals.result.emit(result)
+        else:
+            # Return the result of the processing
+            self.signals.result.emit(result)
         finally:
             self.signals.finished.emit()  # Done
 
@@ -115,32 +115,29 @@ class MainWindow(QMainWindow):
             self.ui.ButtonConnect.setEnabled(False)
 
     def capture_execute(self, progress_callback):
+        self.ui.ButtonStop.setEnabled(True)
         try:
             self.board_shim.start_stream(45000)
             eeg = Eeg(self.board_shim)
-
-            data = eeg.buff[:, 10]
-            for s, value in enumerate(data):
-                self._buffer[s].setY(value)
-            self._series.replace(self._buffer)
-            self.ui.ButtonStop.setEnabled(True)
-
+            eeg.buffer_fill(progress_callback)
             eeg.capture(progress_callback)
-
-            # for i in range(5):
-            #     time.sleep(1)
-            #     progress_callback.emit(i)
-
         finally:
             if self.board_shim.is_prepared():
                 self.board_shim.release_session()
 
     def progress_fn(self, n):
-        print(n)
+        data = n[:, 10]
+        for s, value in enumerate(data):
+            self._buffer[s].setY(value)
+        self._series.replace(self._buffer)
+
+    def thread_complite(self):
+        print("Thread complete!")
 
     def start_capture(self):
         worker = Worker(self.capture_execute)
         worker.signals.progress.connect(self.progress_fn)
+        worker.signals.result.connect(self.thread_complite)
 
         # Execute
         self.threadpool.start(worker)

@@ -1,6 +1,7 @@
 import numpy as np
 from brainflow import BoardShim
 
+
 class Eeg:
     def __init__(self, board_shim):
         self.board_id = board_shim.get_board_id()
@@ -18,17 +19,19 @@ class Eeg:
         # print(self.exg_channels, end='\n\n')
 
         # Filling the buffer
-        self.buffer_fill()
 
-    def buffer_fill(self):
+    def buffer_fill(self, progress_callback):
         i = 0
         while i < self.BUFFER_SIZE:
             data = self.board_shim.get_board_data(1)
             if np.any(data):
                 # current_num = data[self.num_channel]
                 self.current_exg = data[self.exg_channels]
-                self.buff[i, :] = self.current_exg[:, 0]
+                # self.buff[i, :] = self.current_exg[:, 0]
+                self.buff = np.roll(self.buff, -1, axis=0)
+                self.buff[-1] = self.current_exg[:, 0]
                 i += 1
+                progress_callback.emit(self.buff)
 
     def capture(self, progress_callback):
         i = 0
