@@ -18,6 +18,7 @@ BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
 # BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = 250
 AVERAGE_LENGTH = 7 * SAMPLE_RATE
+SIGNAL_DURATION = 10  # seconds
 
 
 class WorkerSignals(QObject):
@@ -90,12 +91,12 @@ class MainWindow(QMainWindow):
         self.update()
 
     def update(self):
-        chart_duration = self.ui.SliderDuration.value()
-        text = "Chart duration (sec): " + str(chart_duration)
+        self.chart_duration = self.ui.SliderDuration.value()
+        text = "Chart duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
         for chart_view in self.charts:
-            chart_view.chart().axisX().setRange(0,
-                                                SAMPLE_RATE * chart_duration)
+            chart_view.chart().axisX().setRange(
+                0, SAMPLE_RATE * self.chart_duration)
 
         chart_amplitude = self.ui.SliderAmplitude.value()
         text = "Chart amplitude (uV): " + str(chart_amplitude)
@@ -117,7 +118,10 @@ class MainWindow(QMainWindow):
         chart.setAxisX(axis_x, self._series)
         chart.setAxisY(axis_y, self._series)
 
-        self._buffer = [QPointF(x, 0) for x in range(SAMPLE_RATE)]
+        self._buffer = [
+            QPointF(x, 0) for x in range(SAMPLE_RATE * SIGNAL_DURATION)
+        ]
+
         self._series.append(self._buffer)
 
         return chart
@@ -125,11 +129,10 @@ class MainWindow(QMainWindow):
     def capture_execute(self, progress_callback):
         self.eeg.start_stream()
 
-        # self.eeg.buffer_fill(progress_callback)
-
         self.ui.ButtonStop.setEnabled(True)
 
-        self.signal = signal.Buffer(SAMPLE_RATE, 1, len(self.eeg.exg_channels))
+        self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION,
+                                    len(self.eeg.exg_channels))
 
         self.eeg.work = True
         self.eeg.capture(progress_callback)
@@ -140,7 +143,7 @@ class MainWindow(QMainWindow):
 
         for s, value in enumerate(data):
             self._buffer[s].setY(value)
-        self._series.replace(self._buffer)
+        self._series.replace(self._buffer[:(self.chart_duration - SIGNAL_DURATION) * SAMPLE_RATE])
 
     def thread_complite(self):
         pass
