@@ -19,36 +19,17 @@ class Eeg:
     def start_stream(self):
         self.board.start_stream(450000)
 
-    def buffer_fill(self, progress_callback):
-        # create buffer
-        self.BUFFER_SIZE = self.sample_rate
-        self.buff = np.zeros((self.BUFFER_SIZE, len(self.exg_channels)))
-        i = 0
-        while i < self.BUFFER_SIZE:
-            data = self.board.get_board_data(1)
-            if np.any(data):
-                # current_num = data[self.num_channel]
-                self.current_exg = data[self.exg_channels]
-                # self.buff[i, :] = self.current_exg[:, 0]
-                self.buff = np.roll(self.buff, -1, axis=0)
-                self.buff[-1] = self.current_exg[:, 0]
-                i += 1
-                progress_callback.emit(self.buff)
-
     def capture(self, progress_callback):
         while self.work:
             data = self.board.get_board_data(1)
             if np.any(data):
-                self.current_exg = data[self.exg_channels]
-                self.buff = np.roll(self.buff, -1, axis=0)
-                self.buff[-1] = self.current_exg[:, 0]
-
+                current_exg = data[self.exg_channels]
                 # Callback return
-                progress_callback.emit(self.buff)
+                progress_callback.emit(current_exg)
 
     def stop_stream(self):
         self.board.stop_stream()
-    
+
     def release_session(self):
         if self.board.is_prepared():
-                self.board.release_session()
+            self.board.release_session()

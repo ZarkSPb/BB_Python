@@ -1,6 +1,5 @@
 import sys
 import traceback
-from time import sleep
 
 import numpy as np
 from brainflow.board_shim import BoardIds
@@ -11,6 +10,7 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 from eeg import Eeg
+import signal
 from ui_mainwindow import Ui_MainWindow
 
 # configuring BB
@@ -74,8 +74,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.clicked.connect(self._start_capture)
         self.ui.ButtonStop.clicked.connect(self._stop_capture)
         self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
-
-        # self.ui.statusbar.tex
+        # ----------BUTTON CONNECT----------
 
         # ----------CHART MAKE----------
         chart_view = QChartView(self.create_line_chart("Line chart 1"))
@@ -86,6 +85,7 @@ class MainWindow(QMainWindow):
         chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.gridLayout.addWidget(chart_view, 1, 1)
         self.charts.append(chart_view)
+        # ----------CHART MAKE----------
 
     def create_line_chart(self, chartname):
         chart = QChart()
@@ -107,13 +107,20 @@ class MainWindow(QMainWindow):
 
     def capture_execute(self, progress_callback):
         self.eeg.start_stream()
-        self.eeg.buffer_fill(progress_callback)
+
+        # self.eeg.buffer_fill(progress_callback)
+
         self.ui.ButtonStop.setEnabled(True)
+
+        self.signal = signal.Buffer(SAMPLE_RATE, 1, len(self.eeg.exg_channels))
+
         self.eeg.work = True
         self.eeg.capture(progress_callback)
 
     def progress_fn(self, n):
-        data = n[:, 10]
+        self.signal.add(n[:, 0])
+        data = self.signal.get_buff()[:, 11]
+
         for s, value in enumerate(data):
             self._buffer[s].setY(value)
         self._series.replace(self._buffer)
@@ -128,7 +135,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
-    # -------BUTTONS-------
+    # ----------BUTTONS----------
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -162,6 +169,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
 
+    # -------BUTTONS----------
+
 
 def main():
     print('\n\n\n')
@@ -173,7 +182,6 @@ def main():
     window.show()
 
     # Run the main Qt loop
-    # app.exec()
     sys.exit(app.exec())
 
 
