@@ -2,7 +2,7 @@ import sys
 import traceback
 
 import numpy as np
-from brainflow.board_shim import BoardIds
+from brainflow.board_shim import BoardIds, BoardShim
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import (QObject, QPointF, QRunnable, QThreadPool, Signal,
                             Slot)
@@ -14,8 +14,8 @@ import signal
 from ui_mainwindow import Ui_MainWindow
 
 # configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = 250
 AVERAGE_LENGTH = 7 * SAMPLE_RATE
 SIGNAL_DURATION = 10  # seconds
@@ -78,14 +78,14 @@ class MainWindow(QMainWindow):
         # ----------BUTTON CONNECT----------
 
         # ----------CHART MAKE----------
-        chart_view = QChartView(self.create_line_chart("Line chart 1"))
-        self.ui.verticalLayout_3.addWidget(chart_view)
-        self.charts.append(chart_view)
+        channel_names = BoardShim.get_board_descr(BOARD_ID)['eeg_names'].split(
+            ',')
+        for channel_name in channel_names:
+            chart_view = QChartView(self.create_line_chart(channel_name))
+            chart_view.setRenderHint(QPainter.Antialiasing, True)
+            self.ui.verticalLayout_3.addWidget(chart_view)
+            self.charts.append(chart_view)
 
-        chart_view = QChartView(self.create_line_chart("Line chart 2"))
-        chart_view.setRenderHint(QPainter.Antialiasing, True)
-        self.ui.verticalLayout_3.addWidget(chart_view)
-        self.charts.append(chart_view)
         # ----------CHART MAKE----------
 
         # self.ui.SliderDuration.setValue(10)
@@ -108,6 +108,7 @@ class MainWindow(QMainWindow):
         for chart_view in self.charts:
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
+
     # ----------UPDATE UI----------
 
     def create_line_chart(self, chartname):
@@ -144,7 +145,7 @@ class MainWindow(QMainWindow):
 
     def progress_fn(self, n):
         self.signal.add(n[:, 0])
-        data = self.signal.get_buff()[:, 11]
+        data = self.signal.get_buff()[:, 0]
 
         for s, value in enumerate(data[-self.chart_duration * SAMPLE_RATE:]):
             self._buffer[s].setY(value)
@@ -163,7 +164,6 @@ class MainWindow(QMainWindow):
     # ----------BUTTONS----------
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
-        self.ui.ButtonDisconnect.setEnabled(True)
 
         worker = Worker(self.connect_toBB)
         worker.signals.result.connect(self.result_connect_toBB)

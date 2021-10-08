@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>800</height>
+    <width>1500</width>
+    <height>1000</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,7 +104,10 @@
              <number>10</number>
             </property>
             <property name="value">
-             <number>1</number>
+             <number>10</number>
+            </property>
+            <property name="sliderPosition">
+             <number>10</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -199,7 +202,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1500</width>
      <height>22</height>
     </rect>
    </property>

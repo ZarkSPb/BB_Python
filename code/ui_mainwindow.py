@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1000, 800)
+        MainWindow.resize(1500, 1000)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -73,7 +73,8 @@ class Ui_MainWindow(object):
         self.SliderDuration.setObjectName(u"SliderDuration")
         self.SliderDuration.setMinimum(1)
         self.SliderDuration.setMaximum(10)
-        self.SliderDuration.setValue(1)
+        self.SliderDuration.setValue(10)
+        self.SliderDuration.setSliderPosition(10)
         self.SliderDuration.setOrientation(Qt.Horizontal)
         self.SliderDuration.setTickPosition(QSlider.TicksAbove)
         self.SliderDuration.setTickInterval(1)
@@ -120,7 +121,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1000, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1500, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")

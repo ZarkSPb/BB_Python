@@ -1,2 +1,6 @@
-c = [1,2,3,4,5]
-print(c[-2:])
+
+
+s = {'sad':["dfdf","fddsf","sdffd"],
+    'ter': 'T3,T4,O1,O2'}
+
+print(s["ter"].split(','))

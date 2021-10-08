@@ -8,6 +8,7 @@ class Eeg:
         self.num_channel = BoardShim.get_package_num_channel(board_id)
         self.exg_channels = BoardShim.get_exg_channels(board_id)
         self.sample_rate = BoardShim.get_sampling_rate(board_id)
+        # self.board_descr = BoardShim.get_board_descr(board_id)
 
         BoardShim.enable_dev_board_logger()
         params = BrainFlowInputParams()
