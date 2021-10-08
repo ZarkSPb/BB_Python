@@ -15,55 +15,109 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSpacerItem, QStatusBar,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QLabel,
+    QMainWindow, QMenuBar, QPushButton, QSizePolicy,
+    QSlider, QSpacerItem, QStatusBar, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(600, 400)
+        MainWindow.resize(546, 594)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.verticalLayout = QVBoxLayout()
+        self.WidgetControl = QWidget(self.centralwidget)
+        self.WidgetControl.setObjectName(u"WidgetControl")
+        self.WidgetControl.setMinimumSize(QSize(180, 0))
+        self.WidgetControl.setMaximumSize(QSize(180, 16777215))
+        self.verticalLayout = QVBoxLayout(self.WidgetControl)
+        self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.ButtonConnect = QPushButton(self.centralwidget)
+        self.verticalLayout.setContentsMargins(0, 0, -1, 0)
+        self.ButtonConnect = QPushButton(self.WidgetControl)
         self.ButtonConnect.setObjectName(u"ButtonConnect")
 
         self.verticalLayout.addWidget(self.ButtonConnect)
 
-        self.ButtonStart = QPushButton(self.centralwidget)
+        self.ButtonStart = QPushButton(self.WidgetControl)
         self.ButtonStart.setObjectName(u"ButtonStart")
         self.ButtonStart.setEnabled(False)
 
         self.verticalLayout.addWidget(self.ButtonStart)
 
-        self.ButtonStop = QPushButton(self.centralwidget)
+        self.ButtonStop = QPushButton(self.WidgetControl)
         self.ButtonStop.setObjectName(u"ButtonStop")
         self.ButtonStop.setEnabled(False)
 
         self.verticalLayout.addWidget(self.ButtonStop)
 
-        self.ButtonDisconnect = QPushButton(self.centralwidget)
+        self.ButtonDisconnect = QPushButton(self.WidgetControl)
         self.ButtonDisconnect.setObjectName(u"ButtonDisconnect")
         self.ButtonDisconnect.setEnabled(False)
 
         self.verticalLayout.addWidget(self.ButtonDisconnect)
 
-        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.groupBox = QGroupBox(self.WidgetControl)
+        self.groupBox.setObjectName(u"groupBox")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.LabelDuration = QLabel(self.groupBox)
+        self.LabelDuration.setObjectName(u"LabelDuration")
+
+        self.verticalLayout_2.addWidget(self.LabelDuration)
+
+        self.SliderDuration = QSlider(self.groupBox)
+        self.SliderDuration.setObjectName(u"SliderDuration")
+        self.SliderDuration.setMinimum(1)
+        self.SliderDuration.setMaximum(10)
+        self.SliderDuration.setOrientation(Qt.Horizontal)
+        self.SliderDuration.setTickPosition(QSlider.TicksAbove)
+        self.SliderDuration.setTickInterval(1)
+
+        self.verticalLayout_2.addWidget(self.SliderDuration)
+
+        self.LabelAmplitude = QLabel(self.groupBox)
+        self.LabelAmplitude.setObjectName(u"LabelAmplitude")
+
+        self.verticalLayout_2.addWidget(self.LabelAmplitude)
+
+        self.SliderAmplitude = QSlider(self.groupBox)
+        self.SliderAmplitude.setObjectName(u"SliderAmplitude")
+        self.SliderAmplitude.setMinimum(50)
+        self.SliderAmplitude.setMaximum(5000)
+        self.SliderAmplitude.setOrientation(Qt.Horizontal)
+        self.SliderAmplitude.setInvertedAppearance(False)
+        self.SliderAmplitude.setInvertedControls(False)
+        self.SliderAmplitude.setTickPosition(QSlider.TicksAbove)
+        self.SliderAmplitude.setTickInterval(100)
+
+        self.verticalLayout_2.addWidget(self.SliderAmplitude)
+
+
+        self.verticalLayout.addWidget(self.groupBox)
+
+        self.verticalSpacer = QSpacerItem(20, 269, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
 
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.WidgetControl, 0, 0, 1, 1)
+
+        self.WidgetCharts = QWidget(self.centralwidget)
+        self.WidgetCharts.setObjectName(u"WidgetCharts")
+        self.WidgetCharts.setToolTipDuration(-1)
+        self.verticalLayout_3 = QVBoxLayout(self.WidgetCharts)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+
+        self.gridLayout.addWidget(self.WidgetCharts, 0, 1, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 118, 22))
+        self.menubar.setGeometry(QRect(0, 0, 546, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -80,4 +134,8 @@ class Ui_MainWindow(object):
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.ButtonDisconnect.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
+        self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Chart duration (sec): 1", None))
+        self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Chart amplitude (uV): 50", None))
     # retranslateUi
+

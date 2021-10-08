@@ -78,12 +78,12 @@ class MainWindow(QMainWindow):
 
         # ----------CHART MAKE----------
         chart_view = QChartView(self.create_line_chart("Line chart 1"))
-        self.ui.gridLayout.addWidget(chart_view, 0, 1)
+        self.ui.verticalLayout_3.addWidget(chart_view)
         self.charts.append(chart_view)
 
         chart_view = QChartView(self.create_line_chart("Line chart 2"))
         chart_view.setRenderHint(QPainter.Antialiasing, True)
-        self.ui.gridLayout.addWidget(chart_view, 1, 1)
+        self.ui.verticalLayout_3.addWidget(chart_view)
         self.charts.append(chart_view)
         # ----------CHART MAKE----------
 
