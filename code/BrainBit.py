@@ -1,3 +1,4 @@
+import signal
 import sys
 import traceback
 
@@ -10,15 +11,18 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 from eeg import Eeg
-import signal
 from ui_mainwindow import Ui_MainWindow
 
 # configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
-SAMPLE_RATE = 250
-AVERAGE_LENGTH = 7 * SAMPLE_RATE
-SIGNAL_DURATION = 10  # seconds
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
+EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
+NUM_CHANNELS = len(EXG_CHANNELS)
+SIGNAL_DURATION = 5  # seconds
+
+if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
+    NUM_CHANNELS = 4
 
 
 class WorkerSignals(QObject):
@@ -78,17 +82,21 @@ class MainWindow(QMainWindow):
         # ----------BUTTON CONNECT----------
 
         # ----------CHART MAKE----------
-        channel_names = BoardShim.get_board_descr(BOARD_ID)['eeg_names'].split(
-            ',')
-        for channel_name in channel_names:
+        self.channel_names = BoardShim.get_board_descr(
+            BOARD_ID)['eeg_names'].split(',')
+
+        self.serieses = []
+        self.chart_buffers = []
+        for channel_name in self.channel_names[:NUM_CHANNELS]:
             chart_view = QChartView(self.create_line_chart(channel_name))
             chart_view.setRenderHint(QPainter.Antialiasing, True)
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
-
         # ----------CHART MAKE----------
 
-        # self.ui.SliderDuration.setValue(10)
+        self.ui.SliderDuration.setMaximum(SIGNAL_DURATION)
+        self.ui.SliderDuration.setValue(SIGNAL_DURATION)
+        self.ui.SliderDuration.setSliderPosition(SIGNAL_DURATION)
 
         self.update()
 
@@ -113,22 +121,24 @@ class MainWindow(QMainWindow):
 
     def create_line_chart(self, chartname):
         chart = QChart()
-        self._series = QLineSeries()
-        chart.addSeries(self._series)
         chart.setTitle(chartname)
         chart.legend().hide()
+
+        series = QLineSeries()
+        self.serieses.append(series)
+        chart.addSeries(self.serieses[-1])
+
         axis_x = QValueAxis()
         axis_x.setRange(0, SAMPLE_RATE)
         axis_y = QValueAxis()
         axis_y.setRange(-50, 50)
-        chart.setAxisX(axis_x, self._series)
-        chart.setAxisY(axis_y, self._series)
+        chart.setAxisX(axis_x, self.serieses[-1])
+        chart.setAxisY(axis_y, self.serieses[-1])
 
-        self._buffer = [
-            QPointF(x, 0) for x in range(SAMPLE_RATE * SIGNAL_DURATION)
-        ]
+        self.chart_buffers.append(
+            [QPointF(x, 0) for x in range(SAMPLE_RATE * SIGNAL_DURATION)])
 
-        self._series.append(self._buffer)
+        self.serieses[-1].append(self.chart_buffers[-1])
 
         return chart
 
@@ -137,19 +147,24 @@ class MainWindow(QMainWindow):
 
         self.ui.ButtonStop.setEnabled(True)
 
-        self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION,
-                                    len(self.eeg.exg_channels))
+        self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION, NUM_CHANNELS)
 
         self.eeg.work = True
         self.eeg.capture(progress_callback)
 
     def progress_fn(self, n):
-        self.signal.add(n[:, 0])
-        data = self.signal.get_buff()[:, 0]
+        self.signal.add(n[:NUM_CHANNELS, 0])
 
-        for s, value in enumerate(data[-self.chart_duration * SAMPLE_RATE:]):
-            self._buffer[s].setY(value)
-        self._series.replace(self._buffer)
+        self.redraw_charts()
+
+    def redraw_charts(self):
+        # for channel_num in range(len(self.channel_names)):
+        for channel_num in range(3):
+            data = self.signal.get_buff()[:, channel_num]
+            for s, value in enumerate(data[-self.chart_duration *
+                                           SAMPLE_RATE:]):
+                self.chart_buffers[channel_num][s].setY(value)
+            self.serieses[channel_num].replace(self.chart_buffers[channel_num])
 
     def thread_complite(self):
         pass
