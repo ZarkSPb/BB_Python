@@ -87,6 +87,23 @@ class MainWindow(QMainWindow):
         self.charts.append(chart_view)
         # ----------CHART MAKE----------
 
+        self.update()
+
+    def update(self):
+        chart_duration = self.ui.SliderDuration.value()
+        text = "Chart duration (sec): " + str(chart_duration)
+        self.ui.LabelDuration.setText(text)
+        for chart_view in self.charts:
+            chart_view.chart().axisX().setRange(0,
+                                                SAMPLE_RATE * chart_duration)
+
+        chart_amplitude = self.ui.SliderAmplitude.value()
+        text = "Chart amplitude (uV): " + str(chart_amplitude)
+        self.ui.LabelAmplitude.setText(text)
+        for chart_view in self.charts:
+            chart_view.chart().axisY().setRange(-chart_amplitude,
+                                                chart_amplitude)
+
     def create_line_chart(self, chartname):
         chart = QChart()
         self._series = QLineSeries()
@@ -96,7 +113,7 @@ class MainWindow(QMainWindow):
         axis_x = QValueAxis()
         axis_x.setRange(0, SAMPLE_RATE)
         axis_y = QValueAxis()
-        axis_y.setRange(-200, 200)
+        axis_y.setRange(-50, 50)
         chart.setAxisX(axis_x, self._series)
         chart.setAxisY(axis_y, self._series)
 

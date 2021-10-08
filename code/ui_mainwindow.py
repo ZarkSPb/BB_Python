@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(546, 594)
+        MainWindow.resize(457, 561)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -36,7 +36,7 @@ class Ui_MainWindow(object):
         self.verticalLayout = QVBoxLayout(self.WidgetControl)
         self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(0, 0, -1, 0)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.ButtonConnect = QPushButton(self.WidgetControl)
         self.ButtonConnect.setObjectName(u"ButtonConnect")
 
@@ -73,6 +73,7 @@ class Ui_MainWindow(object):
         self.SliderDuration.setObjectName(u"SliderDuration")
         self.SliderDuration.setMinimum(1)
         self.SliderDuration.setMaximum(10)
+        self.SliderDuration.setValue(1)
         self.SliderDuration.setOrientation(Qt.Horizontal)
         self.SliderDuration.setTickPosition(QSlider.TicksAbove)
         self.SliderDuration.setTickInterval(1)
@@ -110,20 +111,29 @@ class Ui_MainWindow(object):
         self.WidgetCharts.setObjectName(u"WidgetCharts")
         self.WidgetCharts.setToolTipDuration(-1)
         self.verticalLayout_3 = QVBoxLayout(self.WidgetCharts)
+        self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
 
         self.gridLayout.addWidget(self.WidgetCharts, 0, 1, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 546, 22))
+        self.menubar.setGeometry(QRect(0, 0, 457, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        QWidget.setTabOrder(self.ButtonConnect, self.ButtonStart)
+        QWidget.setTabOrder(self.ButtonStart, self.ButtonStop)
+        QWidget.setTabOrder(self.ButtonStop, self.ButtonDisconnect)
+        QWidget.setTabOrder(self.ButtonDisconnect, self.SliderDuration)
+        QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
         self.retranslateUi(MainWindow)
+        self.SliderDuration.valueChanged.connect(MainWindow.update)
+        self.SliderAmplitude.valueChanged.connect(MainWindow.update)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -138,4 +148,3 @@ class Ui_MainWindow(object):
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Chart duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Chart amplitude (uV): 50", None))
     # retranslateUi
-
