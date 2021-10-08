@@ -69,10 +69,15 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.ui.ButtonConnect.clicked.connect(self.connect)
-        self.ui.ButtonStart.clicked.connect(self.start_capture)
-        self.ui.ButtonStop.clicked.connect(self.stop_capture)
+        # ----------BUTTON CONNECT----------
+        self.ui.ButtonConnect.clicked.connect(self._connect)
+        self.ui.ButtonStart.clicked.connect(self._start_capture)
+        self.ui.ButtonStop.clicked.connect(self._stop_capture)
+        self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
 
+        # self.ui.statusbar.tex
+
+        # ----------CHART MAKE----------
         chart_view = QChartView(self.create_line_chart("Line chart 1"))
         self.ui.gridLayout.addWidget(chart_view, 0, 1)
         self.charts.append(chart_view)
@@ -101,11 +106,9 @@ class MainWindow(QMainWindow):
         return chart
 
     def capture_execute(self, progress_callback):
-        self.ui.ButtonStop.setEnabled(True)
-        self.ui.ButtonStart.setEnabled(False)
-
-        self.eeg.prepare()
+        self.eeg.start_stream()
         self.eeg.buffer_fill(progress_callback)
+        self.ui.ButtonStop.setEnabled(True)
         self.eeg.work = True
         self.eeg.capture(progress_callback)
 
@@ -120,20 +123,24 @@ class MainWindow(QMainWindow):
 
     def connect_toBB(self, progress_callback):
         self.eeg = Eeg(BOARD_ID)
-    
+
     def result_connect_toBB(self):
-        # энаблим кнопку старт
         self.ui.ButtonStart.setEnabled(True)
+        self.ui.ButtonDisconnect.setEnabled(True)
 
     # -------BUTTONS-------
-    def connect(self):
+    def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
+        self.ui.ButtonDisconnect.setEnabled(True)
 
         worker = Worker(self.connect_toBB)
         worker.signals.result.connect(self.result_connect_toBB)
         self.threadpool.start(worker)
 
-    def start_capture(self):
+    def _start_capture(self):
+        self.ui.ButtonStart.setEnabled(False)
+        self.ui.ButtonDisconnect.setEnabled(False)
+
         worker = Worker(self.capture_execute)
         worker.signals.progress.connect(self.progress_fn)
         worker.signals.result.connect(self.thread_complite)
@@ -141,10 +148,19 @@ class MainWindow(QMainWindow):
         # Execute
         self.threadpool.start(worker)
 
-    def stop_capture(self):
+    def _stop_capture(self):
         self.eeg.work = False
+        self.eeg.stop_stream()
+
         self.ui.ButtonStart.setEnabled(True)
+        self.ui.ButtonDisconnect.setEnabled(True)
+        self.ui.ButtonStop.setEnabled(False)
+
+    def _disconnect(self):
+        self.eeg.release_session()
+        self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
+        self.ui.ButtonStart.setEnabled(False)
 
 
 def main():

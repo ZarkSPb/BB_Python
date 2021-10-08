@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>166</width>
-    <height>215</height>
+    <width>118</width>
+    <height>431</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0">
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0">
       <item>
        <widget class="QPushButton" name="ButtonConnect">
         <property name="text">
@@ -45,6 +45,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="ButtonDisconnect">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Disconnect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -66,7 +76,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>166</width>
+     <width>118</width>
      <height>22</height>
     </rect>
    </property>

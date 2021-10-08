@@ -16,7 +16,7 @@ class Eeg:
         self.board.prepare_session()
         # finally:
 
-    def prepare(self):
+    def start_stream(self):
         self.board.start_stream(450000)
 
     def buffer_fill(self, progress_callback):
@@ -45,6 +45,10 @@ class Eeg:
 
                 # Callback return
                 progress_callback.emit(self.buff)
-                
+
+    def stop_stream(self):
+        self.board.stop_stream()
+    
+    def release_session(self):
         if self.board.is_prepared():
                 self.board.release_session()
