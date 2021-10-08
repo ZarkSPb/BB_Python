@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(457, 561)
+        MainWindow.resize(1000, 800)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -120,7 +120,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 457, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1000, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -145,6 +145,7 @@ class Ui_MainWindow(object):
         self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.ButtonDisconnect.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
-        self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Chart duration (sec): 1", None))
-        self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Chart amplitude (uV): 50", None))
+        self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
+        self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 50", None))
     # retranslateUi
+

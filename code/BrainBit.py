@@ -88,22 +88,27 @@ class MainWindow(QMainWindow):
         self.charts.append(chart_view)
         # ----------CHART MAKE----------
 
+        # self.ui.SliderDuration.setValue(10)
+
         self.update()
 
+    # ----------UPDATE UI----------
     def update(self):
         self.chart_duration = self.ui.SliderDuration.value()
-        text = "Chart duration (sec): " + str(self.chart_duration)
+        text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
+
         for chart_view in self.charts:
             chart_view.chart().axisX().setRange(
                 0, SAMPLE_RATE * self.chart_duration)
 
         chart_amplitude = self.ui.SliderAmplitude.value()
-        text = "Chart amplitude (uV): " + str(chart_amplitude)
+        text = "Amplitude (uV): " + str(chart_amplitude)
         self.ui.LabelAmplitude.setText(text)
         for chart_view in self.charts:
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
+    # ----------UPDATE UI----------
 
     def create_line_chart(self, chartname):
         chart = QChart()
@@ -141,9 +146,9 @@ class MainWindow(QMainWindow):
         self.signal.add(n[:, 0])
         data = self.signal.get_buff()[:, 11]
 
-        for s, value in enumerate(data):
+        for s, value in enumerate(data[-self.chart_duration * SAMPLE_RATE:]):
             self._buffer[s].setY(value)
-        self._series.replace(self._buffer[:(self.chart_duration - SIGNAL_DURATION) * SAMPLE_RATE])
+        self._series.replace(self._buffer)
 
     def thread_complite(self):
         pass

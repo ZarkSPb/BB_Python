@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>457</width>
-    <height>561</height>
+    <width>1000</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,7 +91,7 @@
           <item>
            <widget class="QLabel" name="LabelDuration">
             <property name="text">
-             <string>Chart duration (sec): 1</string>
+             <string>Duration (sec): 1</string>
             </property>
            </widget>
           </item>
@@ -120,7 +120,7 @@
           <item>
            <widget class="QLabel" name="LabelAmplitude">
             <property name="text">
-             <string>Chart amplitude (uV): 50</string>
+             <string>Amplitude (uV): 50</string>
             </property>
            </widget>
           </item>
@@ -199,7 +199,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>457</width>
+     <width>1000</width>
      <height>22</height>
     </rect>
    </property>
