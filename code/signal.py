@@ -6,8 +6,6 @@ class Buffer:
         self.buffer_size = sample_rate * signal_length
         self.buff = np.zeros((self.buffer_size, channels_num))
 
-        print(self.buff.shape)
-
     def add(self, new_sample):
         self.buff = np.roll(self.buff, -1, axis=0)
         self.buff[-1] = new_sample

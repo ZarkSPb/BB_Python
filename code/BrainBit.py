@@ -89,7 +89,7 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
         for channel_name in self.channel_names[:NUM_CHANNELS]:
             chart_view = QChartView(self.create_line_chart(channel_name))
-            chart_view.setRenderHint(QPainter.Antialiasing, True)
+            # chart_view.setRenderHint(QPainter.Antialiasing, True)
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
         # ----------CHART MAKE----------
@@ -143,23 +143,18 @@ class MainWindow(QMainWindow):
         return chart
 
     def capture_execute(self, progress_callback):
-        self.eeg.start_stream()
 
         self.ui.ButtonStop.setEnabled(True)
 
         self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION, NUM_CHANNELS)
-
         self.eeg.work = True
         self.eeg.capture(progress_callback)
 
-    def progress_fn(self, n):
-        self.signal.add(n[:NUM_CHANNELS, 0])
+    def redraw_charts(self, n):
+        # print(n[:NUM_CHANNELS, 0])
+        self.signal.add(n)
 
-        self.redraw_charts()
-
-    def redraw_charts(self):
-        # for channel_num in range(len(self.channel_names)):
-        for channel_num in range(3):
+        for channel_num in range(NUM_CHANNELS):
             data = self.signal.get_buff()[:, channel_num]
             for s, value in enumerate(data[-self.chart_duration *
                                            SAMPLE_RATE:]):
@@ -170,7 +165,7 @@ class MainWindow(QMainWindow):
         pass
 
     def connect_toBB(self, progress_callback):
-        self.eeg = Eeg(BOARD_ID)
+        self.eeg = Eeg(BOARD_ID, NUM_CHANNELS)
 
     def result_connect_toBB(self):
         self.ui.ButtonStart.setEnabled(True)
@@ -189,7 +184,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
 
         worker = Worker(self.capture_execute)
-        worker.signals.progress.connect(self.progress_fn)
+        worker.signals.progress.connect(self.redraw_charts)
         worker.signals.result.connect(self.thread_complite)
 
         # Execute
