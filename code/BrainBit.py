@@ -1,6 +1,6 @@
 import sys
 import traceback
-import time
+from time import sleep
 
 import numpy as np
 from brainflow.board_shim import BoardIds
@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
         axis_x = QValueAxis()
         axis_x.setRange(0, SAMPLE_RATE)
         axis_y = QValueAxis()
-        axis_y.setRange(-50000, 50000)
+        axis_y.setRange(-200, 200)
         chart.setAxisX(axis_x, self._series)
         chart.setAxisY(axis_y, self._series)
 
@@ -103,28 +103,35 @@ class MainWindow(QMainWindow):
     def capture_execute(self, progress_callback):
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
-        
+
         self.eeg.prepare()
         self.eeg.buffer_fill(progress_callback)
         self.eeg.work = True
         self.eeg.capture(progress_callback)
 
     def progress_fn(self, n):
-        data = n[:, 0]
+        data = n[:, 10]
         for s, value in enumerate(data):
             self._buffer[s].setY(value)
         self._series.replace(self._buffer)
 
     def thread_complite(self):
-        print("Thread complete!")
+        pass
+
+    def connect_toBB(self, progress_callback):
+        self.eeg = Eeg(BOARD_ID)
+    
+    def result_connect_toBB(self):
+        # энаблим кнопку старт
+        self.ui.ButtonStart.setEnabled(True)
 
     # -------BUTTONS-------
     def connect(self):
-        self.eeg = Eeg(BOARD_ID)
-
-        # энаблим кнопку старт
-        self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonConnect.setEnabled(False)
+
+        worker = Worker(self.connect_toBB)
+        worker.signals.result.connect(self.result_connect_toBB)
+        self.threadpool.start(worker)
 
     def start_capture(self):
         worker = Worker(self.capture_execute)
