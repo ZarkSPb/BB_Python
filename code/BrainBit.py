@@ -19,7 +19,7 @@ BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
-SIGNAL_DURATION = 20  # seconds
+SIGNAL_DURATION = 30  # seconds
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -150,6 +150,7 @@ class MainWindow(QMainWindow):
         self.eeg.start_stream(progress_callback)
 
     def redraw_charts(self, n):
+        print(n.shape[1])
         self.signal.add(n.T)
 
         for channel_num in range(NUM_CHANNELS):
@@ -157,6 +158,7 @@ class MainWindow(QMainWindow):
             for s, value in enumerate(data[-self.chart_duration *
                                            SAMPLE_RATE:]):
                 self.chart_buffers[channel_num][s].setY(value)
+            # !!! Trouble is here !!!
             self.serieses[channel_num].replace(self.chart_buffers[channel_num])
 
     def thread_complite(self):

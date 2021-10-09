@@ -17,11 +17,10 @@ class Eeg:
         # finally:
 
     def start_stream(self, progress_callback):
-        self.board.start_stream(100)
+        self.board.start_stream(50)
         while self.work:
             data = self.board.get_board_data()
             if data.shape[1] > 0:
-                # print(data[self.exg_channels[:self.num_channels], :], "\n\n")
                 progress_callback.emit(
                     data[self.exg_channels[:self.num_channels], :])
             sleep(0.02)
