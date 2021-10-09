@@ -1,62 +1,27 @@
-import signal
 import sys
-import traceback
 
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
-from PySide6.QtCore import (QObject, QPointF, QRunnable, QThreadPool, Signal,
-                            Slot, QTimer)
+from PySide6.QtCore import (QPointF, QThreadPool, QTimer)
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
-from eeg import Eeg
 from ui_mainwindow import Ui_MainWindow
+from worker import Worker
 
 # configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
-SIGNAL_DURATION = 30  # seconds
+SIGNAL_DURATION = 10  # seconds
 UPDATE_SPEED_MS = 20
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
-
-
-class WorkerSignals(QObject):
-    finished = Signal()
-    error = Signal(tuple)
-    result = Signal(object)
-    progress = Signal(np.ndarray)
-
-
-class Worker(QRunnable):
-    def __init__(self, fn, *args, **kwargs):
-        super(Worker, self).__init__()
-        self.fn = fn
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
-
-        self.kwargs['progress_callback'] = self.signals.progress
-
-    @Slot()  #QtCore.Slot
-    def run(self):
-        # Retrieve args/kwargs here; and fire processing using them
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            extype, value = sys.exc_info()[:2]
-            self.signals.error.emit((extype, value, traceback.format_exc()))
-        else:
-            # Return the result of the processing
-            self.signals.result.emit(result)
-        finally:
-            self.signals.finished.emit()  # Done
+    EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
 
 
 def get_fft(signal):
@@ -80,7 +45,6 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.clicked.connect(self._start_capture)
         self.ui.ButtonStop.clicked.connect(self._stop_capture)
         self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
-        # --------------------BUTTON CONNECT--------------------
 
         # --------------------CHART MAKE--------------------
         self.channel_names = BoardShim.get_board_descr(
@@ -93,7 +57,6 @@ class MainWindow(QMainWindow):
             chart_view.setRenderHint(QPainter.Antialiasing, True)
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
-# --------------------CHART MAKE--------------------
 
         self.ui.SliderDuration.setMaximum(SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(SIGNAL_DURATION)
@@ -101,8 +64,7 @@ class MainWindow(QMainWindow):
 
         self.update()
 
-# --------------------UPDATE UI--------------------
-
+    # --------------------UPDATE UI--------------------
     def update(self):
         self.chart_duration = self.ui.SliderDuration.value()
         text = "Duration (sec): " + str(self.chart_duration)
@@ -118,9 +80,8 @@ class MainWindow(QMainWindow):
         for chart_view in self.charts:
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
-# --------------------UPDATE UI--------------------
 
-# --------------------CHART CREATE--------------------
+    # --------------------CHART CREATE--------------------
     def create_line_chart(self, chartname):
         chart = QChart()
         # chart.setTitle(chartname)
@@ -139,27 +100,22 @@ class MainWindow(QMainWindow):
         chart.setAxisY(axis_y, self.serieses[-1])
 
         self.chart_buffers.append(
-            [QPointF(x, 0) for x in range(SAMPLE_RATE * SIGNAL_DURATION)])
+            [QPointF(x, 0) for x in range(SIGNAL_DURATION * SAMPLE_RATE)])
 
         self.serieses[-1].append(self.chart_buffers[-1])
         return chart
-# --------------------CHART CREATE--------------------
 
     def redraw_charts(self):
-        data = self.board.get_board_data_count()
-        print(data - self.last)
-        self.last = data
+        data = self.board.get_current_board_data(SIGNAL_DURATION *
+                                                 SAMPLE_RATE)[EXG_CHANNELS, :]
 
+        for channel_num in range(NUM_CHANNELS):
+            for s in range(data.shape[1]):
+                self.chart_buffers[channel_num][s].setY(data[channel_num, s])
+            # !!! Trouble is here !!!
+            self.serieses[channel_num].replace(self.chart_buffers[channel_num])
 
-        # for channel_num in range(NUM_CHANNELS):
-        #     data = self.signal.get_buff()[:, channel_num]
-        #     for s, value in enumerate(data[-self.chart_duration *
-        #                                    SAMPLE_RATE:]):
-        #         self.chart_buffers[channel_num][s].setY(value)
-        #     # !!! Trouble is here !!!
-        #     self.serieses[channel_num].replace(self.chart_buffers[channel_num])
-
-    def connect_toBB(self, progress_callback):        
+    def connect_toBB(self):
         params = BrainFlowInputParams()
         self.board = BoardShim(BOARD_ID, params)
         self.board.prepare_session()
@@ -168,7 +124,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
-# --------------------BUTTONS--------------------
+    # --------------------BUTTONS--------------------
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
@@ -185,9 +141,7 @@ class MainWindow(QMainWindow):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.redraw_charts)
-        self.timer.start(UPDATE_SPEED_MS) # milliseconds
-
-        self.last = 0
+        self.timer.start(UPDATE_SPEED_MS)
 
     def _stop_capture(self):
         self.timer.stop()
@@ -206,13 +160,10 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
-# -----------------BUTTONS--------------------
 
 
 def main():
     BoardShim.enable_dev_board_logger()
-
-    print('\n\n\n')
 
     # Create the Qt application
     app = QApplication(sys.argv)

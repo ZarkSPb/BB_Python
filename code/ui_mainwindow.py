@@ -89,7 +89,7 @@ class Ui_MainWindow(object):
         self.SliderAmplitude = QSlider(self.groupBox)
         self.SliderAmplitude.setObjectName(u"SliderAmplitude")
         self.SliderAmplitude.setMinimum(50)
-        self.SliderAmplitude.setMaximum(5000)
+        self.SliderAmplitude.setMaximum(50000)
         self.SliderAmplitude.setOrientation(Qt.Horizontal)
         self.SliderAmplitude.setInvertedAppearance(False)
         self.SliderAmplitude.setInvertedControls(False)
