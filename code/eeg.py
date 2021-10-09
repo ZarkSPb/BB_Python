@@ -1,5 +1,6 @@
 import numpy as np
 from brainflow import BoardShim, BrainFlowInputParams
+from time import sleep
 
 
 class Eeg:
@@ -15,13 +16,15 @@ class Eeg:
         self.board.prepare_session()
         # finally:
 
-    def capture(self, progress_callback):
-        self.board.start_stream(450000)
+    def start_stream(self, progress_callback):
+        self.board.start_stream(100)
         while self.work:
-            data = self.board.get_board_data(1)
-            if np.any(data):
+            data = self.board.get_board_data()
+            if data.shape[1] > 0:
+                # print(data[self.exg_channels[:self.num_channels], :], "\n\n")
                 progress_callback.emit(
-                    data[self.exg_channels[:self.num_channels], 0])
+                    data[self.exg_channels[:self.num_channels], :])
+            sleep(0.02)
 
     def stop_stream(self):
         self.board.stop_stream()

@@ -19,7 +19,7 @@ BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
-SIGNAL_DURATION = 5  # seconds
+SIGNAL_DURATION = 20  # seconds
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -74,14 +74,14 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # ----------BUTTON CONNECT----------
+        # --------------------BUTTON CONNECT--------------------
         self.ui.ButtonConnect.clicked.connect(self._connect)
         self.ui.ButtonStart.clicked.connect(self._start_capture)
         self.ui.ButtonStop.clicked.connect(self._stop_capture)
         self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
-        # ----------BUTTON CONNECT----------
+        # --------------------BUTTON CONNECT--------------------
 
-        # ----------CHART MAKE----------
+        # --------------------CHART MAKE--------------------
         self.channel_names = BoardShim.get_board_descr(
             BOARD_ID)['eeg_names'].split(',')
 
@@ -89,10 +89,10 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
         for channel_name in self.channel_names[:NUM_CHANNELS]:
             chart_view = QChartView(self.create_line_chart(channel_name))
-            # chart_view.setRenderHint(QPainter.Antialiasing, True)
+            chart_view.setRenderHint(QPainter.Antialiasing, True)
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
-        # ----------CHART MAKE----------
+# --------------------CHART MAKE--------------------
 
         self.ui.SliderDuration.setMaximum(SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(SIGNAL_DURATION)
@@ -100,7 +100,8 @@ class MainWindow(QMainWindow):
 
         self.update()
 
-    # ----------UPDATE UI----------
+# --------------------UPDATE UI--------------------
+
     def update(self):
         self.chart_duration = self.ui.SliderDuration.value()
         text = "Duration (sec): " + str(self.chart_duration)
@@ -116,12 +117,12 @@ class MainWindow(QMainWindow):
         for chart_view in self.charts:
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
+# --------------------UPDATE UI--------------------
 
-    # ----------UPDATE UI----------
-
+# --------------------CHART CREATE--------------------
     def create_line_chart(self, chartname):
         chart = QChart()
-        chart.setTitle(chartname)
+        # chart.setTitle(chartname)
         chart.legend().hide()
 
         series = QLineSeries()
@@ -132,6 +133,7 @@ class MainWindow(QMainWindow):
         axis_x.setRange(0, SAMPLE_RATE)
         axis_y = QValueAxis()
         axis_y.setRange(-50, 50)
+        axis_y.setTitleText(chartname)
         chart.setAxisX(axis_x, self.serieses[-1])
         chart.setAxisY(axis_y, self.serieses[-1])
 
@@ -139,20 +141,16 @@ class MainWindow(QMainWindow):
             [QPointF(x, 0) for x in range(SAMPLE_RATE * SIGNAL_DURATION)])
 
         self.serieses[-1].append(self.chart_buffers[-1])
-
         return chart
+# --------------------CHART CREATE--------------------
 
     def capture_execute(self, progress_callback):
-
-        self.ui.ButtonStop.setEnabled(True)
-
         self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION, NUM_CHANNELS)
         self.eeg.work = True
-        self.eeg.capture(progress_callback)
+        self.eeg.start_stream(progress_callback)
 
     def redraw_charts(self, n):
-        # print(n[:NUM_CHANNELS, 0])
-        self.signal.add(n)
+        self.signal.add(n.T)
 
         for channel_num in range(NUM_CHANNELS):
             data = self.signal.get_buff()[:, channel_num]
@@ -171,7 +169,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
-    # ----------BUTTONS----------
+# --------------------BUTTONS--------------------
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
@@ -182,12 +180,11 @@ class MainWindow(QMainWindow):
     def _start_capture(self):
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
+        self.ui.ButtonStop.setEnabled(True)
 
         worker = Worker(self.capture_execute)
         worker.signals.progress.connect(self.redraw_charts)
         worker.signals.result.connect(self.thread_complite)
-
-        # Execute
         self.threadpool.start(worker)
 
     def _stop_capture(self):
@@ -203,8 +200,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
-
-    # -------BUTTONS----------
+# -----------------BUTTONS--------------------
 
 
 def main():
