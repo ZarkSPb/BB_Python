@@ -3,10 +3,10 @@ import sys
 import traceback
 
 import numpy as np
-from brainflow.board_shim import BoardIds, BoardShim
+from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import (QObject, QPointF, QRunnable, QThreadPool, Signal,
-                            Slot)
+                            Slot, QTimer)
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -20,6 +20,7 @@ SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
 SIGNAL_DURATION = 30  # seconds
+UPDATE_SPEED_MS = 20
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -144,28 +145,24 @@ class MainWindow(QMainWindow):
         return chart
 # --------------------CHART CREATE--------------------
 
-    def capture_execute(self, progress_callback):
-        self.signal = signal.Buffer(SAMPLE_RATE, SIGNAL_DURATION, NUM_CHANNELS)
-        self.eeg.work = True
-        self.eeg.start_stream(progress_callback)
+    def redraw_charts(self):
+        data = self.board.get_board_data_count()
+        print(data - self.last)
+        self.last = data
 
-    def redraw_charts(self, n):
-        print(n.shape[1])
-        self.signal.add(n.T)
 
-        for channel_num in range(NUM_CHANNELS):
-            data = self.signal.get_buff()[:, channel_num]
-            for s, value in enumerate(data[-self.chart_duration *
-                                           SAMPLE_RATE:]):
-                self.chart_buffers[channel_num][s].setY(value)
-            # !!! Trouble is here !!!
-            self.serieses[channel_num].replace(self.chart_buffers[channel_num])
+        # for channel_num in range(NUM_CHANNELS):
+        #     data = self.signal.get_buff()[:, channel_num]
+        #     for s, value in enumerate(data[-self.chart_duration *
+        #                                    SAMPLE_RATE:]):
+        #         self.chart_buffers[channel_num][s].setY(value)
+        #     # !!! Trouble is here !!!
+        #     self.serieses[channel_num].replace(self.chart_buffers[channel_num])
 
-    def thread_complite(self):
-        pass
-
-    def connect_toBB(self, progress_callback):
-        self.eeg = Eeg(BOARD_ID, NUM_CHANNELS)
+    def connect_toBB(self, progress_callback):        
+        params = BrainFlowInputParams()
+        self.board = BoardShim(BOARD_ID, params)
+        self.board.prepare_session()
 
     def result_connect_toBB(self):
         self.ui.ButtonStart.setEnabled(True)
@@ -184,21 +181,28 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
 
-        worker = Worker(self.capture_execute)
-        worker.signals.progress.connect(self.redraw_charts)
-        worker.signals.result.connect(self.thread_complite)
-        self.threadpool.start(worker)
+        self.board.start_stream(450000)
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.redraw_charts)
+        self.timer.start(UPDATE_SPEED_MS) # milliseconds
+
+        self.last = 0
 
     def _stop_capture(self):
-        self.eeg.work = False
-        self.eeg.stop_stream()
+        self.timer.stop()
+
+        self.board.stop_stream()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
 
     def _disconnect(self):
-        self.eeg.release_session()
+        # Release all BB resources
+        if self.board.is_prepared():
+            self.board.release_session()
+
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
@@ -206,6 +210,8 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    BoardShim.enable_dev_board_logger()
+
     print('\n\n\n')
 
     # Create the Qt application
