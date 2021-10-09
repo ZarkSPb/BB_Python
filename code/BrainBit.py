@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
+from brainflow.data_filter import DataFilter, DetrendOperations
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import (QPointF, QThreadPool, QTimer)
 from PySide6.QtGui import QPainter
@@ -22,11 +23,6 @@ UPDATE_SPEED_MS = 20
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
     EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
-
-
-def get_fft(signal):
-    amps = np.absolute(np.fft.rfft(signal))
-    return amps / signal.shape[0]
 
 
 class MainWindow(QMainWindow):
@@ -106,14 +102,18 @@ class MainWindow(QMainWindow):
         return chart
 
     def redraw_charts(self):
-        data = self.board.get_current_board_data(SIGNAL_DURATION *
+        data = self.board.get_current_board_data(self.chart_duration *
                                                  SAMPLE_RATE)[EXG_CHANNELS, :]
 
-        for channel_num in range(NUM_CHANNELS):
-            for s in range(data.shape[1]):
-                self.chart_buffers[channel_num][s].setY(data[channel_num, s])
-            # !!! Trouble is here !!!
-            self.serieses[channel_num].replace(self.chart_buffers[channel_num])
+        if np.any(data):
+            for channel in range(NUM_CHANNELS):
+                # Signal filtering
+                DataFilter.detrend(data[channel],
+                                   DetrendOperations.CONSTANT.value)
+
+                for s in range(data.shape[1]):
+                    self.chart_buffers[channel][s].setY(data[channel, s])
+                self.serieses[channel].replace(self.chart_buffers[channel])
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -136,6 +136,13 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
+
+        # CHART buffer renew
+        self.chart_buffers = []
+        for i in range(NUM_CHANNELS):
+            self.chart_buffers.append([
+                QPointF(x, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+            ])
 
         self.board.start_stream(450000)
 
