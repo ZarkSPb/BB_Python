@@ -2,7 +2,7 @@ import sys
 
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
-from brainflow.data_filter import DataFilter, DetrendOperations
+from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import (QPointF, QThreadPool, QTimer)
 from PySide6.QtGui import QPainter
@@ -17,7 +17,7 @@ BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
-SIGNAL_DURATION = 10  # seconds
+MAX_CHART_SIGNAL_DURATION = 10  # seconds
 UPDATE_SPEED_MS = 20
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
@@ -54,9 +54,9 @@ class MainWindow(QMainWindow):
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
 
-        self.ui.SliderDuration.setMaximum(SIGNAL_DURATION)
-        self.ui.SliderDuration.setValue(SIGNAL_DURATION)
-        self.ui.SliderDuration.setSliderPosition(SIGNAL_DURATION)
+        self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
 
         self.update()
 
@@ -95,11 +95,24 @@ class MainWindow(QMainWindow):
         chart.setAxisX(axis_x, self.serieses[-1])
         chart.setAxisY(axis_y, self.serieses[-1])
 
-        self.chart_buffers.append(
-            [QPointF(x, 0) for x in range(SIGNAL_DURATION * SAMPLE_RATE)])
+        self.chart_buffers.append([
+            QPointF(x, 0)
+            for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
+        ])
 
         self.serieses[-1].append(self.chart_buffers[-1])
         return chart
+
+    def signal_filtering(self, data):
+        DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
         data = self.board.get_current_board_data(self.chart_duration *
@@ -107,10 +120,7 @@ class MainWindow(QMainWindow):
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
-                # Signal filtering
-                DataFilter.detrend(data[channel],
-                                   DetrendOperations.CONSTANT.value)
-
+                self.signal_filtering(data[channel])
                 for s in range(data.shape[1]):
                     self.chart_buffers[channel][s].setY(data[channel, s])
                 self.serieses[channel].replace(self.chart_buffers[channel])
@@ -145,6 +155,7 @@ class MainWindow(QMainWindow):
             ])
 
         self.board.start_stream(450000)
+        data = self.board.get_board_data()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.redraw_charts)
