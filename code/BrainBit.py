@@ -12,13 +12,14 @@ from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 
 # configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
-MAX_CHART_SIGNAL_DURATION = 10  # seconds
+MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_SPEED_MS = 20
+SIGNAL_CLIPPING_SEC = 2
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -115,14 +116,17 @@ class MainWindow(QMainWindow):
                                     FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
-        data = self.board.get_current_board_data(self.chart_duration *
-                                                 SAMPLE_RATE)[EXG_CHANNELS, :]
+        # only for draw ???
+        data = self.board.get_current_board_data(
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) *
+            SAMPLE_RATE)[EXG_CHANNELS, :]
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
                 self.signal_filtering(data[channel])
-                for s in range(data.shape[1]):
-                    self.chart_buffers[channel][s].setY(data[channel, s])
+                redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+                for s in range(redraw_data.shape[0]):
+                    self.chart_buffers[channel][s].setY(redraw_data[s])
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
     def connect_toBB(self):
