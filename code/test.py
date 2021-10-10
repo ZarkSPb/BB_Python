@@ -55,23 +55,23 @@
 #         j = 0
 #     j += 1
 
-# import sys
+import sys
 
-# from PySide6.QtCore import QTimer
-# from PySide6.QtGui import QGuiApplication
+from PySide6.QtCore import QTimer
+from PySide6.QtGui import QGuiApplication
 
-# app = QGuiApplication(sys.argv)
-# app.setQuitOnLastWindowClosed(False)
+app = QGuiApplication(sys.argv)
+app.setQuitOnLastWindowClosed(False)
 
-# def tick():
-#     print('tick')
+def tick():
+    print('tick')
 
-# timer = QTimer()
-# timer.timeout.connect(tick)
-# timer.start(1000)
+timer = QTimer()
+timer.timeout.connect(tick)
+timer.start(1000)
 
-# # run event loop so python doesn't exit
-# app.exec()
+# run event loop so python doesn't exit
+app.exec()
 
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
 from time import sleep

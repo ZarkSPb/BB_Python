@@ -60,6 +60,43 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.ButtonDisconnect)
 
+        self.groupBox_2 = QGroupBox(self.WidgetControl)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.verticalLayout_4 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.ButtonImpedanceStart = QPushButton(self.groupBox_2)
+        self.ButtonImpedanceStart.setObjectName(u"ButtonImpedanceStart")
+
+        self.verticalLayout_4.addWidget(self.ButtonImpedanceStart)
+
+        self.ButtonImpedanceStop = QPushButton(self.groupBox_2)
+        self.ButtonImpedanceStop.setObjectName(u"ButtonImpedanceStop")
+
+        self.verticalLayout_4.addWidget(self.ButtonImpedanceStop)
+
+        self.LabelCh0 = QLabel(self.groupBox_2)
+        self.LabelCh0.setObjectName(u"LabelCh0")
+
+        self.verticalLayout_4.addWidget(self.LabelCh0)
+
+        self.LabelCh1 = QLabel(self.groupBox_2)
+        self.LabelCh1.setObjectName(u"LabelCh1")
+
+        self.verticalLayout_4.addWidget(self.LabelCh1)
+
+        self.LabelCh2 = QLabel(self.groupBox_2)
+        self.LabelCh2.setObjectName(u"LabelCh2")
+
+        self.verticalLayout_4.addWidget(self.LabelCh2)
+
+        self.LabelCh3 = QLabel(self.groupBox_2)
+        self.LabelCh3.setObjectName(u"LabelCh3")
+
+        self.verticalLayout_4.addWidget(self.LabelCh3)
+
+
+        self.verticalLayout.addWidget(self.groupBox_2)
+
         self.groupBox = QGroupBox(self.WidgetControl)
         self.groupBox.setObjectName(u"groupBox")
         self.verticalLayout_2 = QVBoxLayout(self.groupBox)
@@ -111,10 +148,10 @@ class Ui_MainWindow(object):
         self.WidgetCharts = QWidget(self.centralwidget)
         self.WidgetCharts.setObjectName(u"WidgetCharts")
         self.WidgetCharts.setToolTipDuration(-1)
-        self.verticalLayout_3 = QVBoxLayout(self.WidgetCharts)
-        self.verticalLayout_3.setSpacing(0)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
+        self.LayoutCharts.setSpacing(0)
+        self.LayoutCharts.setObjectName(u"LayoutCharts")
+        self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
 
         self.gridLayout.addWidget(self.WidgetCharts, 0, 1, 1, 1)
 
@@ -145,6 +182,13 @@ class Ui_MainWindow(object):
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.ButtonDisconnect.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Impedance", None))
+        self.ButtonImpedanceStart.setText(QCoreApplication.translate("MainWindow", u"Start impedance", None))
+        self.ButtonImpedanceStop.setText(QCoreApplication.translate("MainWindow", u"Stop Impedance", None))
+        self.LabelCh0.setText(QCoreApplication.translate("MainWindow", u"T3:", None))
+        self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4:", None))
+        self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1:", None))
+        self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2:", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 50", None))

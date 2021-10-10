@@ -11,19 +11,27 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 
-# configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# Configuring BB
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+
+# Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
 EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
+EEG_CHANNEL_NAMES = BoardShim.get_eeg_names(BOARD_ID)
+RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
+
+# Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_SPEED_MS = 20
 SIGNAL_CLIPPING_SEC = 2
+IMPEDANCE_UPDATE_SPEED_MS = 200
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
     EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
+    EEG_CHANNEL_NAMES = EEG_CHANNEL_NAMES[:4]
 
 
 class MainWindow(QMainWindow):
@@ -53,12 +61,18 @@ class MainWindow(QMainWindow):
             chart_view = QChartView(self.create_line_chart(channel_name))
             chart_view.setRenderHint(QPainter.Antialiasing, True)
 
-            self.ui.verticalLayout_3.addWidget(chart_view)
+            self.ui.LayoutCharts.addWidget(chart_view)
             self.charts.append(chart_view)
 
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
+
+        # --------------------Impedance label fill--------------------
+        self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0] + ":")
+        self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1] + ":")
+        self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2] + ":")
+        self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3] + ":")
 
         self.update()
 
@@ -72,7 +86,7 @@ class MainWindow(QMainWindow):
         for chart_view in self.charts:
             chart_view.chart().axisX().setRange(
                 0, SAMPLE_RATE * self.chart_duration)
-        
+
         # renew buffer size
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
@@ -138,6 +152,23 @@ class MainWindow(QMainWindow):
                     self.chart_buffers[channel][s].setY(redraw_data[s])
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
+    def impedance_update(self):
+        # --------------------Impedance label fill--------------------
+        data = self.board.get_current_board_data(1)[RESISTANCE_CHANNELS, :]
+
+        print(data)
+
+        if data.shape[0] > 0:
+            self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0] + " (Ohm): " +
+                                     str(int(data[0, 0])))
+            self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1] + " (Ohm): " +
+                                     str(int(data[1, 0])))
+            if len(RESISTANCE_CHANNELS) > 2:
+                self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2] + " (Ohm): " +
+                                         str(int(data[2, 0])))
+                self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3] + " (Ohm): " +
+                                         str(int(data[3, 0])))
+
     def connect_toBB(self):
         params = BrainFlowInputParams()
         self.board = BoardShim(BOARD_ID, params)
@@ -168,14 +199,20 @@ class MainWindow(QMainWindow):
             ])
 
         self.board.start_stream(450000)
-        data = self.board.get_board_data()
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.redraw_charts)
-        self.timer.start(UPDATE_SPEED_MS)
+        # Start timer for chart redraw
+        self.chart_redraw_timer = QTimer()
+        self.chart_redraw_timer.timeout.connect(self.redraw_charts)
+        self.chart_redraw_timer.start(UPDATE_SPEED_MS)
+
+        # Start timer for impedance renew
+        self.impedance_update_timer = QTimer()
+        self.impedance_update_timer.timeout.connect(self.impedance_update)
+        self.impedance_update_timer.start(IMPEDANCE_UPDATE_SPEED_MS)
 
     def _stop_capture(self):
-        self.timer.stop()
+        self.chart_redraw_timer.stop()
+        self.impedance_update_timer.stop()
 
         self.board.stop_stream()
 
