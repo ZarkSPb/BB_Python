@@ -154,20 +154,19 @@ class MainWindow(QMainWindow):
 
     def impedance_update(self):
         # --------------------Impedance label fill--------------------
-        data = self.board.get_current_board_data(1)[RESISTANCE_CHANNELS, :]
+        data = self.board.get_current_board_data(1)
 
-        print(data)
-
-        if data.shape[0] > 0:
+        if np.any(data) > 0:
+            data = data[RESISTANCE_CHANNELS, 0]
             self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0] + " (Ohm): " +
-                                     str(int(data[0, 0])))
+                                     str(int(data[0])))
             self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1] + " (Ohm): " +
-                                     str(int(data[1, 0])))
+                                     str(int(data[1])))
             if len(RESISTANCE_CHANNELS) > 2:
                 self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2] + " (Ohm): " +
-                                         str(int(data[2, 0])))
+                                         str(int(data[2])))
                 self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3] + " (Ohm): " +
-                                         str(int(data[3, 0])))
+                                         str(int(data[3])))
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
