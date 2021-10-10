@@ -52,6 +52,7 @@ class MainWindow(QMainWindow):
         for channel_name in self.channel_names[:NUM_CHANNELS]:
             chart_view = QChartView(self.create_line_chart(channel_name))
             chart_view.setRenderHint(QPainter.Antialiasing, True)
+
             self.ui.verticalLayout_3.addWidget(chart_view)
             self.charts.append(chart_view)
 
@@ -67,9 +68,17 @@ class MainWindow(QMainWindow):
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
 
+        # renwe chart params
         for chart_view in self.charts:
             chart_view.chart().axisX().setRange(
                 0, SAMPLE_RATE * self.chart_duration)
+        
+        # renew buffer size
+        self.chart_buffers = []
+        for i in range(NUM_CHANNELS):
+            self.chart_buffers.append([
+                QPointF(x, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+            ])
 
         chart_amplitude = self.ui.SliderAmplitude.value()
         text = "Amplitude (uV): " + str(chart_amplitude)
