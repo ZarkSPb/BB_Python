@@ -37,28 +37,35 @@ class Ui_MainWindow(object):
         self.verticalLayout.setSpacing(5)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.ButtonConnect = QPushButton(self.WidgetControl)
+        self.groupBox_3 = QGroupBox(self.WidgetControl)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.verticalLayout_3 = QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.ButtonConnect = QPushButton(self.groupBox_3)
         self.ButtonConnect.setObjectName(u"ButtonConnect")
 
-        self.verticalLayout.addWidget(self.ButtonConnect)
+        self.verticalLayout_3.addWidget(self.ButtonConnect)
 
-        self.ButtonStart = QPushButton(self.WidgetControl)
+        self.ButtonStart = QPushButton(self.groupBox_3)
         self.ButtonStart.setObjectName(u"ButtonStart")
         self.ButtonStart.setEnabled(False)
 
-        self.verticalLayout.addWidget(self.ButtonStart)
+        self.verticalLayout_3.addWidget(self.ButtonStart)
 
-        self.ButtonStop = QPushButton(self.WidgetControl)
+        self.ButtonStop = QPushButton(self.groupBox_3)
         self.ButtonStop.setObjectName(u"ButtonStop")
         self.ButtonStop.setEnabled(False)
 
-        self.verticalLayout.addWidget(self.ButtonStop)
+        self.verticalLayout_3.addWidget(self.ButtonStop)
 
-        self.ButtonDisconnect = QPushButton(self.WidgetControl)
+        self.ButtonDisconnect = QPushButton(self.groupBox_3)
         self.ButtonDisconnect.setObjectName(u"ButtonDisconnect")
         self.ButtonDisconnect.setEnabled(False)
 
-        self.verticalLayout.addWidget(self.ButtonDisconnect)
+        self.verticalLayout_3.addWidget(self.ButtonDisconnect)
+
+
+        self.verticalLayout.addWidget(self.groupBox_3)
 
         self.groupBox_2 = QGroupBox(self.WidgetControl)
         self.groupBox_2.setObjectName(u"groupBox_2")
@@ -66,11 +73,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.ButtonImpedanceStart = QPushButton(self.groupBox_2)
         self.ButtonImpedanceStart.setObjectName(u"ButtonImpedanceStart")
+        self.ButtonImpedanceStart.setEnabled(False)
 
         self.verticalLayout_4.addWidget(self.ButtonImpedanceStart)
 
         self.ButtonImpedanceStop = QPushButton(self.groupBox_2)
         self.ButtonImpedanceStop.setObjectName(u"ButtonImpedanceStop")
+        self.ButtonImpedanceStop.setEnabled(False)
 
         self.verticalLayout_4.addWidget(self.ButtonImpedanceStop)
 
@@ -126,12 +135,14 @@ class Ui_MainWindow(object):
         self.SliderAmplitude = QSlider(self.groupBox)
         self.SliderAmplitude.setObjectName(u"SliderAmplitude")
         self.SliderAmplitude.setMinimum(50)
-        self.SliderAmplitude.setMaximum(5000)
+        self.SliderAmplitude.setMaximum(500)
+        self.SliderAmplitude.setSingleStep(5)
+        self.SliderAmplitude.setPageStep(20)
         self.SliderAmplitude.setOrientation(Qt.Horizontal)
         self.SliderAmplitude.setInvertedAppearance(False)
         self.SliderAmplitude.setInvertedControls(False)
         self.SliderAmplitude.setTickPosition(QSlider.TicksAbove)
-        self.SliderAmplitude.setTickInterval(100)
+        self.SliderAmplitude.setTickInterval(10)
 
         self.verticalLayout_2.addWidget(self.SliderAmplitude)
 
@@ -163,10 +174,6 @@ class Ui_MainWindow(object):
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        QWidget.setTabOrder(self.ButtonConnect, self.ButtonStart)
-        QWidget.setTabOrder(self.ButtonStart, self.ButtonStop)
-        QWidget.setTabOrder(self.ButtonStop, self.ButtonDisconnect)
-        QWidget.setTabOrder(self.ButtonDisconnect, self.SliderDuration)
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
         self.retranslateUi(MainWindow)
@@ -178,17 +185,18 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"BrainBit control", None))
         self.ButtonConnect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.ButtonStop.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.ButtonDisconnect.setText(QCoreApplication.translate("MainWindow", u"Disconnect", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Impedance", None))
         self.ButtonImpedanceStart.setText(QCoreApplication.translate("MainWindow", u"Start impedance", None))
-        self.ButtonImpedanceStop.setText(QCoreApplication.translate("MainWindow", u"Stop Impedance", None))
-        self.LabelCh0.setText(QCoreApplication.translate("MainWindow", u"T3:", None))
-        self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4:", None))
-        self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1:", None))
-        self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2:", None))
+        self.ButtonImpedanceStop.setText(QCoreApplication.translate("MainWindow", u"Stop impedance", None))
+        self.LabelCh0.setText(QCoreApplication.translate("MainWindow", u"T3 (Ohm):", None))
+        self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4 (Ohm):", None))
+        self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1 (Ohm):", None))
+        self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2 (Ohm):", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 50", None))

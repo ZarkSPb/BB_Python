@@ -50,6 +50,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.clicked.connect(self._start_capture)
         self.ui.ButtonStop.clicked.connect(self._stop_capture)
         self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
+        self.ui.ButtonImpedanceStart.clicked.connect(self._start_impedance)
+        self.ui.ButtonImpedanceStop.clicked.connect(self._stop_impedance)
 
         # --------------------CHART MAKE--------------------
         self.channel_names = BoardShim.get_board_descr(
@@ -69,10 +71,10 @@ class MainWindow(QMainWindow):
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
 
         # --------------------Impedance label fill--------------------
-        self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0] + ":")
-        self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1] + ":")
-        self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2] + ":")
-        self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3] + ":")
+        self.ui.LabelCh0.setText(f'{EEG_CHANNEL_NAMES[0]} (Ohm):')
+        self.ui.LabelCh1.setText(f'{EEG_CHANNEL_NAMES[1]} (Ohm):')
+        self.ui.LabelCh2.setText(f'{EEG_CHANNEL_NAMES[2]} (Ohm):')
+        self.ui.LabelCh3.setText(f'{EEG_CHANNEL_NAMES[3]} (Ohm):')
 
         self.update()
 
@@ -158,15 +160,16 @@ class MainWindow(QMainWindow):
 
         if np.any(data) > 0:
             data = data[RESISTANCE_CHANNELS, 0]
-            self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0] + " (Ohm): " +
-                                     str(int(data[0])))
-            self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1] + " (Ohm): " +
-                                     str(int(data[1])))
+
+            self.ui.LabelCh0.setText(
+                f'{EEG_CHANNEL_NAMES[0]} (Ohm): {data[0]:.0f}')
+            self.ui.LabelCh1.setText(
+                f'{EEG_CHANNEL_NAMES[1]} (Ohm): {data[1]:.0f}')
             if len(RESISTANCE_CHANNELS) > 2:
-                self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2] + " (Ohm): " +
-                                         str(int(data[2])))
-                self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3] + " (Ohm): " +
-                                         str(int(data[3])))
+                self.ui.LabelCh2.setText(
+                    f'{EEG_CHANNEL_NAMES[2]} (Ohm): {data[2]:.0f}')
+                self.ui.LabelCh3.setText(
+                    f'{EEG_CHANNEL_NAMES[3]} (Ohm): {data[3]:.0f}')
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -176,6 +179,7 @@ class MainWindow(QMainWindow):
     def result_connect_toBB(self):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
+        self.ui.ButtonImpedanceStart.setEnabled(True)
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -189,6 +193,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
+        self.ui.ButtonImpedanceStart.setEnabled(False)
 
         # CHART buffer renew
         self.chart_buffers = []
@@ -198,26 +203,22 @@ class MainWindow(QMainWindow):
             ])
 
         self.board.start_stream(450000)
+        self.board.config_board ('CommandStartSignal')
 
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
         self.chart_redraw_timer.timeout.connect(self.redraw_charts)
         self.chart_redraw_timer.start(UPDATE_SPEED_MS)
 
-        # Start timer for impedance renew
-        self.impedance_update_timer = QTimer()
-        self.impedance_update_timer.timeout.connect(self.impedance_update)
-        self.impedance_update_timer.start(IMPEDANCE_UPDATE_SPEED_MS)
-
     def _stop_capture(self):
         self.chart_redraw_timer.stop()
-        self.impedance_update_timer.stop()
 
         self.board.stop_stream()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
+        self.ui.ButtonImpedanceStart.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources
@@ -227,6 +228,31 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
+
+    def _start_impedance(self):
+        self.board.start_stream(450000)
+        self.board.config_board('CommandStartResist')
+
+        # Start timer for impedance renew
+        self.impedance_update_timer = QTimer()
+        self.impedance_update_timer.timeout.connect(self.impedance_update)
+        self.impedance_update_timer.start(IMPEDANCE_UPDATE_SPEED_MS)
+
+        self.ui.ButtonImpedanceStart.setEnabled(False)
+        self.ui.ButtonImpedanceStop.setEnabled(True)
+        self.ui.ButtonStart.setEnabled(False)
+        self.ui.ButtonDisconnect.setEnabled(False)
+
+    def _stop_impedance(self):
+        self.board.config_board('CommandStopResist')
+        self.board.stop_stream()
+        self.impedance_update_timer.stop()
+
+        self.ui.ButtonImpedanceStart.setEnabled(True)
+        self.ui.ButtonImpedanceStop.setEnabled(False)
+        self.ui.ButtonStart.setEnabled(True)
+        self.ui.ButtonDisconnect.setEnabled(True)
+
 
 
 def main():

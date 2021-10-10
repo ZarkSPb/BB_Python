@@ -46,40 +46,49 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QPushButton" name="ButtonConnect">
-         <property name="text">
-          <string>Connect</string>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>BrainBit control</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="ButtonStart">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Start</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="ButtonStop">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Stop</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="ButtonDisconnect">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Disconnect</string>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QPushButton" name="ButtonConnect">
+            <property name="text">
+             <string>Connect</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ButtonStart">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Start</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ButtonStop">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Stop</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ButtonDisconnect">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Disconnect</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -90,6 +99,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="QPushButton" name="ButtonImpedanceStart">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Start impedance</string>
             </property>
@@ -97,36 +109,39 @@
           </item>
           <item>
            <widget class="QPushButton" name="ButtonImpedanceStop">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
-             <string>Stop Impedance</string>
+             <string>Stop impedance</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="LabelCh0">
             <property name="text">
-             <string>T3:</string>
+             <string>T3 (Ohm):</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="LabelCh1">
             <property name="text">
-             <string>T4:</string>
+             <string>T4 (Ohm):</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="LabelCh2">
             <property name="text">
-             <string>O1:</string>
+             <string>O1 (Ohm):</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="LabelCh3">
             <property name="text">
-             <string>O2:</string>
+             <string>O2 (Ohm):</string>
             </property>
            </widget>
           </item>
@@ -184,7 +199,13 @@
              <number>50</number>
             </property>
             <property name="maximum">
-             <number>5000</number>
+             <number>500</number>
+            </property>
+            <property name="singleStep">
+             <number>5</number>
+            </property>
+            <property name="pageStep">
+             <number>20</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -199,7 +220,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>100</number>
+             <number>10</number>
             </property>
            </widget>
           </item>
@@ -261,10 +282,6 @@
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <tabstops>
-  <tabstop>ButtonConnect</tabstop>
-  <tabstop>ButtonStart</tabstop>
-  <tabstop>ButtonStop</tabstop>
-  <tabstop>ButtonDisconnect</tabstop>
   <tabstop>SliderDuration</tabstop>
   <tabstop>SliderAmplitude</tabstop>
  </tabstops>

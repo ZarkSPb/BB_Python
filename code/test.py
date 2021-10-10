@@ -55,54 +55,63 @@
 #         j = 0
 #     j += 1
 
-import sys
+# import sys
 
-from PySide6.QtCore import QTimer
-from PySide6.QtGui import QGuiApplication
+# from PySide6.QtCore import QTimer
+# from PySide6.QtGui import QGuiApplication
 
-app = QGuiApplication(sys.argv)
-app.setQuitOnLastWindowClosed(False)
+# app = QGuiApplication(sys.argv)
+# app.setQuitOnLastWindowClosed(False)
 
-def tick():
-    print('tick')
+# def tick():
+#     print('tick')
 
-timer = QTimer()
-timer.timeout.connect(tick)
-timer.start(1000)
+# timer = QTimer()
+# timer.timeout.connect(tick)
+# timer.start(1000)
 
-# run event loop so python doesn't exit
-app.exec()
+# # run event loop so python doesn't exit
+# app.exec()
 
-from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
-from time import sleep
+# from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
+# from time import sleep
 
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# # BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
-BoardShim.enable_dev_board_logger()
-params = BrainFlowInputParams()
-board = BoardShim(BOARD_ID, params)
-board.prepare_session()
-board.start_stream(450000)
-sleep(10)
+# BoardShim.enable_dev_board_logger()
+# params = BrainFlowInputParams()
+# board = BoardShim(BOARD_ID, params)
+# board.prepare_session()
+# board.start_stream(450000)
+# sleep(10)
 
-num_samples = board.get_board_data_count()
-data = board.get_current_board_data(450000)
-print(
-    f"\n\nData shape: {data.shape}, Num of elements in ringbuffer: {num_samples}\n\n"
-)
+# num_samples = board.get_board_data_count()
+# data = board.get_current_board_data(450000)
+# print(
+#     f"\n\nData shape: {data.shape}, Num of elements in ringbuffer: {num_samples}\n\n"
+# )
 
-board.stop_stream()
+# board.stop_stream()
 
-board.start_stream(450000)
+# board.start_stream(450000)
 
-num_samples = board.get_board_data_count()
-data = board.get_current_board_data(450000)
-print(
-    f"\n\nData shape: {data.shape}, Num of elements in ringbuffer: {num_samples}\n\n"
-)
+# num_samples = board.get_board_data_count()
+# data = board.get_current_board_data(450000)
+# print(
+#     f"\n\nData shape: {data.shape}, Num of elements in ringbuffer: {num_samples}\n\n"
+# )
 
-board.stop_stream()
+# board.stop_stream()
 
-if board.is_prepared():
-    board.release_session()
+# if board.is_prepared():
+#     board.release_session()
+
+
+
+
+numvar = 56.255656596595959
+
+st = f"{numvar:.0f}"
+
+print(st)
