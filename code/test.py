@@ -150,3 +150,7 @@ app = QGuiApplication(sys.argv)
 mainWin =MainWindow()
 mainWin.show()
 sys.exit(app.exec())
+
+
+
+python -m venv .venv

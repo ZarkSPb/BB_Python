@@ -195,7 +195,7 @@ class MainWindow(QMainWindow):
             ])
 
         self.board.start_stream(450000)
-        self.board.config_board ('CommandStartSignal')
+        self.board.config_board('CommandStartSignal')
 
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
@@ -245,13 +245,14 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
-    def close(self):
+    def closeEvent(self):
+        # print("Close")
         # Release all BB resources
-        if self.board.is_prepared():
-            self.board.release_session()
-        print("Close")
-
-
+        try:
+            if self.board.is_prepared():
+                self.board.release_session()
+        except:
+            pass
 
 
 def main():
