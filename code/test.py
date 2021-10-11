@@ -117,40 +117,42 @@
 # print(st)
 
 
-import sys
-from PySide6.QtCore import *
-from PySide6.QtGui import *
+# import sys
+# from PySide6.QtCore import *
+# from PySide6.QtGui import *
  
-class SubWindow(object):
-    def __init__(self, parent = None):
-        super(SubWindow, self).__init__(parent)
+# class SubWindow(object):
+#     def __init__(self, parent = None):
+#         super(SubWindow, self).__init__(parent)
 
  
-    def closeEvent(self, event):
-        self.deleteLater()
-        event.accept()
+#     def closeEvent(self, event):
+#         self.deleteLater()
+#         event.accept()
  
-class MainWindow(object):
-    def __init__(self, parent = None):
-        super(MainWindow, self).__init__(parent)
+# class MainWindow(object):
+#     def __init__(self, parent = None):
+#         super(MainWindow, self).__init__(parent)
  
-    def openSub(self):
-        self.sub = SubWindow()
-        self.sub.show()
+#     def openSub(self):
+#         self.sub = SubWindow()
+#         self.sub.show()
  
-    def closeEvent(self, event):
-        widgetList = QGuiApplication.topLevelWidgets()
-        numWindows = len(widgetList)
-        if numWindows > 1:
-            event.ignore()
-        else:
-            event.accept()
+#     def closeEvent(self, event):
+#         widgetList = QGuiApplication.topLevelWidgets()
+#         numWindows = len(widgetList)
+#         if numWindows > 1:
+#             event.ignore()
+#         else:
+#             event.accept()
  
-app = QGuiApplication(sys.argv)
-mainWin =MainWindow()
-mainWin.show()
-sys.exit(app.exec())
+# app = QGuiApplication(sys.argv)
+# mainWin =MainWindow()
+# mainWin.show()
+# sys.exit(app.exec())
 
+import datetime
 
+t = datetime.datetime.now()
 
-python -m venv .venv
+print(t.strftime("%Y-%m-%d_%H-%M-%S"))

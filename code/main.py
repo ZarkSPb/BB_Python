@@ -100,8 +100,8 @@ class MainWindow(QMainWindow):
             QPointF(x / SAMPLE_RATE, 0)
             for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         ])
-
         self.serieses[-1].append(self.chart_buffers[-1])
+        
         return chart
 
         # --------------------UPDATE UI--------------------
