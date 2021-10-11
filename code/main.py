@@ -1,5 +1,7 @@
 import sys
 
+from datetime import datetime
+
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
@@ -12,8 +14,8 @@ from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 
 # Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -101,7 +103,7 @@ class MainWindow(QMainWindow):
             for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         ])
         self.serieses[-1].append(self.chart_buffers[-1])
-        
+
         return chart
 
         # --------------------UPDATE UI--------------------
@@ -119,7 +121,8 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
-                QPointF(x / SAMPLE_RATE, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+                QPointF(x / SAMPLE_RATE, 0)
+                for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
         chart_amplitude = self.ui.SliderAmplitude.value()
@@ -155,7 +158,6 @@ class MainWindow(QMainWindow):
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
     def impedance_update(self):
-        # --------------------Impedance label fill--------------------
         data = self.board.get_current_board_data(1)
 
         if np.any(data) > 0:
@@ -194,12 +196,27 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
+        self.ui.CheckBoxAutosave.setEnabled(False)
+        self.ui.LineEditPatient.setEnabled(False)
+
+        if self.ui.CheckBoxAutosave.isChecked():
+            self.patient_name = self.ui.LineEditPatient.text()
+            dt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            if self.patient_name:
+                self.file_name = dt + '_' + self.patient_name + '.csv'
+                self.ui.LabelFileName1.setText(dt + '_')
+                self.ui.LabelFileName2.setText(self.patient_name + '.csv')
+            else:
+                self.file_name = dt + '.csv'
+                self.ui.LabelFileName1.setText(dt + '.csv')
+                self.ui.LabelFileName2.setText(' ')
 
         # CHART buffer renew
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
-                QPointF(x / SAMPLE_RATE, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+                QPointF(x / SAMPLE_RATE, 0)
+                for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
         self.board.start_stream(450000)
@@ -219,6 +236,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
+        self.ui.CheckBoxAutosave.setEnabled(True)
+        self.ui.LineEditPatient.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources

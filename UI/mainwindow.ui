@@ -280,7 +280,7 @@
          <property name="title">
           <string>Save settings</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QVBoxLayout" name="LayoutSave">
           <property name="spacing">
            <number>4</number>
           </property>
@@ -297,14 +297,49 @@
            <number>2</number>
           </property>
           <item>
-           <widget class="QCheckBox" name="checkBox">
+           <widget class="QCheckBox" name="CheckBoxAutosave">
             <property name="text">
              <string>Auto save</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit"/>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Patient name:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="LineEditPatient">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Saved in:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="LabelFileName1">
+            <property name="text">
+             <string>Data-Time_</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="LabelFileName2">
+            <property name="text">
+             <string>Patient_name.csv</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>

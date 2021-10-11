@@ -15,16 +15,16 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGridLayout, QGroupBox, QLabel,
-    QMainWindow, QMenuBar, QPushButton, QSizePolicy,
-    QSlider, QSpacerItem, QStatusBar, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
+    QLabel, QLineEdit, QMainWindow, QMenuBar,
+    QPushButton, QSizePolicy, QSlider, QSpacerItem,
+    QStatusBar, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(910, 715)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -156,6 +156,46 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.groupBox)
 
+        self.groupBox_4 = QGroupBox(self.WidgetControl)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.LayoutSave = QVBoxLayout(self.groupBox_4)
+        self.LayoutSave.setSpacing(4)
+        self.LayoutSave.setObjectName(u"LayoutSave")
+        self.LayoutSave.setContentsMargins(2, 2, 2, 2)
+        self.CheckBoxAutosave = QCheckBox(self.groupBox_4)
+        self.CheckBoxAutosave.setObjectName(u"CheckBoxAutosave")
+        self.CheckBoxAutosave.setChecked(True)
+
+        self.LayoutSave.addWidget(self.CheckBoxAutosave)
+
+        self.label = QLabel(self.groupBox_4)
+        self.label.setObjectName(u"label")
+
+        self.LayoutSave.addWidget(self.label)
+
+        self.LineEditPatient = QLineEdit(self.groupBox_4)
+        self.LineEditPatient.setObjectName(u"LineEditPatient")
+
+        self.LayoutSave.addWidget(self.LineEditPatient)
+
+        self.label_2 = QLabel(self.groupBox_4)
+        self.label_2.setObjectName(u"label_2")
+
+        self.LayoutSave.addWidget(self.label_2)
+
+        self.LabelFileName1 = QLabel(self.groupBox_4)
+        self.LabelFileName1.setObjectName(u"LabelFileName1")
+
+        self.LayoutSave.addWidget(self.LabelFileName1)
+
+        self.LabelFileName2 = QLabel(self.groupBox_4)
+        self.LabelFileName2.setObjectName(u"LabelFileName2")
+
+        self.LayoutSave.addWidget(self.LabelFileName2)
+
+
+        self.verticalLayout.addWidget(self.groupBox_4)
+
         self.verticalSpacer = QSpacerItem(20, 269, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
@@ -176,7 +216,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 22))
+        self.menubar.setGeometry(QRect(0, 0, 910, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -213,5 +253,12 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Save settings", None))
+        self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Patient name:", None))
+        self.LineEditPatient.setText("")
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Saved in:", None))
+        self.LabelFileName1.setText(QCoreApplication.translate("MainWindow", u"Data-Time_", None))
+        self.LabelFileName2.setText(QCoreApplication.translate("MainWindow", u"Patient_name.csv", None))
     # retranslateUi
 

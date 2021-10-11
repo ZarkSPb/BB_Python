@@ -151,8 +151,8 @@
 # mainWin.show()
 # sys.exit(app.exec())
 
-import datetime
+from datetime import datetime
 
-t = datetime.datetime.now()
+t = datetime.now()
 
 print(t.strftime("%Y-%m-%d_%H-%M-%S"))
