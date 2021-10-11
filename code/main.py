@@ -26,7 +26,7 @@ RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 2
-UPDATE_IMPEDANCE_SPEED_MS = 200
+UPDATE_IMPEDANCE_SPEED_MS = 500
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -44,14 +44,6 @@ class MainWindow(QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-        # --------------------BUTTON CONNECT--------------------
-        self.ui.ButtonConnect.clicked.connect(self._connect)
-        self.ui.ButtonStart.clicked.connect(self._start_capture)
-        self.ui.ButtonStop.clicked.connect(self._stop_capture)
-        self.ui.ButtonDisconnect.clicked.connect(self._disconnect)
-        self.ui.ButtonImpedanceStart.clicked.connect(self._start_impedance)
-        self.ui.ButtonImpedanceStop.clicked.connect(self._stop_impedance)
 
         # --------------------CHART MAKE--------------------
         self.channel_names = BoardShim.get_board_descr(
@@ -76,10 +68,10 @@ class MainWindow(QMainWindow):
         self.ui.LabelCh2.setText(f'{EEG_CHANNEL_NAMES[2]} (Ohm):')
         self.ui.LabelCh3.setText(f'{EEG_CHANNEL_NAMES[3]} (Ohm):')
 
-        self.update()
+        self.update_ui()
 
     # --------------------UPDATE UI--------------------
-    def update(self):
+    def update_ui(self):
         self.chart_duration = self.ui.SliderDuration.value()
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)

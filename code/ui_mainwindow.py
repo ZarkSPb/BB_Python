@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1000, 800)
+        MainWindow.resize(1039, 835)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -170,7 +170,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1000, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1039, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -178,8 +178,14 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
         self.retranslateUi(MainWindow)
-        self.SliderDuration.valueChanged.connect(MainWindow.update)
-        self.SliderAmplitude.valueChanged.connect(MainWindow.update)
+        self.SliderDuration.valueChanged.connect(MainWindow.update_ui)
+        self.SliderAmplitude.valueChanged.connect(MainWindow.update_ui)
+        self.ButtonConnect.clicked.connect(MainWindow._connect)
+        self.ButtonStart.clicked.connect(MainWindow._start_capture)
+        self.ButtonStop.clicked.connect(MainWindow._stop_capture)
+        self.ButtonDisconnect.clicked.connect(MainWindow._disconnect)
+        self.ButtonImpedanceStart.clicked.connect(MainWindow._start_impedance)
+        self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi

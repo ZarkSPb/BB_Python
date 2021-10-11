@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>800</height>
+    <width>1039</width>
+    <height>835</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -277,7 +277,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1039</width>
      <height>22</height>
     </rect>
    </property>
@@ -294,15 +294,15 @@
    <sender>SliderDuration</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update()</slot>
+   <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>208</y>
+     <x>113</x>
+     <y>443</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>296</y>
+     <x>248</x>
+     <y>431</y>
     </hint>
    </hints>
   </connection>
@@ -310,17 +310,122 @@
    <sender>SliderAmplitude</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update()</slot>
+   <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>263</y>
+     <x>113</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>296</y>
+     <x>248</x>
+     <y>485</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonConnect</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_connect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>124</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>70</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonStart</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_start_capture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>90</x>
+     <y>96</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>269</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonStop</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_stop_capture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>149</x>
+     <y>127</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>249</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonDisconnect</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_disconnect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>103</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>158</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonImpedanceStart</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_start_impedance()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>221</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>225</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonImpedanceStop</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_stop_impedance()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>update_ui()</slot>
+  <slot>_connect()</slot>
+  <slot>_start_capture()</slot>
+  <slot>_stop_capture()</slot>
+  <slot>_disconnect()</slot>
+  <slot>_start_impedance()</slot>
+  <slot>_stop_impedance()</slot>
+ </slots>
 </ui>
