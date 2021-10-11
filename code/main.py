@@ -70,31 +70,6 @@ class MainWindow(QMainWindow):
 
         self.update_ui()
 
-    # --------------------UPDATE UI--------------------
-    def update_ui(self):
-        self.chart_duration = self.ui.SliderDuration.value()
-        text = "Duration (sec): " + str(self.chart_duration)
-        self.ui.LabelDuration.setText(text)
-
-        # renwe chart params
-        for chart_view in self.charts:
-            chart_view.chart().axisX().setRange(
-                0, SAMPLE_RATE * self.chart_duration)
-
-        # renew buffer size
-        self.chart_buffers = []
-        for i in range(NUM_CHANNELS):
-            self.chart_buffers.append([
-                QPointF(x, 0) for x in range(self.chart_duration * SAMPLE_RATE)
-            ])
-
-        chart_amplitude = self.ui.SliderAmplitude.value()
-        text = "Amplitude (uV): " + str(chart_amplitude)
-        self.ui.LabelAmplitude.setText(text)
-        for chart_view in self.charts:
-            chart_view.chart().axisY().setRange(-chart_amplitude,
-                                                chart_amplitude)
-
     # --------------------CHART CREATE--------------------
     def create_line_chart(self, chartname):
         chart = QChart()
@@ -106,20 +81,53 @@ class MainWindow(QMainWindow):
         chart.addSeries(self.serieses[-1])
 
         axis_x = QValueAxis()
-        axis_x.setRange(0, SAMPLE_RATE)
+        axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION)
+        axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
+        axis_x.setMinorTickCount(1)
+        axis_x.setLabelFormat('%i')
+        # axis_x.setTickType(QValueAxis.TickType.TicksDynamic)
+        # axis_x.setTickAnchor(125.0)
         axis_y = QValueAxis()
         axis_y.setRange(-50, 50)
         axis_y.setTitleText(chartname)
+        axis_y.setTickCount(3)
+        axis_y.setMinorTickCount(1)
+        axis_y.setLabelFormat('%i')
         chart.setAxisX(axis_x, self.serieses[-1])
         chart.setAxisY(axis_y, self.serieses[-1])
 
         self.chart_buffers.append([
-            QPointF(x, 0)
+            QPointF(x / SAMPLE_RATE, 0)
             for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         ])
 
         self.serieses[-1].append(self.chart_buffers[-1])
         return chart
+
+        # --------------------UPDATE UI--------------------
+    def update_ui(self):
+        self.chart_duration = self.ui.SliderDuration.value()
+        text = "Duration (sec): " + str(self.chart_duration)
+        self.ui.LabelDuration.setText(text)
+
+        # renew chart params
+        for chart_view in self.charts:
+            chart_view.chart().axisX().setTickCount(self.chart_duration + 1)
+            chart_view.chart().axisX().setRange(0, self.chart_duration)
+
+        # renew buffer size
+        self.chart_buffers = []
+        for i in range(NUM_CHANNELS):
+            self.chart_buffers.append([
+                QPointF(x / SAMPLE_RATE, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+            ])
+
+        chart_amplitude = self.ui.SliderAmplitude.value()
+        text = "Amplitude (uV): " + str(chart_amplitude)
+        self.ui.LabelAmplitude.setText(text)
+        for chart_view in self.charts:
+            chart_view.chart().axisY().setRange(-chart_amplitude,
+                                                chart_amplitude)
 
     def signal_filtering(self, data):
         DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
@@ -191,7 +199,7 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
-                QPointF(x, 0) for x in range(self.chart_duration * SAMPLE_RATE)
+                QPointF(x / SAMPLE_RATE, 0) for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
         self.board.start_stream(450000)
@@ -245,10 +253,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
-    def closeEvent(self):
+    def closeEvent(self, event):
         # print("Close")
         # Release all BB resources
         try:
+            self.chart_redraw_timer.stop()
+            self.board.stop_stream()
             if self.board.is_prepared():
                 self.board.release_session()
         except:
