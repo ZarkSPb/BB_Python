@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1039</width>
-    <height>835</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
-        <number>5</number>
+        <number>4</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -50,7 +50,22 @@
          <property name="title">
           <string>BrainBit control</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_3">
+         <layout class="QVBoxLayout" name="LayoutControl">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QPushButton" name="ButtonConnect">
             <property name="text">
@@ -96,7 +111,22 @@
          <property name="title">
           <string>Impedance</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
+         <layout class="QVBoxLayout" name="LayoutImpedance">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QPushButton" name="ButtonImpedanceStart">
             <property name="enabled">
@@ -153,7 +183,22 @@
          <property name="title">
           <string>Chart settings</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <layout class="QVBoxLayout" name="LayoutChartSettings">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QLabel" name="LabelDuration">
             <property name="text">
@@ -277,7 +322,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1039</width>
+     <width>800</width>
      <height>22</height>
     </rect>
    </property>
@@ -297,8 +342,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>113</x>
-     <y>443</y>
+     <x>106</x>
+     <y>388</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
@@ -313,8 +358,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>113</x>
-     <y>498</y>
+     <x>106</x>
+     <y>439</y>
     </hint>
     <hint type="destinationlabel">
      <x>248</x>
@@ -377,8 +422,8 @@
    <slot>_disconnect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>158</y>
+     <x>96</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>254</x>
@@ -393,8 +438,8 @@
    <slot>_start_impedance()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>221</y>
+     <x>75</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>254</x>
@@ -409,8 +454,8 @@
    <slot>_stop_impedance()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>258</y>
+     <x>91</x>
+     <y>228</y>
     </hint>
     <hint type="destinationlabel">
      <x>254</x>

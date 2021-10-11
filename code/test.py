@@ -110,8 +110,43 @@
 
 
 
-numvar = 56.255656596595959
+# numvar = 56.255656596595959
 
-st = f"{numvar:.0f}"
+# st = f"{numvar:.0f}"
 
-print(st)
+# print(st)
+
+
+import sys
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+ 
+class SubWindow(object):
+    def __init__(self, parent = None):
+        super(SubWindow, self).__init__(parent)
+
+ 
+    def closeEvent(self, event):
+        self.deleteLater()
+        event.accept()
+ 
+class MainWindow(object):
+    def __init__(self, parent = None):
+        super(MainWindow, self).__init__(parent)
+ 
+    def openSub(self):
+        self.sub = SubWindow()
+        self.sub.show()
+ 
+    def closeEvent(self, event):
+        widgetList = QGuiApplication.topLevelWidgets()
+        numWindows = len(widgetList)
+        if numWindows > 1:
+            event.ignore()
+        else:
+            event.accept()
+ 
+app = QGuiApplication(sys.argv)
+mainWin =MainWindow()
+mainWin.show()
+sys.exit(app.exec())

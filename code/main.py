@@ -245,6 +245,13 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
+    def close(self):
+        # Release all BB resources
+        if self.board.is_prepared():
+            self.board.release_session()
+        print("Close")
+
+
 
 
 def main():

@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1039, 835)
+        MainWindow.resize(800, 600)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -34,86 +34,92 @@ class Ui_MainWindow(object):
         self.WidgetControl.setMinimumSize(QSize(180, 0))
         self.WidgetControl.setMaximumSize(QSize(180, 16777215))
         self.verticalLayout = QVBoxLayout(self.WidgetControl)
-        self.verticalLayout.setSpacing(5)
+        self.verticalLayout.setSpacing(4)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.groupBox_3 = QGroupBox(self.WidgetControl)
         self.groupBox_3.setObjectName(u"groupBox_3")
-        self.verticalLayout_3 = QVBoxLayout(self.groupBox_3)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.LayoutControl = QVBoxLayout(self.groupBox_3)
+        self.LayoutControl.setSpacing(4)
+        self.LayoutControl.setObjectName(u"LayoutControl")
+        self.LayoutControl.setContentsMargins(2, 2, 2, 2)
         self.ButtonConnect = QPushButton(self.groupBox_3)
         self.ButtonConnect.setObjectName(u"ButtonConnect")
 
-        self.verticalLayout_3.addWidget(self.ButtonConnect)
+        self.LayoutControl.addWidget(self.ButtonConnect)
 
         self.ButtonStart = QPushButton(self.groupBox_3)
         self.ButtonStart.setObjectName(u"ButtonStart")
         self.ButtonStart.setEnabled(False)
 
-        self.verticalLayout_3.addWidget(self.ButtonStart)
+        self.LayoutControl.addWidget(self.ButtonStart)
 
         self.ButtonStop = QPushButton(self.groupBox_3)
         self.ButtonStop.setObjectName(u"ButtonStop")
         self.ButtonStop.setEnabled(False)
 
-        self.verticalLayout_3.addWidget(self.ButtonStop)
+        self.LayoutControl.addWidget(self.ButtonStop)
 
         self.ButtonDisconnect = QPushButton(self.groupBox_3)
         self.ButtonDisconnect.setObjectName(u"ButtonDisconnect")
         self.ButtonDisconnect.setEnabled(False)
 
-        self.verticalLayout_3.addWidget(self.ButtonDisconnect)
+        self.LayoutControl.addWidget(self.ButtonDisconnect)
 
 
         self.verticalLayout.addWidget(self.groupBox_3)
 
         self.groupBox_2 = QGroupBox(self.WidgetControl)
         self.groupBox_2.setObjectName(u"groupBox_2")
-        self.verticalLayout_4 = QVBoxLayout(self.groupBox_2)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.LayoutImpedance = QVBoxLayout(self.groupBox_2)
+        self.LayoutImpedance.setSpacing(4)
+        self.LayoutImpedance.setObjectName(u"LayoutImpedance")
+        self.LayoutImpedance.setContentsMargins(2, 2, 2, 2)
         self.ButtonImpedanceStart = QPushButton(self.groupBox_2)
         self.ButtonImpedanceStart.setObjectName(u"ButtonImpedanceStart")
         self.ButtonImpedanceStart.setEnabled(False)
 
-        self.verticalLayout_4.addWidget(self.ButtonImpedanceStart)
+        self.LayoutImpedance.addWidget(self.ButtonImpedanceStart)
 
         self.ButtonImpedanceStop = QPushButton(self.groupBox_2)
         self.ButtonImpedanceStop.setObjectName(u"ButtonImpedanceStop")
         self.ButtonImpedanceStop.setEnabled(False)
 
-        self.verticalLayout_4.addWidget(self.ButtonImpedanceStop)
+        self.LayoutImpedance.addWidget(self.ButtonImpedanceStop)
 
         self.LabelCh0 = QLabel(self.groupBox_2)
         self.LabelCh0.setObjectName(u"LabelCh0")
 
-        self.verticalLayout_4.addWidget(self.LabelCh0)
+        self.LayoutImpedance.addWidget(self.LabelCh0)
 
         self.LabelCh1 = QLabel(self.groupBox_2)
         self.LabelCh1.setObjectName(u"LabelCh1")
 
-        self.verticalLayout_4.addWidget(self.LabelCh1)
+        self.LayoutImpedance.addWidget(self.LabelCh1)
 
         self.LabelCh2 = QLabel(self.groupBox_2)
         self.LabelCh2.setObjectName(u"LabelCh2")
 
-        self.verticalLayout_4.addWidget(self.LabelCh2)
+        self.LayoutImpedance.addWidget(self.LabelCh2)
 
         self.LabelCh3 = QLabel(self.groupBox_2)
         self.LabelCh3.setObjectName(u"LabelCh3")
 
-        self.verticalLayout_4.addWidget(self.LabelCh3)
+        self.LayoutImpedance.addWidget(self.LabelCh3)
 
 
         self.verticalLayout.addWidget(self.groupBox_2)
 
         self.groupBox = QGroupBox(self.WidgetControl)
         self.groupBox.setObjectName(u"groupBox")
-        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.LayoutChartSettings = QVBoxLayout(self.groupBox)
+        self.LayoutChartSettings.setSpacing(4)
+        self.LayoutChartSettings.setObjectName(u"LayoutChartSettings")
+        self.LayoutChartSettings.setContentsMargins(2, 2, 2, 2)
         self.LabelDuration = QLabel(self.groupBox)
         self.LabelDuration.setObjectName(u"LabelDuration")
 
-        self.verticalLayout_2.addWidget(self.LabelDuration)
+        self.LayoutChartSettings.addWidget(self.LabelDuration)
 
         self.SliderDuration = QSlider(self.groupBox)
         self.SliderDuration.setObjectName(u"SliderDuration")
@@ -125,12 +131,12 @@ class Ui_MainWindow(object):
         self.SliderDuration.setTickPosition(QSlider.TicksAbove)
         self.SliderDuration.setTickInterval(1)
 
-        self.verticalLayout_2.addWidget(self.SliderDuration)
+        self.LayoutChartSettings.addWidget(self.SliderDuration)
 
         self.LabelAmplitude = QLabel(self.groupBox)
         self.LabelAmplitude.setObjectName(u"LabelAmplitude")
 
-        self.verticalLayout_2.addWidget(self.LabelAmplitude)
+        self.LayoutChartSettings.addWidget(self.LabelAmplitude)
 
         self.SliderAmplitude = QSlider(self.groupBox)
         self.SliderAmplitude.setObjectName(u"SliderAmplitude")
@@ -145,7 +151,7 @@ class Ui_MainWindow(object):
         self.SliderAmplitude.setTickPosition(QSlider.TicksAbove)
         self.SliderAmplitude.setTickInterval(5)
 
-        self.verticalLayout_2.addWidget(self.SliderAmplitude)
+        self.LayoutChartSettings.addWidget(self.SliderAmplitude)
 
 
         self.verticalLayout.addWidget(self.groupBox)
@@ -170,7 +176,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1039, 22))
+        self.menubar.setGeometry(QRect(0, 0, 800, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
