@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
-    <height>1000</height>
+    <width>1000</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>BrainBit</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -189,22 +189,25 @@
           <item>
            <widget class="QLabel" name="LabelAmplitude">
             <property name="text">
-             <string>Amplitude (uV): 50</string>
+             <string>Amplitude (uV): 20</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QSlider" name="SliderAmplitude">
             <property name="minimum">
-             <number>50</number>
+             <number>20</number>
             </property>
             <property name="maximum">
-             <number>500</number>
+             <number>200</number>
             </property>
             <property name="singleStep">
              <number>5</number>
             </property>
             <property name="pageStep">
+             <number>20</number>
+            </property>
+            <property name="value">
              <number>20</number>
             </property>
             <property name="orientation">
@@ -220,7 +223,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>5</number>
             </property>
            </widget>
           </item>
@@ -274,7 +277,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1500</width>
+     <width>1000</width>
      <height>22</height>
     </rect>
    </property>

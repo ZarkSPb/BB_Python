@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1500, 1000)
+        MainWindow.resize(1000, 800)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -134,15 +134,16 @@ class Ui_MainWindow(object):
 
         self.SliderAmplitude = QSlider(self.groupBox)
         self.SliderAmplitude.setObjectName(u"SliderAmplitude")
-        self.SliderAmplitude.setMinimum(50)
-        self.SliderAmplitude.setMaximum(500)
+        self.SliderAmplitude.setMinimum(20)
+        self.SliderAmplitude.setMaximum(200)
         self.SliderAmplitude.setSingleStep(5)
         self.SliderAmplitude.setPageStep(20)
+        self.SliderAmplitude.setValue(20)
         self.SliderAmplitude.setOrientation(Qt.Horizontal)
         self.SliderAmplitude.setInvertedAppearance(False)
         self.SliderAmplitude.setInvertedControls(False)
         self.SliderAmplitude.setTickPosition(QSlider.TicksAbove)
-        self.SliderAmplitude.setTickInterval(10)
+        self.SliderAmplitude.setTickInterval(5)
 
         self.verticalLayout_2.addWidget(self.SliderAmplitude)
 
@@ -169,7 +170,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1500, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1000, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -184,7 +185,7 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"BrainBit", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"BrainBit control", None))
         self.ButtonConnect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
@@ -199,6 +200,6 @@ class Ui_MainWindow(object):
         self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2 (Ohm):", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
-        self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 50", None))
+        self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
     # retranslateUi
 

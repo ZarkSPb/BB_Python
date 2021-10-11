@@ -12,8 +12,8 @@ from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 
 # Configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -24,9 +24,9 @@ RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
-UPDATE_SPEED_MS = 20
+UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 2
-IMPEDANCE_UPDATE_SPEED_MS = 200
+UPDATE_IMPEDANCE_SPEED_MS = 200
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
         self.chart_redraw_timer.timeout.connect(self.redraw_charts)
-        self.chart_redraw_timer.start(UPDATE_SPEED_MS)
+        self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
     def _stop_capture(self):
         self.chart_redraw_timer.stop()
@@ -236,7 +236,7 @@ class MainWindow(QMainWindow):
         # Start timer for impedance renew
         self.impedance_update_timer = QTimer()
         self.impedance_update_timer.timeout.connect(self.impedance_update)
-        self.impedance_update_timer.start(IMPEDANCE_UPDATE_SPEED_MS)
+        self.impedance_update_timer.start(UPDATE_IMPEDANCE_SPEED_MS)
 
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonImpedanceStop.setEnabled(True)
