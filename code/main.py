@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
     def redraw_charts(self):
         # copy array in data
         data = self.main_buffer.get_buff(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE).copy()
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         for channel in range(NUM_CHANNELS):
             self.signal_filtering(data[channel])
