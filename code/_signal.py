@@ -29,7 +29,6 @@ class Buffer:
 b = Buffer(buffer_size=10, channels_num=2)
 
 # a = np.array([[1, 2]])
-git 
 # b.add(a)
 # print("\n")
 # print(b.get_buff())
