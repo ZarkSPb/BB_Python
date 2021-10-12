@@ -140,23 +140,17 @@ class MainWindow(QMainWindow):
         DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
         DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
-        # DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-        #                             FilterTypes.BUTTERWORTH.value, 0)
-        # DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-        #                             FilterTypes.BUTTERWORTH.value, 0)
-        # DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-        #                             FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
-        # only for draw ???
-        # data = self.board.get_current_board_data(
-        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) *
-        #     SAMPLE_RATE)[EXG_CHANNELS, :]
-
+        # copy array in data
         data = self.main_buffer.get_buff(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
-
-        print(f'\n\n{data[:,-20:]}')
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE).copy()
 
         for channel in range(NUM_CHANNELS):
             self.signal_filtering(data[channel])
@@ -196,15 +190,6 @@ class MainWindow(QMainWindow):
         data = self.board.get_board_data()[EXG_CHANNELS, :]
         self.main_buffer.add(data)
 
-        # print(f'\n\n{data}')
-        # data = self.main_buffer.get_buff()
-        # print(f'\n{data[:,-10:]}')
-
-        # print(data)
-        # print(self.main_buffer.get_buff(data.shape[1]))
-        # print('\n')
-        # print(f'{data.shape} - {self.main_buffer.get_buff().shape}')
-
     # --------------------BUTTONS--------------------
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
@@ -234,7 +219,7 @@ class MainWindow(QMainWindow):
                 self.ui.LabelFileName2.setText(' ')
 
         # main bufer init
-        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS)
+        self.main_buffer = Buffer(buffer_size=100, channels_num=NUM_CHANNELS)
 
         # board timer init and start
         self.board_timer = QTimer()
@@ -250,7 +235,7 @@ class MainWindow(QMainWindow):
             ])
 
         # board start eeg stream
-        self.board.start_stream(45000)
+        self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
         # Start timer for chart redraw

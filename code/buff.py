@@ -19,8 +19,7 @@ class Buffer:
             self.buff = np.hstack((self.buff, np.zeros(self.buff.shape)))
             self.buff[:, self.last:self.last + add_size] = add_sample
             self.last = self.last + add_size
-
-        # print(self.buff.shape)
+            print(self.buff.shape)
 
     def get_buff(self, count=0):
         if (count == 0) or (count > self.last):
@@ -51,3 +50,6 @@ class Buffer:
 # b.add(a)
 # print("\n")
 # print(b.get_buff(15))
+
+# b.buff = 1
+# print(b.buff)
