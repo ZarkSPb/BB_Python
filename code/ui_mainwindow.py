@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(910, 715)
+        MainWindow.resize(910, 774)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -182,11 +182,32 @@ class Ui_MainWindow(object):
 
         self.LayoutPatient.addWidget(self.LinePatientLastName)
 
-        self.CheckBoxAutosave = QCheckBox(self.groupBox_4)
+        self.groupBox_5 = QGroupBox(self.groupBox_4)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.LayoutSave = QVBoxLayout(self.groupBox_5)
+        self.LayoutSave.setSpacing(4)
+        self.LayoutSave.setObjectName(u"LayoutSave")
+        self.LayoutSave.setContentsMargins(2, 2, 2, 2)
+        self.CheckBoxAutosave = QCheckBox(self.groupBox_5)
         self.CheckBoxAutosave.setObjectName(u"CheckBoxAutosave")
         self.CheckBoxAutosave.setChecked(True)
 
-        self.LayoutPatient.addWidget(self.CheckBoxAutosave)
+        self.LayoutSave.addWidget(self.CheckBoxAutosave)
+
+        self.CheckBoxFiltered = QCheckBox(self.groupBox_5)
+        self.CheckBoxFiltered.setObjectName(u"CheckBoxFiltered")
+        self.CheckBoxFiltered.setChecked(True)
+
+        self.LayoutSave.addWidget(self.CheckBoxFiltered)
+
+        self.ButtonSave = QPushButton(self.groupBox_5)
+        self.ButtonSave.setObjectName(u"ButtonSave")
+        self.ButtonSave.setEnabled(False)
+
+        self.LayoutSave.addWidget(self.ButtonSave)
+
+
+        self.LayoutPatient.addWidget(self.groupBox_5)
 
 
         self.verticalLayout.addWidget(self.groupBox_4)
@@ -228,6 +249,7 @@ class Ui_MainWindow(object):
         self.ButtonDisconnect.clicked.connect(MainWindow._disconnect)
         self.ButtonImpedanceStart.clicked.connect(MainWindow._start_impedance)
         self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
+        self.ButtonSave.clicked.connect(MainWindow._save_data)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -253,6 +275,9 @@ class Ui_MainWindow(object):
         self.label.setText(QCoreApplication.translate("MainWindow", u"First name:", None))
         self.LinePatientFirstName.setText("")
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Last name:", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Save settings", None))
         self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
+        self.CheckBoxFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
+        self.ButtonSave.setText(QCoreApplication.translate("MainWindow", u"Save...", None))
     # retranslateUi
 

@@ -1,5 +1,6 @@
 import sys
 from datetime import datetime
+from PySide6 import QtWidgets
 
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
@@ -188,6 +189,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(True)
+        self.ui.ButtonSave.setEnabled(False)
 
     def update_buff(self):
         data = self.board.get_board_data()[EXG_CHANNELS, :]
@@ -197,10 +199,8 @@ class MainWindow(QMainWindow):
     def save_file_periodic(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
         self.last_save_index += data.shape[1]
-        # print(self.main_buffer.last, data.shape)
-        
-        with open(self.file_name, 'a') as file_object:
-            np.savetxt(file_object, data.T, fmt='%6.3f' ,delimiter=';')
+
+        save_file(data, self.file_name)
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -216,11 +216,13 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.CheckBoxAutosave.setEnabled(False)
+        self.ui.CheckBoxFiltered.setEnabled(False)
         self.ui.LinePatientFirstName.setEnabled(False)
         self.ui.LinePatientLastName.setEnabled(False)
+        self.ui.ButtonSave.setEnabled(False)
 
         save_flag = self.ui.CheckBoxAutosave.isChecked()
-        
+
         if save_flag:
             dt = datetime.now().strftime("%Y-%m-%d__%H-%M-%S")
             self.file_name = dt
@@ -274,7 +276,6 @@ class MainWindow(QMainWindow):
         self.board_timer.stop()
         self.save_timer.stop()
 
-
         self.board.stop_stream()
 
         self.ui.ButtonStart.setEnabled(True)
@@ -282,8 +283,10 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.CheckBoxAutosave.setEnabled(True)
+        self.ui.CheckBoxFiltered.setEnabled(True)
         self.ui.LinePatientFirstName.setEnabled(True)
         self.ui.LinePatientLastName.setEnabled(True)
+        self.ui.ButtonSave.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources
@@ -292,6 +295,7 @@ class MainWindow(QMainWindow):
 
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
+        self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
@@ -307,6 +311,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStop.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
+        self.ui.ButtonSave.setEnabled(False)
 
     def _stop_impedance(self):
         self.board.config_board('CommandStopResist')
@@ -318,6 +323,10 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
 
+    def _save_data(self):
+        filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save eeg data:')
+        print(filename)
+
     def closeEvent(self, event):
         # Release all BB resources
         try:
@@ -327,6 +336,11 @@ class MainWindow(QMainWindow):
                 self.board.release_session()
         except:
             pass
+
+
+def save_file(data, file_name='eeg.csv'):
+    with open(file_name, 'a') as file_object:
+        np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 
 
 def main():
