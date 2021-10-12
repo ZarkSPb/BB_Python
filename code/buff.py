@@ -28,6 +28,7 @@ class Buffer:
         else:
             return self.buff[:, self.last - count:self.last]
 
+
 # b = Buffer(buffer_size=5, channels_num=2)
 # print(b.buff)
 # a = np.array([[1], [2]])
@@ -40,7 +41,6 @@ class Buffer:
 
 # a = np.array([[3, 4, 5], [6, 7, 8]])
 # print(a.shape)
-
 
 # b.add(a)
 # print("\n")

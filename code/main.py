@@ -14,6 +14,8 @@ from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 from buff import Buffer
 
+np.set_printoptions(precision=1, suppress=True)
+
 # Configuring BB
 BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
 # BOARD_ID = BoardIds.BRAINBIT_BOARD.value
@@ -30,7 +32,7 @@ MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 2
 UPDATE_IMPEDANCE_SPEED_MS = 500
-UPDATE_BUFFER_SPEED_MS = 10
+UPDATE_BUFFER_SPEED_MS = 20
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -154,10 +156,10 @@ class MainWindow(QMainWindow):
         data = self.main_buffer.get_buff(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-        print(data.shape)
+        print(f'\n\n{data[:,-20:]}')
 
         for channel in range(NUM_CHANNELS):
-            # self.signal_filtering(data[channel])
+            self.signal_filtering(data[channel])
             redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
             for s in range(redraw_data.shape[0]):
                 self.chart_buffers[channel][s].setY(redraw_data[s])
@@ -190,8 +192,14 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStart.setEnabled(True)
 
     def update_buff(self):
+        pass
         data = self.board.get_board_data()[EXG_CHANNELS, :]
         self.main_buffer.add(data)
+
+        # print(f'\n\n{data}')
+        # data = self.main_buffer.get_buff()
+        # print(f'\n{data[:,-10:]}')
+
         # print(data)
         # print(self.main_buffer.get_buff(data.shape[1]))
         # print('\n')
@@ -226,7 +234,7 @@ class MainWindow(QMainWindow):
                 self.ui.LabelFileName2.setText(' ')
 
         # main bufer init
-        self.main_buffer = Buffer(buffer_size=1000, channels_num=NUM_CHANNELS)
+        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS)
 
         # board timer init and start
         self.board_timer = QTimer()
@@ -242,7 +250,7 @@ class MainWindow(QMainWindow):
             ])
 
         # board start eeg stream
-        self.board.start_stream(1000)
+        self.board.start_stream(45000)
         self.board.config_board('CommandStartSignal')
 
         # Start timer for chart redraw
@@ -273,7 +281,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
-        self.board.start_stream(1000)
+        self.board.start_stream(100)
         self.board.config_board('CommandStartResist')
 
         # Start timer for impedance renew
