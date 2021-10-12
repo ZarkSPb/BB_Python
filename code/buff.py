@@ -20,40 +20,46 @@ class Buffer:
             self.buff[:, self.last:self.last + add_size] = add_sample
             self.last = self.last + add_size
 
-    def get_buff(self, count=0):
+    def get_buff_last(self, count=0):
         if (count == 0) or (count > self.last):
             return self.buff[:, :self.last].copy()
         else:
             return self.buff[:, self.last - count:self.last].copy()
+
+    def get_buff_from(self, count=0):
+        return self.buff[:, count:self.last].copy()
+
 
 
 # b = Buffer(buffer_size=5, channels_num=2)
 # print(b.buff)
 # a = np.array([[1], [2]])
 # b.add(a)
-# print(b.get_buff())
+# print(b.get_buff_last())
 
 # b.add(a)
 # # print("\n")
-# print(b.get_buff())
+# print(b.get_buff_last())
 
 # a = np.array([[3, 4, 5], [6, 7, 8]])
 # print(a.shape)
 
 # b.add(a)
 # print("\n")
-# print(b.get_buff())
+# print(b.get_buff_last())
 
 # print(b.buff)
 
 # b.add(a)
 # print("\n")
 
-# r = b.get_buff()
+# r = b.get_buff_last()
 # print(r)
 
 # r[1] = [0,0,0,0,0,0,0,0]
 # print(r)
 
 # # b.buff = 1
-# print(b.get_buff())
+# print(b.get_buff_last())
+
+# print(b.get_buf_from(5))
