@@ -1,18 +1,18 @@
 import sys
-
 from datetime import datetime
 
 import numpy as np
 from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
-from PySide6.QtCore import (QPointF, QThreadPool, QTimer)
+from PySide6.QtCore import QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
+from buff import Buffer
+from patient import Patient
 from ui_mainwindow import Ui_MainWindow
 from worker import Worker
-from buff import Buffer
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -31,8 +31,10 @@ RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 2
+
 UPDATE_IMPEDANCE_SPEED_MS = 500
 UPDATE_BUFFER_SPEED_MS = 20
+SAVE_INTERVAL_MS = 5000
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -148,7 +150,7 @@ class MainWindow(QMainWindow):
                                     FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
-        data = self.main_buffer.get_buff(
+        data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         # print(data)
@@ -188,9 +190,17 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStart.setEnabled(True)
 
     def update_buff(self):
-        pass
         data = self.board.get_board_data()[EXG_CHANNELS, :]
-        self.main_buffer.add(data)
+        if np.any(data):
+            self.main_buffer.add(data)
+
+    def save_file_periodic(self):
+        data = self.main_buffer.get_buff_from(self.last_save_index)
+        self.last_save_index += data.shape[1]
+        # print(self.main_buffer.last, data.shape)
+        
+        with open(self.file_name, 'a') as file_object:
+            np.savetxt(file_object, data.T, fmt='%6.3f' ,delimiter=';')
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -206,22 +216,35 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.CheckBoxAutosave.setEnabled(False)
-        self.ui.LineEditPatient.setEnabled(False)
+        self.ui.LinePatientFirstName.setEnabled(False)
+        self.ui.LinePatientLastName.setEnabled(False)
 
-        if self.ui.CheckBoxAutosave.isChecked():
-            self.patient_name = self.ui.LineEditPatient.text()
-            dt = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            if self.patient_name:
-                self.file_name = dt + '_' + self.patient_name + '.csv'
-                self.ui.LabelFileName1.setText(dt + '_')
-                self.ui.LabelFileName2.setText(self.patient_name + '.csv')
-            else:
-                self.file_name = dt + '.csv'
-                self.ui.LabelFileName1.setText(dt + '.csv')
-                self.ui.LabelFileName2.setText(' ')
+        save_flag = self.ui.CheckBoxAutosave.isChecked()
+        
+        if save_flag:
+            dt = datetime.now().strftime("%Y-%m-%d__%H-%M-%S")
+            self.file_name = dt
+
+            self.patient = Patient(self.ui.LinePatientFirstName.text(),
+                                   self.ui.LinePatientLastName.text())
+            patient_name = self.patient.get_full_name()
+            if patient_name:
+                self.file_name += '__' + patient_name
+            self.file_name += '.csv'
+
+            self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
+        else:
+            self.ui.statusbar.showMessage(f'No saved')
 
         # main bufer init
-        self.main_buffer = Buffer(buffer_size=100, channels_num=NUM_CHANNELS)
+        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS)
+
+        # timer to save file
+        self.save_timer = QTimer()
+        self.save_timer.timeout.connect(self.save_file_periodic)
+        self.last_save_index = 0
+        if save_flag:
+            self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start
         self.board_timer = QTimer()
@@ -246,8 +269,11 @@ class MainWindow(QMainWindow):
         self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
     def _stop_capture(self):
+        # stop timers
         self.chart_redraw_timer.stop()
         self.board_timer.stop()
+        self.save_timer.stop()
+
 
         self.board.stop_stream()
 
@@ -256,7 +282,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.CheckBoxAutosave.setEnabled(True)
-        self.ui.LineEditPatient.setEnabled(True)
+        self.ui.LinePatientFirstName.setEnabled(True)
+        self.ui.LinePatientLastName.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources

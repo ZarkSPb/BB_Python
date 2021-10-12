@@ -158,40 +158,35 @@ class Ui_MainWindow(object):
 
         self.groupBox_4 = QGroupBox(self.WidgetControl)
         self.groupBox_4.setObjectName(u"groupBox_4")
-        self.LayoutSave = QVBoxLayout(self.groupBox_4)
-        self.LayoutSave.setSpacing(4)
-        self.LayoutSave.setObjectName(u"LayoutSave")
-        self.LayoutSave.setContentsMargins(2, 2, 2, 2)
-        self.CheckBoxAutosave = QCheckBox(self.groupBox_4)
-        self.CheckBoxAutosave.setObjectName(u"CheckBoxAutosave")
-        self.CheckBoxAutosave.setChecked(True)
-
-        self.LayoutSave.addWidget(self.CheckBoxAutosave)
-
+        self.LayoutPatient = QVBoxLayout(self.groupBox_4)
+        self.LayoutPatient.setSpacing(4)
+        self.LayoutPatient.setObjectName(u"LayoutPatient")
+        self.LayoutPatient.setContentsMargins(2, 2, 2, 2)
         self.label = QLabel(self.groupBox_4)
         self.label.setObjectName(u"label")
 
-        self.LayoutSave.addWidget(self.label)
+        self.LayoutPatient.addWidget(self.label)
 
-        self.LineEditPatient = QLineEdit(self.groupBox_4)
-        self.LineEditPatient.setObjectName(u"LineEditPatient")
+        self.LinePatientFirstName = QLineEdit(self.groupBox_4)
+        self.LinePatientFirstName.setObjectName(u"LinePatientFirstName")
 
-        self.LayoutSave.addWidget(self.LineEditPatient)
+        self.LayoutPatient.addWidget(self.LinePatientFirstName)
 
         self.label_2 = QLabel(self.groupBox_4)
         self.label_2.setObjectName(u"label_2")
 
-        self.LayoutSave.addWidget(self.label_2)
+        self.LayoutPatient.addWidget(self.label_2)
 
-        self.LabelFileName1 = QLabel(self.groupBox_4)
-        self.LabelFileName1.setObjectName(u"LabelFileName1")
+        self.LinePatientLastName = QLineEdit(self.groupBox_4)
+        self.LinePatientLastName.setObjectName(u"LinePatientLastName")
 
-        self.LayoutSave.addWidget(self.LabelFileName1)
+        self.LayoutPatient.addWidget(self.LinePatientLastName)
 
-        self.LabelFileName2 = QLabel(self.groupBox_4)
-        self.LabelFileName2.setObjectName(u"LabelFileName2")
+        self.CheckBoxAutosave = QCheckBox(self.groupBox_4)
+        self.CheckBoxAutosave.setObjectName(u"CheckBoxAutosave")
+        self.CheckBoxAutosave.setChecked(True)
 
-        self.LayoutSave.addWidget(self.LabelFileName2)
+        self.LayoutPatient.addWidget(self.CheckBoxAutosave)
 
 
         self.verticalLayout.addWidget(self.groupBox_4)
@@ -220,6 +215,7 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
+        self.statusbar.setSizeGripEnabled(True)
         MainWindow.setStatusBar(self.statusbar)
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
@@ -253,12 +249,10 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Save settings", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Patient data", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"First name:", None))
+        self.LinePatientFirstName.setText("")
+        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Last name:", None))
         self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Patient name:", None))
-        self.LineEditPatient.setText("")
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Saved in:", None))
-        self.LabelFileName1.setText(QCoreApplication.translate("MainWindow", u"Data-Time_", None))
-        self.LabelFileName2.setText(QCoreApplication.translate("MainWindow", u"Patient_name.csv", None))
     # retranslateUi
 
