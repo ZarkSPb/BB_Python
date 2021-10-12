@@ -148,16 +148,16 @@ class MainWindow(QMainWindow):
                                     FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
-        # copy array in data
         data = self.main_buffer.get_buff(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-        for channel in range(NUM_CHANNELS):
-            self.signal_filtering(data[channel])
-            redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-            for s in range(redraw_data.shape[0]):
-                self.chart_buffers[channel][s].setY(redraw_data[s])
-            self.serieses[channel].replace(self.chart_buffers[channel])
+        if np.any(data):
+            for channel in range(NUM_CHANNELS):
+                self.signal_filtering(data[channel])
+                redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+                for s in range(redraw_data.shape[0]):
+                    self.chart_buffers[channel][s].setY(redraw_data[s])
+                self.serieses[channel].replace(self.chart_buffers[channel])
 
     def impedance_update(self):
         data = self.board.get_current_board_data(1)
