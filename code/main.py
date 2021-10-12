@@ -12,10 +12,11 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 
 from ui_mainwindow import Ui_MainWindow
 from worker import Worker
+from buff import Buffer
 
 # Configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -29,6 +30,7 @@ MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 2
 UPDATE_IMPEDANCE_SPEED_MS = 500
+UPDATE_BUFFER_SPEED_MS = 10
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -136,26 +138,30 @@ class MainWindow(QMainWindow):
         DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
         DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
+        # DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+        #                             FilterTypes.BUTTERWORTH.value, 0)
+        # DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+        #                             FilterTypes.BUTTERWORTH.value, 0)
+        # DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+        #                             FilterTypes.BUTTERWORTH.value, 0)
 
     def redraw_charts(self):
         # only for draw ???
-        data = self.board.get_current_board_data(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) *
-            SAMPLE_RATE)[EXG_CHANNELS, :]
+        # data = self.board.get_current_board_data(
+        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) *
+        #     SAMPLE_RATE)[EXG_CHANNELS, :]
 
-        if np.any(data):
-            for channel in range(NUM_CHANNELS):
-                self.signal_filtering(data[channel])
-                redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-                for s in range(redraw_data.shape[0]):
-                    self.chart_buffers[channel][s].setY(redraw_data[s])
-                self.serieses[channel].replace(self.chart_buffers[channel])
+        data = self.main_buffer.get_buff(
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+
+        print(data.shape)
+
+        for channel in range(NUM_CHANNELS):
+            # self.signal_filtering(data[channel])
+            redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+            for s in range(redraw_data.shape[0]):
+                self.chart_buffers[channel][s].setY(redraw_data[s])
+            self.serieses[channel].replace(self.chart_buffers[channel])
 
     def impedance_update(self):
         data = self.board.get_current_board_data(1)
@@ -182,6 +188,14 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(True)
+
+    def update_buff(self):
+        data = self.board.get_board_data()[EXG_CHANNELS, :]
+        self.main_buffer.add(data)
+        # print(data)
+        # print(self.main_buffer.get_buff(data.shape[1]))
+        # print('\n')
+        # print(f'{data.shape} - {self.main_buffer.get_buff().shape}')
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -211,6 +225,14 @@ class MainWindow(QMainWindow):
                 self.ui.LabelFileName1.setText(dt + '.csv')
                 self.ui.LabelFileName2.setText(' ')
 
+        # main bufer init
+        self.main_buffer = Buffer(buffer_size=1000, channels_num=NUM_CHANNELS)
+
+        # board timer init and start
+        self.board_timer = QTimer()
+        self.board_timer.timeout.connect(self.update_buff)
+        self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
+
         # CHART buffer renew
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
@@ -219,7 +241,8 @@ class MainWindow(QMainWindow):
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
-        self.board.start_stream(450000)
+        # board start eeg stream
+        self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
         # Start timer for chart redraw
@@ -229,6 +252,7 @@ class MainWindow(QMainWindow):
 
     def _stop_capture(self):
         self.chart_redraw_timer.stop()
+        self.board_timer.stop()
 
         self.board.stop_stream()
 
@@ -249,7 +273,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
-        self.board.start_stream(450000)
+        self.board.start_stream(1000)
         self.board.config_board('CommandStartResist')
 
         # Start timer for impedance renew
@@ -273,7 +297,6 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
 
     def closeEvent(self, event):
-        # print("Close")
         # Release all BB resources
         try:
             self.chart_redraw_timer.stop()
