@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 ################################################################################
 ## Form generated from reading UI file 'mainwindow.ui'
@@ -182,7 +182,10 @@ class Ui_MainWindow(object):
 
         self.LayoutPatient.addWidget(self.LinePatientLastName)
 
-        self.groupBox_5 = QGroupBox(self.groupBox_4)
+
+        self.verticalLayout.addWidget(self.groupBox_4)
+
+        self.groupBox_5 = QGroupBox(self.WidgetControl)
         self.groupBox_5.setObjectName(u"groupBox_5")
         self.LayoutSave = QVBoxLayout(self.groupBox_5)
         self.LayoutSave.setSpacing(4)
@@ -207,10 +210,7 @@ class Ui_MainWindow(object):
         self.LayoutSave.addWidget(self.ButtonSave)
 
 
-        self.LayoutPatient.addWidget(self.groupBox_5)
-
-
-        self.verticalLayout.addWidget(self.groupBox_4)
+        self.verticalLayout.addWidget(self.groupBox_5)
 
         self.verticalSpacer = QSpacerItem(20, 269, QSizePolicy.Minimum, QSizePolicy.Expanding)
 

@@ -139,17 +139,6 @@ class MainWindow(QMainWindow):
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
 
-    def signal_filtering(self, data):
-        DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-
     def redraw_charts(self):
         data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
@@ -158,7 +147,7 @@ class MainWindow(QMainWindow):
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
-                self.signal_filtering(data[channel])
+                signal_filtering(data[channel])
                 redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for s in range(redraw_data.shape[0]):
                     self.chart_buffers[channel][s].setY(redraw_data[s])
@@ -324,7 +313,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
 
     def _save_data(self):
-        filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save eeg data:')
+        filename = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save eeg data:')
         print(filename)
 
     def closeEvent(self, event):
@@ -341,6 +331,18 @@ class MainWindow(QMainWindow):
 def save_file(data, file_name='eeg.csv'):
     with open(file_name, 'a') as file_object:
         np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+
+
+def signal_filtering(data):
+    DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
+    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
+    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
+    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
+    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
 
 
 def main():
