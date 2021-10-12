@@ -14,8 +14,8 @@ from ui_mainwindow import Ui_MainWindow
 from worker import Worker
 
 # Configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -148,6 +148,8 @@ class MainWindow(QMainWindow):
         data = self.board.get_current_board_data(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) *
             SAMPLE_RATE)[EXG_CHANNELS, :]
+
+        # print(data)
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
