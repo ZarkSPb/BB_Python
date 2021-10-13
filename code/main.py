@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+# from datetime import datetime
 from PySide6 import QtWidgets
 
 import numpy as np
@@ -14,6 +14,7 @@ from buff import Buffer
 from patient import Patient
 from ui_mainwindow import Ui_MainWindow
 from worker import Worker
+from session import Session
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -210,19 +211,14 @@ class MainWindow(QMainWindow):
         self.ui.LinePatientLastName.setEnabled(False)
         self.ui.ButtonSave.setEnabled(False)
 
+        self.session = Session()
+
         save_flag = self.ui.CheckBoxAutosave.isChecked()
 
         if save_flag:
-            dt = datetime.now().strftime("%Y-%m-%d__%H-%M-%S")
-            self.file_name = dt
-
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
-            patient_name = self.patient.get_full_name()
-            if patient_name:
-                self.file_name += '__' + patient_name
-            self.file_name += '.csv'
-
+            self.file_name = file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
         else:
             self.ui.statusbar.showMessage(f'No saved')
@@ -266,6 +262,8 @@ class MainWindow(QMainWindow):
         self.save_timer.stop()
 
         self.board.stop_stream()
+
+        self.session.stop_session()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -313,9 +311,16 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
 
     def _save_data(self):
-        filename = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save eeg data:')
-        print(filename)
+        self.patient = Patient(self.ui.LinePatientFirstName.text(),
+                               self.ui.LinePatientLastName.text())
+        fileName = file_name_constructor(self.patient, self.session)
+        file_name = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save eeg data (*.csv)', f'{fileName}')
+
+        data = self.main_buffer.get_buff_last()
+
+        if file_name[0]:
+            save_file(data, file_name[0])
 
     def closeEvent(self, event):
         # Release all BB resources
@@ -343,6 +348,16 @@ def signal_filtering(data):
                                 FilterTypes.BUTTERWORTH.value, 0)
     DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
                                 FilterTypes.BUTTERWORTH.value, 0)
+
+
+def file_name_constructor(patient, session):
+    file_name = session.start_time.strftime("%Y-%m-%d__%H-%M-%S")
+    patient_name = patient.get_full_name()
+    if patient_name:
+        file_name += '__' + patient_name
+    file_name += '.csv'
+
+    return file_name
 
 
 def main():
