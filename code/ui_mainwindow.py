@@ -241,6 +241,12 @@ class Ui_MainWindow(object):
 
         self.LayoutChartSettings.addWidget(self.SliderAmplitude)
 
+        self.CheckBoxFilterChart = QCheckBox(self.groupBox)
+        self.CheckBoxFilterChart.setObjectName(u"CheckBoxFilterChart")
+        self.CheckBoxFilterChart.setChecked(True)
+
+        self.LayoutChartSettings.addWidget(self.CheckBoxFilterChart)
+
 
         self.verticalLayout.addWidget(self.groupBox)
 
@@ -340,6 +346,7 @@ class Ui_MainWindow(object):
         self.ButtonSave.clicked.connect(MainWindow._save_data)
         self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxFiltered.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -365,6 +372,7 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
+        self.CheckBoxFilterChart.setText(QCoreApplication.translate("MainWindow", u"Signal filtering", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Patient data", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"First name:", None))
         self.LinePatientFirstName.setText("")

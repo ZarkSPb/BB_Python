@@ -117,6 +117,7 @@ class MainWindow(QMainWindow):
 
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
 
     def redraw_charts(self):
         data = self.main_buffer.get_buff_last(
@@ -126,7 +127,8 @@ class MainWindow(QMainWindow):
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
-                signal_filtering(data[channel])
+                if self.chart_filtering_flag:
+                    signal_filtering(data[channel])
                 redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for s in range(redraw_data.shape[0]):
                     self.chart_buffers[channel][s].setY(redraw_data[s])
