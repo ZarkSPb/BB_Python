@@ -465,6 +465,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="CheckBoxFilterChart">
+            <property name="text">
+             <string>Signal filtering</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -807,6 +817,22 @@
     <hint type="destinationlabel">
      <x>294</x>
      <y>613</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxFilterChart</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>497</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>454</x>
+     <y>386</y>
     </hint>
    </hints>
   </connection>
