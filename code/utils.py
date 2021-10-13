@@ -1,5 +1,8 @@
+import numpy as np
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
+
 from settings import *
+
 
 def save_file(data, file_name='eeg.csv'):
     with open(file_name, 'a') as file_object:
