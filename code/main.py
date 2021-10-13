@@ -115,6 +115,9 @@ class MainWindow(QMainWindow):
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
 
+        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
+        self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+
     def redraw_charts(self):
         data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
@@ -163,6 +166,9 @@ class MainWindow(QMainWindow):
 
     def save_file_periodic(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
+        if self.save_filtered_flag:
+            for channel in range(NUM_CHANNELS):
+                signal_filtering(data[channel])
         self.last_save_index += data.shape[1]
 
         save_file(data, self.file_name)
@@ -188,9 +194,7 @@ class MainWindow(QMainWindow):
 
         self.session = Session()
 
-        save_flag = self.ui.CheckBoxAutosave.isChecked()
-
-        if save_flag:
+        if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
             self.file_name = file_name_constructor(self.patient, self.session)
@@ -205,7 +209,7 @@ class MainWindow(QMainWindow):
         self.save_timer = QTimer()
         self.save_timer.timeout.connect(self.save_file_periodic)
         self.last_save_index = 0
-        if save_flag:
+        if self.save_flag:
             self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start

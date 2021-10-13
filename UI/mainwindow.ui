@@ -360,7 +360,7 @@
              <string>Save filtered data</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -582,6 +582,38 @@
     <hint type="destinationlabel">
      <x>229</x>
      <y>639</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxAutosave</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>204</x>
+     <y>588</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxFiltered</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>613</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>613</y>
     </hint>
    </hints>
   </connection>
