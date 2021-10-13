@@ -1,10 +1,8 @@
 import sys
-# from datetime import datetime
-from PySide6 import QtWidgets
 
 import numpy as np
-from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
-from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
+from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from PySide6 import QtWidgets
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
@@ -12,36 +10,13 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 
 from buff import Buffer
 from patient import Patient
-from ui_mainwindow import Ui_MainWindow
-from worker import Worker
 from session import Session
+from settings import *
+from ui_mainwindow import Ui_MainWindow
+from utils import file_name_constructor, save_file, signal_filtering
+from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
-
-# Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
-
-# Getting BB settings
-SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
-EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
-NUM_CHANNELS = len(EXG_CHANNELS)
-EEG_CHANNEL_NAMES = BoardShim.get_eeg_names(BOARD_ID)
-RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
-
-# Chart setting
-MAX_CHART_SIGNAL_DURATION = 20  # seconds
-UPDATE_CHART_SPEED_MS = 40
-SIGNAL_CLIPPING_SEC = 2
-
-UPDATE_IMPEDANCE_SPEED_MS = 500
-UPDATE_BUFFER_SPEED_MS = 20
-SAVE_INTERVAL_MS = 5000
-
-if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
-    NUM_CHANNELS = 4
-    EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
-    EEG_CHANNEL_NAMES = EEG_CHANNEL_NAMES[:4]
 
 
 class MainWindow(QMainWindow):
@@ -331,33 +306,6 @@ class MainWindow(QMainWindow):
                 self.board.release_session()
         except:
             pass
-
-
-def save_file(data, file_name='eeg.csv'):
-    with open(file_name, 'a') as file_object:
-        np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
-
-
-def signal_filtering(data):
-    DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-
-
-def file_name_constructor(patient, session):
-    file_name = session.start_time.strftime("%Y-%m-%d__%H-%M-%S")
-    patient_name = patient.get_full_name()
-    if patient_name:
-        file_name += '__' + patient_name
-    file_name += '.csv'
-
-    return file_name
 
 
 def main():
