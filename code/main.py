@@ -137,18 +137,19 @@ class MainWindow(QMainWindow):
 
         if np.any(data) > 0:
             data = data[RESISTANCE_CHANNELS, 0]
-            print(data)
             self.ui.ProgressBarCh0.setValue(
                 int(data[0]) if data[0] <= 100000 else 100000)
             self.ui.ProgressBarCh1.setValue(
                 int(data[1]) if data[1] <= 100000 else 100000)
-            self.ui.ProgressBarCh2.setValue(
-                int(data[2]) if data[2] <= 100000 else 100000)
-            self.ui.ProgressBarCh3.setValue(
-                int(data[3]) if data[3] <= 100000 else 100000)
+            if len(RESISTANCE_CHANNELS) > 2:
+                self.ui.ProgressBarCh2.setValue(
+                    int(data[2]) if data[2] <= 100000 else 100000)
+                self.ui.ProgressBarCh3.setValue(
+                    int(data[3]) if data[3] <= 100000 else 100000)
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
+        params.timeout = 10
         self.board = BoardShim(BOARD_ID, params)
         self.board.prepare_session()
 
