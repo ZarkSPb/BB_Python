@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>910</width>
-    <height>715</height>
+    <height>774</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -320,6 +320,30 @@
           <item>
            <widget class="QLineEdit" name="LinePatientLastName"/>
           </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Save settings</string>
+         </property>
+         <layout class="QVBoxLayout" name="LayoutSave">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>2</number>
+          </property>
+          <property name="topMargin">
+           <number>2</number>
+          </property>
+          <property name="rightMargin">
+           <number>2</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
           <item>
            <widget class="QCheckBox" name="CheckBoxAutosave">
             <property name="text">
@@ -327,6 +351,26 @@
             </property>
             <property name="checked">
              <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="CheckBoxFiltered">
+            <property name="text">
+             <string>Save filtered data</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ButtonSave">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Save...</string>
             </property>
            </widget>
           </item>
@@ -408,8 +452,8 @@
      <y>388</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>431</y>
+     <x>247</x>
+     <y>374</y>
     </hint>
    </hints>
   </connection>
@@ -424,8 +468,8 @@
      <y>439</y>
     </hint>
     <hint type="destinationlabel">
-     <x>248</x>
-     <y>485</y>
+     <x>235</x>
+     <y>426</y>
     </hint>
    </hints>
   </connection>
@@ -525,6 +569,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ButtonSave</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_save_data()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>154</x>
+     <y>628</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>639</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxAutosave</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>138</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>204</x>
+     <y>588</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxFiltered</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>613</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>613</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>update_ui()</slot>
@@ -534,5 +626,6 @@
   <slot>_disconnect()</slot>
   <slot>_start_impedance()</slot>
   <slot>_stop_impedance()</slot>
+  <slot>_save_data()</slot>
  </slots>
 </ui>

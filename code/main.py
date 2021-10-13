@@ -1,9 +1,8 @@
 import sys
-from datetime import datetime
 
 import numpy as np
-from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
-from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
+from brainflow.board_shim import BoardShim, BrainFlowInputParams
+from PySide6 import QtWidgets
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtCore import QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
@@ -11,35 +10,13 @@ from PySide6.QtWidgets import QApplication, QMainWindow
 
 from buff import Buffer
 from patient import Patient
+from session import Session
+from settings import *
 from ui_mainwindow import Ui_MainWindow
+from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
-
-# Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
-
-# Getting BB settings
-SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
-EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
-NUM_CHANNELS = len(EXG_CHANNELS)
-EEG_CHANNEL_NAMES = BoardShim.get_eeg_names(BOARD_ID)
-RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
-
-# Chart setting
-MAX_CHART_SIGNAL_DURATION = 20  # seconds
-UPDATE_CHART_SPEED_MS = 40
-SIGNAL_CLIPPING_SEC = 2
-
-UPDATE_IMPEDANCE_SPEED_MS = 500
-UPDATE_BUFFER_SPEED_MS = 20
-SAVE_INTERVAL_MS = 5000
-
-if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
-    NUM_CHANNELS = 4
-    EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
-    EEG_CHANNEL_NAMES = EEG_CHANNEL_NAMES[:4]
 
 
 class MainWindow(QMainWindow):
@@ -138,16 +115,8 @@ class MainWindow(QMainWindow):
             chart_view.chart().axisY().setRange(-chart_amplitude,
                                                 chart_amplitude)
 
-    def signal_filtering(self, data):
-        DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
+        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
+        self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
 
     def redraw_charts(self):
         data = self.main_buffer.get_buff_last(
@@ -157,7 +126,7 @@ class MainWindow(QMainWindow):
 
         if np.any(data):
             for channel in range(NUM_CHANNELS):
-                self.signal_filtering(data[channel])
+                signal_filtering(data[channel])
                 redraw_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for s in range(redraw_data.shape[0]):
                     self.chart_buffers[channel][s].setY(redraw_data[s])
@@ -188,6 +157,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(True)
+        self.ui.ButtonSave.setEnabled(False)
 
     def update_buff(self):
         data = self.board.get_board_data()[EXG_CHANNELS, :]
@@ -196,11 +166,12 @@ class MainWindow(QMainWindow):
 
     def save_file_periodic(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
+        if self.save_filtered_flag:
+            for channel in range(NUM_CHANNELS):
+                signal_filtering(data[channel])
         self.last_save_index += data.shape[1]
-        # print(self.main_buffer.last, data.shape)
-        
-        with open(self.file_name, 'a') as file_object:
-            np.savetxt(file_object, data.T, fmt='%6.3f' ,delimiter=';')
+
+        save_file(data, self.file_name)
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -216,22 +187,17 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.CheckBoxAutosave.setEnabled(False)
+        self.ui.CheckBoxFiltered.setEnabled(False)
         self.ui.LinePatientFirstName.setEnabled(False)
         self.ui.LinePatientLastName.setEnabled(False)
+        self.ui.ButtonSave.setEnabled(False)
 
-        save_flag = self.ui.CheckBoxAutosave.isChecked()
-        
-        if save_flag:
-            dt = datetime.now().strftime("%Y-%m-%d__%H-%M-%S")
-            self.file_name = dt
+        self.session = Session()
 
+        if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
-            patient_name = self.patient.get_full_name()
-            if patient_name:
-                self.file_name += '__' + patient_name
-            self.file_name += '.csv'
-
+            self.file_name = file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
         else:
             self.ui.statusbar.showMessage(f'No saved')
@@ -243,7 +209,7 @@ class MainWindow(QMainWindow):
         self.save_timer = QTimer()
         self.save_timer.timeout.connect(self.save_file_periodic)
         self.last_save_index = 0
-        if save_flag:
+        if self.save_flag:
             self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start
@@ -274,16 +240,19 @@ class MainWindow(QMainWindow):
         self.board_timer.stop()
         self.save_timer.stop()
 
-
         self.board.stop_stream()
+
+        self.session.stop_session()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.CheckBoxAutosave.setEnabled(True)
+        self.ui.CheckBoxFiltered.setEnabled(True)
         self.ui.LinePatientFirstName.setEnabled(True)
         self.ui.LinePatientLastName.setEnabled(True)
+        self.ui.ButtonSave.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources
@@ -292,6 +261,7 @@ class MainWindow(QMainWindow):
 
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
+        self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
@@ -307,6 +277,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStop.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
+        self.ui.ButtonSave.setEnabled(False)
 
     def _stop_impedance(self):
         self.board.config_board('CommandStopResist')
@@ -317,6 +288,18 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStop.setEnabled(False)
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
+
+    def _save_data(self):
+        self.patient = Patient(self.ui.LinePatientFirstName.text(),
+                               self.ui.LinePatientLastName.text())
+        fileName = file_name_constructor(self.patient, self.session)
+        file_name = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save eeg data (*.csv)', f'{fileName}')
+
+        data = self.main_buffer.get_buff_last()
+
+        if file_name[0]:
+            save_file(data, file_name[0])
 
     def closeEvent(self, event):
         # Release all BB resources
