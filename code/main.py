@@ -48,10 +48,10 @@ class MainWindow(QMainWindow):
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
 
         # --------------------Impedance label fill--------------------
-        self.ui.LabelCh0.setText(f'{EEG_CHANNEL_NAMES[0]} (Ohm):')
-        self.ui.LabelCh1.setText(f'{EEG_CHANNEL_NAMES[1]} (Ohm):')
-        self.ui.LabelCh2.setText(f'{EEG_CHANNEL_NAMES[2]} (Ohm):')
-        self.ui.LabelCh3.setText(f'{EEG_CHANNEL_NAMES[3]} (Ohm):')
+        self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
+        self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
+        self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
+        self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3])
 
         self.update_ui()
 
@@ -137,16 +137,15 @@ class MainWindow(QMainWindow):
 
         if np.any(data) > 0:
             data = data[RESISTANCE_CHANNELS, 0]
-
-            self.ui.LabelCh0.setText(
-                f'{EEG_CHANNEL_NAMES[0]} (Ohm): {data[0]:.0f}')
-            self.ui.LabelCh1.setText(
-                f'{EEG_CHANNEL_NAMES[1]} (Ohm): {data[1]:.0f}')
-            if len(RESISTANCE_CHANNELS) > 2:
-                self.ui.LabelCh2.setText(
-                    f'{EEG_CHANNEL_NAMES[2]} (Ohm): {data[2]:.0f}')
-                self.ui.LabelCh3.setText(
-                    f'{EEG_CHANNEL_NAMES[3]} (Ohm): {data[3]:.0f}')
+            print(data)
+            self.ui.ProgressBarCh0.setValue(
+                int(data[0]) if data[0] <= 100000 else 100000)
+            self.ui.ProgressBarCh1.setValue(
+                int(data[1]) if data[1] <= 100000 else 100000)
+            self.ui.ProgressBarCh2.setValue(
+                int(data[2]) if data[2] <= 100000 else 100000)
+            self.ui.ProgressBarCh3.setValue(
+                int(data[3]) if data[3] <= 100000 else 100000)
 
     def connect_toBB(self):
         params = BrainFlowInputParams()

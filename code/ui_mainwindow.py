@@ -16,9 +16,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-    QLabel, QLineEdit, QMainWindow, QMenuBar,
-    QPushButton, QSizePolicy, QSlider, QSpacerItem,
-    QStatusBar, QVBoxLayout, QWidget)
+    QHBoxLayout, QLabel, QLayout, QLineEdit,
+    QMainWindow, QMenuBar, QProgressBar, QPushButton,
+    QSizePolicy, QSlider, QSpacerItem, QStatusBar,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -87,25 +88,112 @@ class Ui_MainWindow(object):
 
         self.LayoutImpedance.addWidget(self.ButtonImpedanceStop)
 
-        self.LabelCh0 = QLabel(self.groupBox_2)
+        self.widget = QWidget(self.groupBox_2)
+        self.widget.setObjectName(u"widget")
+        self.horizontalLayout = QHBoxLayout(self.widget)
+        self.horizontalLayout.setSpacing(4)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+
+        self.LayoutImpedance.addWidget(self.widget)
+
+        self.widget_4 = QWidget(self.groupBox_2)
+        self.widget_4.setObjectName(u"widget_4")
+        self.horizontalLayout_4 = QHBoxLayout(self.widget_4)
+        self.horizontalLayout_4.setSpacing(4)
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.widget_5 = QWidget(self.widget_4)
+        self.widget_5.setObjectName(u"widget_5")
+        self.verticalLayout_4 = QVBoxLayout(self.widget_5)
+        self.verticalLayout_4.setSpacing(4)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.LabelCh0 = QLabel(self.widget_5)
         self.LabelCh0.setObjectName(u"LabelCh0")
 
-        self.LayoutImpedance.addWidget(self.LabelCh0)
+        self.verticalLayout_4.addWidget(self.LabelCh0)
 
-        self.LabelCh1 = QLabel(self.groupBox_2)
+        self.LabelCh1 = QLabel(self.widget_5)
         self.LabelCh1.setObjectName(u"LabelCh1")
 
-        self.LayoutImpedance.addWidget(self.LabelCh1)
+        self.verticalLayout_4.addWidget(self.LabelCh1)
 
-        self.LabelCh2 = QLabel(self.groupBox_2)
+        self.LabelCh2 = QLabel(self.widget_5)
         self.LabelCh2.setObjectName(u"LabelCh2")
 
-        self.LayoutImpedance.addWidget(self.LabelCh2)
+        self.verticalLayout_4.addWidget(self.LabelCh2)
 
-        self.LabelCh3 = QLabel(self.groupBox_2)
+        self.LabelCh3 = QLabel(self.widget_5)
         self.LabelCh3.setObjectName(u"LabelCh3")
 
-        self.LayoutImpedance.addWidget(self.LabelCh3)
+        self.verticalLayout_4.addWidget(self.LabelCh3)
+
+
+        self.horizontalLayout_4.addWidget(self.widget_5)
+
+        self.widget_6 = QWidget(self.widget_4)
+        self.widget_6.setObjectName(u"widget_6")
+        self.verticalLayout_5 = QVBoxLayout(self.widget_6)
+        self.verticalLayout_5.setSpacing(4)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setSizeConstraint(QLayout.SetDefaultConstraint)
+        self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+        self.ProgressBarCh0 = QProgressBar(self.widget_6)
+        self.ProgressBarCh0.setObjectName(u"ProgressBarCh0")
+        self.ProgressBarCh0.setMaximum(100000)
+        self.ProgressBarCh0.setValue(0)
+        self.ProgressBarCh0.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self.ProgressBarCh0)
+
+        self.ProgressBarCh1 = QProgressBar(self.widget_6)
+        self.ProgressBarCh1.setObjectName(u"ProgressBarCh1")
+        self.ProgressBarCh1.setMaximum(100000)
+        self.ProgressBarCh1.setValue(0)
+        self.ProgressBarCh1.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self.ProgressBarCh1)
+
+        self.ProgressBarCh2 = QProgressBar(self.widget_6)
+        self.ProgressBarCh2.setObjectName(u"ProgressBarCh2")
+        self.ProgressBarCh2.setMaximum(100000)
+        self.ProgressBarCh2.setValue(0)
+        self.ProgressBarCh2.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self.ProgressBarCh2)
+
+        self.ProgressBarCh3 = QProgressBar(self.widget_6)
+        self.ProgressBarCh3.setObjectName(u"ProgressBarCh3")
+        self.ProgressBarCh3.setMaximum(100000)
+        self.ProgressBarCh3.setValue(0)
+        self.ProgressBarCh3.setAlignment(Qt.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self.ProgressBarCh3)
+
+
+        self.horizontalLayout_4.addWidget(self.widget_6)
+
+
+        self.LayoutImpedance.addWidget(self.widget_4)
+
+        self.widget_2 = QWidget(self.groupBox_2)
+        self.widget_2.setObjectName(u"widget_2")
+        self.horizontalLayout_2 = QHBoxLayout(self.widget_2)
+        self.horizontalLayout_2.setSpacing(4)
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
+
+        self.LayoutImpedance.addWidget(self.widget_2)
+
+        self.widget_3 = QWidget(self.groupBox_2)
+        self.widget_3.setObjectName(u"widget_3")
+        self.horizontalLayout_3 = QHBoxLayout(self.widget_3)
+        self.horizontalLayout_3.setSpacing(4)
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(0, 0, 0, 0)
+
+        self.LayoutImpedance.addWidget(self.widget_3)
 
 
         self.verticalLayout.addWidget(self.groupBox_2)
@@ -266,10 +354,14 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Impedance", None))
         self.ButtonImpedanceStart.setText(QCoreApplication.translate("MainWindow", u"Start impedance", None))
         self.ButtonImpedanceStop.setText(QCoreApplication.translate("MainWindow", u"Stop impedance", None))
-        self.LabelCh0.setText(QCoreApplication.translate("MainWindow", u"T3 (Ohm):", None))
-        self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4 (Ohm):", None))
-        self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1 (Ohm):", None))
-        self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2 (Ohm):", None))
+        self.LabelCh0.setText(QCoreApplication.translate("MainWindow", u"T3", None))
+        self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4", None))
+        self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1", None))
+        self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2", None))
+        self.ProgressBarCh0.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
+        self.ProgressBarCh1.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
+        self.ProgressBarCh2.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
+        self.ProgressBarCh3.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
