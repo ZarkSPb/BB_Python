@@ -390,4 +390,4 @@
 #     sys.exit(app.exec())
 
 
-print(list(range(4-1, 0-1, -1)))
+print(list(range(2, 0, -1)))
