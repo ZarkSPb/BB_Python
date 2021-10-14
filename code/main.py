@@ -124,7 +124,6 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amplitude)
         self.chart_buffer_update()
-        print(self.chart_view.chart().axes())
         self.chart_view.chart().removeAxis(self.chart_view.chart().axes()[2])
         axis_c = self.create_axis_c()
         self.chart_view.chart().addAxis(axis_c, QtCore.Qt.AlignLeft)
