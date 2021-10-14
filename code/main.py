@@ -204,14 +204,14 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
 
     def update_buff(self):
-        data = self.board.get_board_data()
+        data = self.board.get_board_data()[SAVE_CHANNEL, :]
 
-        for d in data[TIMESTAMP_CHANNEL]:
-            tm = QDateTime.fromMSecsSinceEpoch(d * 1000)
-            print(tm)
+        # for d in data[TIMESTAMP_CHANNEL]:
+        #     tm = QDateTime.fromMSecsSinceEpoch(d * 1000)
+        #     print(tm)
 
         if np.any(data):
-            self.main_buffer.add(data[EXG_CHANNELS, :])
+            self.main_buffer.add(data)
 
     def save_file_periodic(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
@@ -251,8 +251,8 @@ class MainWindow(QMainWindow):
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
-        # main bufer init
-        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS)
+        # main bufer init +1 - for timestamp
+        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS + 1)
 
         # timer to save file
         self.save_timer = QTimer()

@@ -1,8 +1,8 @@
 from brainflow.board_shim import BoardIds, BoardShim
 
 # Configuring BB
-# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -25,3 +25,6 @@ if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
     EXG_CHANNELS = EXG_CHANNELS[:NUM_CHANNELS]
     EEG_CHANNEL_NAMES = EEG_CHANNEL_NAMES[:4]
+
+SAVE_CHANNEL = EXG_CHANNELS.copy()
+SAVE_CHANNEL.append(TIMESTAMP_CHANNEL)
