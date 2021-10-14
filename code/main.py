@@ -94,14 +94,17 @@ class MainWindow(QMainWindow):
     def create_axis_c(self):
         axis_c = QCategoryAxis()
         axis_c.setRange(0, 4)
+        axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
             chart_amplitude = self.ui.SliderAmplitude.value()
             if i == 0:
                 axis_c.append(f'{-chart_amplitude}', 0)
+            axis_c.append(f'{int(-chart_amplitude / 2)}' + i * ' ', i + 0.25)
             axis_c.append(ch_name, i + 0.5)
+            axis_c.append(f'{int(chart_amplitude / 2)}' + i * ' ', i + 0.75)
             if i < 3:
-                axis_c.append(f'-+{chart_amplitude}' + i * ' ', i + 1)
+                axis_c.append(f'({chart_amplitude})' + i * ' ', i + 1)
             else:
                 axis_c.append(f'{chart_amplitude}', i + 1)
         return axis_c
