@@ -55,26 +55,17 @@ class MainWindow(QMainWindow):
         axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
         axis_x.setMinorTickCount(1)
         axis_x.setLabelFormat('%i')
+        chart.addAxis(axis_x, QtCore.Qt.AlignBottom)
 
         axis_y = QValueAxis()
         axis_y.setRange(0, 400)
         axis_y.setTickCount(9)
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
-
-        axis_c = QCategoryAxis()
-        axis_c.setRange(0, 4)
-        # axis_c.setGridLineColor('black')
-        self.channel_names[NUM_CHANNELS - 1::-1]
-        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            axis_c.append(ch_name, i + 1)
-
-        chart.addAxis(axis_x, QtCore.Qt.AlignBottom)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-        chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
 
-        # axis_c = QCategoryAxis()
-        
+        axis_c = self.create_axis_c()
+        chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
 
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
@@ -100,6 +91,21 @@ class MainWindow(QMainWindow):
 
         self.update_ui()
 
+    def create_axis_c(self):
+        axis_c = QCategoryAxis()
+        axis_c.setRange(0, 4)
+        axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
+            chart_amplitude = self.ui.SliderAmplitude.value()
+            if i == 0:
+                axis_c.append(f'{-chart_amplitude}', 0)
+            axis_c.append(ch_name, i + 0.5)
+            if i < 3:
+                axis_c.append(f'-+{chart_amplitude}' + i * ' ', i + 1)
+            else:
+                axis_c.append(f'{chart_amplitude}', i + 1)
+        return axis_c
+
         # --------------------UPDATE UI--------------------
     def update_ui(self):
         # Read slider params
@@ -118,6 +124,10 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amplitude)
         self.chart_buffer_update()
+        print(self.chart_view.chart().axes())
+        self.chart_view.chart().removeAxis(self.chart_view.chart().axes()[2])
+        axis_c = self.create_axis_c()
+        self.chart_view.chart().addAxis(axis_c, QtCore.Qt.AlignLeft)
 
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
@@ -135,6 +145,11 @@ class MainWindow(QMainWindow):
                     (NUM_CHANNELS - 1 - i) * 2 * self.chart_amplitude)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
+
+        try:
+            self.redraw_charts()
+        except:
+            pass
 
     def redraw_charts(self):
         data = self.main_buffer.get_buff_last(
