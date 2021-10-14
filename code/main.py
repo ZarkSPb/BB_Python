@@ -1,13 +1,11 @@
-import enum
 import sys
-import PySide6
-from PySide6 import QtCore
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
-from PySide6 import QtWidgets
-from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QCategoryAxis
-from PySide6.QtCore import QPointF, QThreadPool, QTimer
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
+                              QLineSeries, QValueAxis)
+from PySide6.QtCore import QPointF, QThreadPool, QTimer, QDateTime
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -55,7 +53,7 @@ class MainWindow(QMainWindow):
         axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
         axis_x.setMinorTickCount(1)
         axis_x.setLabelFormat('%i')
-        chart.addAxis(axis_x, QtCore.Qt.AlignBottom)
+        chart.addAxis(axis_x, QtCore.Qt.AlignTop)
 
         axis_y = QValueAxis()
         axis_y.setRange(0, 400)
@@ -63,6 +61,16 @@ class MainWindow(QMainWindow):
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
+
+        # //////////////////////////////////////////////////////////////////////
+
+        axis_t = QDateTimeAxis()
+        axis_t.setFormat('h:mm:ss')
+        current_time = QDateTime.currentDateTime()
+        axis_t.setRange(current_time, current_time.addSecs(20))
+        chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+
+        # //////////////////////////////////////////////////////////////////////
 
         axis_c = self.create_axis_c()
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
@@ -127,7 +135,7 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amplitude)
         self.chart_buffer_update()
-        self.chart_view.chart().removeAxis(self.chart_view.chart().axes()[2])
+        self.chart_view.chart().removeAxis(self.chart_view.chart().axes()[3])
         axis_c = self.create_axis_c()
         self.chart_view.chart().addAxis(axis_c, QtCore.Qt.AlignLeft)
 
@@ -147,7 +155,6 @@ class MainWindow(QMainWindow):
                     (NUM_CHANNELS - 1 - i) * 2 * self.chart_amplitude)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
-
         try:
             self.redraw_charts()
         except:
@@ -197,9 +204,14 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
 
     def update_buff(self):
-        data = self.board.get_board_data()[EXG_CHANNELS, :]
+        data = self.board.get_board_data()
+
+        for d in data[TIMESTAMP_CHANNEL]:
+            tm = QDateTime.fromMSecsSinceEpoch(d * 1000)
+            print(tm)
+
         if np.any(data):
-            self.main_buffer.add(data)
+            self.main_buffer.add(data[EXG_CHANNELS, :])
 
     def save_file_periodic(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)

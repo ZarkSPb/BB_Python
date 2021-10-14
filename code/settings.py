@@ -1,8 +1,8 @@
 from brainflow.board_shim import BoardIds, BoardShim
 
 # Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -10,6 +10,7 @@ EXG_CHANNELS = BoardShim.get_exg_channels(BOARD_ID)
 NUM_CHANNELS = len(EXG_CHANNELS)
 EEG_CHANNEL_NAMES = BoardShim.get_eeg_names(BOARD_ID)
 RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
+TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
