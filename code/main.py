@@ -73,6 +73,9 @@ class MainWindow(QMainWindow):
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
 
+        # axis_c = QCategoryAxis()
+        
+
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             # series.setColor('#209fdf')
@@ -127,8 +130,9 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
-                QPointF(x / SAMPLE_RATE,
-                        self.chart_amplitude + (NUM_CHANNELS - 1 - i) * 2 * self.chart_amplitude)
+                QPointF(
+                    x / SAMPLE_RATE, self.chart_amplitude +
+                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amplitude)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
@@ -143,7 +147,9 @@ class MainWindow(QMainWindow):
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
-                        r_data[i] + 50 + (NUM_CHANNELS - 1 - channel) * 100)
+                        r_data[i] + self.chart_amplitude +
+                        (NUM_CHANNELS - 1 - channel) * 2 *
+                        self.chart_amplitude)
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
     def impedance_update(self):
