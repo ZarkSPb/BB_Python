@@ -124,7 +124,8 @@ class MainWindow(QMainWindow):
     def update_time_axis(self, axis_t, start_time=0):
         if start_time == 0:
             start_time = QDateTime.currentDateTime()
-        offset = int(start_time.toString('zzz'))
+        start_time = start_time.addSecs(1)
+        offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
         for label in labels:
             axis_t.remove(label)
@@ -155,7 +156,7 @@ class MainWindow(QMainWindow):
 
     # //////////////////////////////////////////////////////////////////////////
 
-    # --------------------UPDATE UI--------------------
+    # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
         # Read slider params
         self.chart_duration = self.ui.SliderDuration.value()
@@ -184,14 +185,14 @@ class MainWindow(QMainWindow):
         self.update_channels_axis(axis_c)
         # //////////////////////////////////////////////////////////////////////
 
-        self.chart_buffer_update()
-
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Filtered save checkbox
         self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
         # Filtered chart checkbox
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
+
+        self.chart_buffer_update()
 
     def chart_buffer_update(self):
         self.chart_buffers = []
@@ -211,14 +212,13 @@ class MainWindow(QMainWindow):
         data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-        if np.any(data):
-            try:
-                start_time = data[-1, -SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
-                axis_t = self.chart_view.chart().axes()[2]
-                print(QDateTime.fromMSecsSinceEpoch(start_time * 1000))
-                self.update_time_axis(axis_t, start_time=start_time)
-            except:
-                pass
+        # if np.any(data):
+        try:
+            start_time = data[-1, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
+            axis_t = self.chart_view.chart().axes()[2]
+            self.update_time_axis(axis_t,
+                                  start_time=QDateTime.fromMSecsSinceEpoch(
+                                      int(start_time * 1000)))
 
             for channel in range(NUM_CHANNELS):
                 if self.chart_filtering_flag:
@@ -230,6 +230,9 @@ class MainWindow(QMainWindow):
                         r_data[i] + self.chart_amp +
                         (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
                 self.serieses[channel].replace(self.chart_buffers[channel])
+
+        except:
+            pass
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -260,11 +263,6 @@ class MainWindow(QMainWindow):
 
     def timer_update_buff(self):
         data = self.board.get_board_data()[SAVE_CHANNEL, :]
-
-        # for d in data[TIMESTAMP_CHANNEL]:
-        #     tm = QDateTime.fromMSecsSinceEpoch(d * 1000)
-        #     print(tm)
-
         if np.any(data):
             self.main_buffer.add(data)
 
