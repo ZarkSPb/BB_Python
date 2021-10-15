@@ -129,13 +129,17 @@ class MainWindow(QMainWindow):
         labels = axis_t.categoriesLabels()
         for label in labels:
             axis_t.remove(label)
+
         axis_t.append(start_time.toString('hh:mm:ss'), offset)
+
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i)
             axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+
         axis_t.append(
-            start_time.addSecs(self.chart_duration).toString('hh:mm:ss'),
+            start_time.addSecs(self.chart_duration -1).toString('hh:mm:ss'),
             offset + (self.chart_duration - 1) * 1000)
+
         return axis_t
 
     # //////////////////////////////////////////////////////////////////////////
