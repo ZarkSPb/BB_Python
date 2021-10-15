@@ -65,9 +65,10 @@ class MainWindow(QMainWindow):
         # //////////////////////////////////////////////////////////////////////
 
         axis_t = QDateTimeAxis()
-        axis_t.setFormat('h:mm:ss')
+        axis_t.setFormat('h:mm:ss.zzz')
         current_time = QDateTime.currentDateTime()
         axis_t.setRange(current_time, current_time.addSecs(20))
+        axis_t.setTickCount(10)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
 
         # //////////////////////////////////////////////////////////////////////
@@ -169,6 +170,16 @@ class MainWindow(QMainWindow):
                 if self.chart_filtering_flag:
                     signal_filtering(data[channel])
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+
+                t_data = data[-1, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+                if t_data.shape[0] > 2:
+                    axes = self.chart_view.chart().axes()[2]
+                    t_start = QDateTime.fromMSecsSinceEpoch(int(t_data[0] * 1000))
+                    t_end = t_start.addSecs(self.chart_duration)
+                    # print(t_start, t_end, sep='\n')
+                    # self.chart_view.chart().axes()[2].setRange(t_start, t_end)
+                    axes.setRange(t_start, t_end)
+
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
                         r_data[i] + self.chart_amplitude +
@@ -252,7 +263,8 @@ class MainWindow(QMainWindow):
             self.ui.statusbar.showMessage(f'No saved')
 
         # main bufer init +1 - for timestamp
-        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS + 1)
+        self.main_buffer = Buffer(buffer_size=10000,
+                                  channels_num=NUM_CHANNELS + 1)
 
         # timer to save file
         self.save_timer = QTimer()
