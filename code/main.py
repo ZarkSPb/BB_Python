@@ -64,11 +64,22 @@ class MainWindow(QMainWindow):
 
         # //////////////////////////////////////////////////////////////////////
 
-        axis_t = QDateTimeAxis()
-        axis_t.setFormat('h:mm:ss.zzz')
+        # axis_t = QDateTimeAxis()
+        # axis_t.setFormat('h:mm:ss')
+        # current_time = QDateTime.currentDateTime()
+        # axis_t.setRange(current_time, current_time.addSecs(20))
+        # # axis_t.setLabelsAngle(-45)
+        # # axis_t.setTickCount(10)
+        # chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+
+        axis_t = QCategoryAxis()
+        axis_t.setRange(0, 20000)
+        axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+
         current_time = QDateTime.currentDateTime()
-        axis_t.setRange(current_time, current_time.addSecs(20))
-        axis_t.setTickCount(10)
+        
+        axis_t.append("hgjhg", 2300)
+
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
 
         # //////////////////////////////////////////////////////////////////////
