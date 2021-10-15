@@ -110,16 +110,23 @@ class MainWindow(QMainWindow):
         self.update_ui()
 
     # ///////////////////////////////////////////////////////// Update TIME tick
-    def update_timetick(self, axis_t, start_time=QDateTime.currentDateTime()):
+    def update_timetick(self, axis_t, start_time=0):
+        if start_time == 0:
+            start_time = QDateTime.currentDateTime()
         offset = int(start_time.toString('zzz'))
+        print(offset)
         labels = axis_t.categoriesLabels()
         for label in labels:
             axis_t.remove(label)
-        
-        for i in range(self.chart_duration):
+        axis_t.append(start_time.toString('hh:mm:ss'), offset)
+        for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i)
-            axis_t.append(shifted_time.toString('mm:ss'), offset + i * 1000)
+            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+        axis_t.append(
+            start_time.addSecs(self.chart_duration).toString('hh:mm:ss'),
+            offset + (self.chart_duration - 1) * 1000)
         return axis_t
+
     # //////////////////////////////////////////////////////////////////////////
 
     # //////////////////////////////////////// Create Amplitude Categorical axis
@@ -140,9 +147,10 @@ class MainWindow(QMainWindow):
             else:
                 axis_c.append(f'{chart_amplitude}', i + 1)
         return axis_c
+
     # //////////////////////////////////////////////////////////////////////////
 
-        # --------------------UPDATE UI--------------------
+    # --------------------UPDATE UI--------------------
     def update_ui(self):
         # Read slider params
         self.chart_duration = self.ui.SliderDuration.value()
@@ -151,7 +159,7 @@ class MainWindow(QMainWindow):
         # ////////////////////////////////////////////////////// Duration slider
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
-        
+
         axis_x = self.chart_view.chart().axisX()
         axis_x.setTickCount(self.chart_duration + 1)
         axis_x.setRange(0, self.chart_duration)
@@ -188,11 +196,11 @@ class MainWindow(QMainWindow):
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
         try:
-            self.redraw_charts()
+            self.timer_redraw_charts()
         except:
             pass
 
-    def redraw_charts(self):
+    def timer_redraw_charts(self):
         data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
@@ -201,8 +209,8 @@ class MainWindow(QMainWindow):
                 if self.chart_filtering_flag:
                     signal_filtering(data[channel])
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-    
-    # //////////////////////////////////////////////////////////////////////////
+
+                # //////////////////////////////////////////////////////////////////////////
                 t_data = data[-1, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 if t_data.shape[0] > 2:
                     axes = self.chart_view.chart().axes()[2]
@@ -213,9 +221,10 @@ class MainWindow(QMainWindow):
                         (NUM_CHANNELS - 1 - channel) * 2 *
                         self.chart_amplitude)
                 self.serieses[channel].replace(self.chart_buffers[channel])
+
     # //////////////////////////////////////////////////////////////////////////
 
-    def impedance_update(self):
+    def timer_impedance(self):
         data = self.board.get_current_board_data(1)
 
         if np.any(data) > 0:
@@ -242,7 +251,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.ButtonSave.setEnabled(False)
 
-    def update_buff(self):
+    def timer_update_buff(self):
         data = self.board.get_board_data()[SAVE_CHANNEL, :]
 
         # for d in data[TIMESTAMP_CHANNEL]:
@@ -252,7 +261,7 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.main_buffer.add(data)
 
-    def save_file_periodic(self):
+    def timer_save_file(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
         if self.save_filtered_flag:
             for channel in range(NUM_CHANNELS):
@@ -296,14 +305,14 @@ class MainWindow(QMainWindow):
 
         # timer to save file
         self.save_timer = QTimer()
-        self.save_timer.timeout.connect(self.save_file_periodic)
+        self.save_timer.timeout.connect(self.timer_save_file)
         self.last_save_index = 0
         if self.save_flag:
             self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start
         self.board_timer = QTimer()
-        self.board_timer.timeout.connect(self.update_buff)
+        self.board_timer.timeout.connect(self.timer_update_buff)
         self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
 
         # CHART buffer renew
@@ -315,7 +324,7 @@ class MainWindow(QMainWindow):
 
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
-        self.chart_redraw_timer.timeout.connect(self.redraw_charts)
+        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
         self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
     def _stop_capture(self):
@@ -354,7 +363,7 @@ class MainWindow(QMainWindow):
 
         # Start timer for impedance renew
         self.impedance_update_timer = QTimer()
-        self.impedance_update_timer.timeout.connect(self.impedance_update)
+        self.impedance_update_timer.timeout.connect(self.timer_impedance)
         self.impedance_update_timer.start(UPDATE_IMPEDANCE_SPEED_MS)
 
         self.ui.ButtonImpedanceStart.setEnabled(False)
