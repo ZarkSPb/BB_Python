@@ -141,7 +141,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.ProgressBarCh0 = QProgressBar(self.widget_6)
         self.ProgressBarCh0.setObjectName(u"ProgressBarCh0")
-        self.ProgressBarCh0.setMaximum(100000)
+        self.ProgressBarCh0.setMaximum(200000)
         self.ProgressBarCh0.setValue(0)
         self.ProgressBarCh0.setAlignment(Qt.AlignCenter)
 
@@ -149,7 +149,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh1 = QProgressBar(self.widget_6)
         self.ProgressBarCh1.setObjectName(u"ProgressBarCh1")
-        self.ProgressBarCh1.setMaximum(100000)
+        self.ProgressBarCh1.setMaximum(200000)
         self.ProgressBarCh1.setValue(0)
         self.ProgressBarCh1.setAlignment(Qt.AlignCenter)
 
@@ -157,7 +157,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh2 = QProgressBar(self.widget_6)
         self.ProgressBarCh2.setObjectName(u"ProgressBarCh2")
-        self.ProgressBarCh2.setMaximum(100000)
+        self.ProgressBarCh2.setMaximum(200000)
         self.ProgressBarCh2.setValue(0)
         self.ProgressBarCh2.setAlignment(Qt.AlignCenter)
 
@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh3 = QProgressBar(self.widget_6)
         self.ProgressBarCh3.setObjectName(u"ProgressBarCh3")
-        self.ProgressBarCh3.setMaximum(100000)
+        self.ProgressBarCh3.setMaximum(200000)
         self.ProgressBarCh3.setValue(0)
         self.ProgressBarCh3.setAlignment(Qt.AlignCenter)
 
