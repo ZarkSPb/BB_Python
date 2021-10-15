@@ -5,7 +5,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
                               QLineSeries, QValueAxis)
-from PySide6.QtCore import QPointF, QThreadPool, QTimer, QDateTime
+from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -335,8 +335,8 @@ class MainWindow(QMainWindow):
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
-        self.board_timer.stop()
         self.save_timer.stop()
+        self.board_timer.stop()
 
         self.board.stop_stream()
 
@@ -378,9 +378,9 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
 
     def _stop_impedance(self):
+        self.impedance_update_timer.stop()
         self.board.config_board('CommandStopResist')
         self.board.stop_stream()
-        self.impedance_update_timer.stop()
 
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.ButtonImpedanceStop.setEnabled(False)
@@ -403,7 +403,19 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         try:
             self.chart_redraw_timer.stop()
+            self.board_timer.stop()
+            self.save_timer.stop()
+            # this is poor
+            self.session.stop_session()
+        except:
+            pass
+
+        try:
             self.board.stop_stream()
+        except:
+            pass
+
+        try:
             if self.board.is_prepared():
                 self.board.release_session()
         except:

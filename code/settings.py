@@ -1,8 +1,8 @@
 from brainflow.board_shim import BoardIds, BoardShim
 
 # Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -14,7 +14,7 @@ TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
-UPDATE_CHART_SPEED_MS = 40
+UPDATE_CHART_SPEED_MS = 50
 SIGNAL_CLIPPING_SEC = 2
 
 UPDATE_IMPEDANCE_SPEED_MS = 500
