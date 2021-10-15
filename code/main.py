@@ -1,13 +1,11 @@
-import enum
 import sys
-import PySide6
-from PySide6 import QtCore
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
-from PySide6 import QtWidgets
-from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QCategoryAxis
-from PySide6.QtCore import QPointF, QThreadPool, QTimer
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
+                              QLineSeries, QValueAxis)
+from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QMainWindow
 
@@ -33,6 +31,9 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.chart_duration = MAX_CHART_SIGNAL_DURATION
+        self.chart_amp = self.ui.SliderAmplitude.value()
+
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
         self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
@@ -50,22 +51,50 @@ class MainWindow(QMainWindow):
         chart = QChart()
         chart.legend().hide()
 
+        # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
         axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION)
-        axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
-        axis_x.setMinorTickCount(1)
+        # axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
+        # axis_x.setMinorTickCount(1)
+        axis_x.setVisible(False)
         axis_x.setLabelFormat('%i')
-        chart.addAxis(axis_x, QtCore.Qt.AlignBottom)
+        chart.addAxis(axis_x, QtCore.Qt.AlignTop)
+        # //////////////////////////////////////////////////////////////////////
 
+        # ////////////////////////////////////////////////////////////////axis_y
         axis_y = QValueAxis()
         axis_y.setRange(0, 400)
         axis_y.setTickCount(9)
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
+        # //////////////////////////////////////////////////////////////////////
 
-        axis_c = self.create_axis_c()
+        # ////////////////////////////////////////////////////////////////axis_t
+        axis_t = QCategoryAxis()
+        axis_t.setRange(0, self.chart_duration * 1000)
+        axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        axis_t.setTruncateLabels(False)
+        axis_t = self.update_time_axis(axis_t)
+        chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+        # //////////////////////////////////////////////////////////////////////
+
+        # ////////////////////////////////////////////////////////////////axis_c
+        axis_c = QCategoryAxis()
+        axis_c.setRange(0, 4)
+        axis_c.setGridLineVisible(False)
+        axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+
+        axis_c.append(f'{-self.chart_amp}', 0)
+        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
+            axis_c.append(f'{int(-self.chart_amp / 2)}' + i * ' ', i + 0.25)
+            axis_c.append(ch_name, i + 0.5)
+            axis_c.append(f'{int(self.chart_amp / 2)}' + i * ' ', i + 0.75)
+            axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
+        axis_c.append(f'{self.chart_amp}', i + 1)
+
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
+        # //////////////////////////////////////////////////////////////////////
 
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
@@ -91,45 +120,70 @@ class MainWindow(QMainWindow):
 
         self.update_ui()
 
-    def create_axis_c(self):
-        axis_c = QCategoryAxis()
-        axis_c.setRange(0, 4)
-        axis_c.setGridLineVisible(False)
-        axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            chart_amplitude = self.ui.SliderAmplitude.value()
-            if i == 0:
-                axis_c.append(f'{-chart_amplitude}', 0)
-            axis_c.append(f'{int(-chart_amplitude / 2)}' + i * ' ', i + 0.25)
-            axis_c.append(ch_name, i + 0.5)
-            axis_c.append(f'{int(chart_amplitude / 2)}' + i * ' ', i + 0.75)
-            if i < 3:
-                axis_c.append(f'({chart_amplitude})' + i * ' ', i + 1)
-            else:
-                axis_c.append(f'{chart_amplitude}', i + 1)
-        return axis_c
+    # ///////////////////////////////////////////////////////// Update TIME axis
+    def update_time_axis(self, axis_t, start_time=0):
+        if start_time == 0:
+            start_time = QDateTime.currentDateTime()
+        start_time = start_time.addSecs(1)
+        offset = 1000 - int(start_time.toString('zzz'))
+        labels = axis_t.categoriesLabels()
+        for label in labels:
+            axis_t.remove(label)
+        axis_t.append(start_time.toString('hh:mm:ss'), offset)
+        for i in range(1, self.chart_duration - 1):
+            shifted_time = start_time.addSecs(i)
+            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+        axis_t.append(
+            start_time.addSecs(self.chart_duration).toString('hh:mm:ss'),
+            offset + (self.chart_duration - 1) * 1000)
+        return axis_t
 
-        # --------------------UPDATE UI--------------------
+    # //////////////////////////////////////////////////////////////////////////
+
+    # ///////////////////////////////////////////////////// Update CHANNELS axis
+    def update_channels_axis(self, axis_c):
+        labels = axis_c.categoriesLabels()
+        axis_c.replaceLabel(labels[0], str(-self.chart_amp))
+        axis_c.replaceLabel(labels[-1], str(self.chart_amp))
+
+        for i in range(NUM_CHANNELS):
+            axis_c.replaceLabel(labels[1 + i * 4],
+                                f'{int(-self.chart_amp / 2)}' + i * ' ')
+            axis_c.replaceLabel(labels[3 + i * 4],
+                                f'{int(self.chart_amp / 2)}' + i * ' ')
+            axis_c.replaceLabel(labels[4 + i * 4],
+                                f'({self.chart_amp})' + i * ' ')
+
+    # //////////////////////////////////////////////////////////////////////////
+
+    # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
         # Read slider params
         self.chart_duration = self.ui.SliderDuration.value()
-        self.chart_amplitude = self.ui.SliderAmplitude.value()
+        self.chart_amp = self.ui.SliderAmplitude.value()
 
-        # Duration slider
+        # ////////////////////////////////////////////////////// Duration slider
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
-        self.chart_view.chart().axisX().setTickCount(self.chart_duration + 1)
-        self.chart_view.chart().axisX().setRange(0, self.chart_duration)
-        self.chart_buffer_update()
 
-        # Amplitude slider
-        text = "Amplitude (uV): " + str(self.chart_amplitude)
+        axis_x = self.chart_view.chart().axisX()
+        axis_x.setTickCount(self.chart_duration + 1)
+        axis_x.setRange(0, self.chart_duration)
+
+        axis_t = self.chart_view.chart().axes()[2]
+        axis_t.setRange(0, self.chart_duration * 1000)
+        self.update_time_axis(axis_t)
+        # //////////////////////////////////////////////////////////////////////
+
+        # ///////////////////////////////////////////////////// Amplitude slider
+        text = "Amplitude (uV): " + str(self.chart_amp)
         self.ui.LabelAmplitude.setText(text)
-        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amplitude)
-        self.chart_buffer_update()
-        self.chart_view.chart().removeAxis(self.chart_view.chart().axes()[2])
-        axis_c = self.create_axis_c()
-        self.chart_view.chart().addAxis(axis_c, QtCore.Qt.AlignLeft)
+
+        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+
+        axis_c = self.chart_view.chart().axes()[3]
+        self.update_channels_axis(axis_c)
+        # //////////////////////////////////////////////////////////////////////
 
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
@@ -138,38 +192,49 @@ class MainWindow(QMainWindow):
         # Filtered chart checkbox
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
 
+        self.chart_buffer_update()
+
     def chart_buffer_update(self):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
                 QPointF(
-                    x / SAMPLE_RATE, self.chart_amplitude +
-                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amplitude)
+                    x / SAMPLE_RATE, self.chart_amp +
+                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
-
         try:
-            self.redraw_charts()
+            self.timer_redraw_charts()
         except:
             pass
 
-    def redraw_charts(self):
+    def timer_redraw_charts(self):
         data = self.main_buffer.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-        if np.any(data):
+        # if np.any(data):
+        try:
+            start_time = data[-1, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
+            axis_t = self.chart_view.chart().axes()[2]
+            self.update_time_axis(axis_t,
+                                  start_time=QDateTime.fromMSecsSinceEpoch(
+                                      int(start_time * 1000)))
+
             for channel in range(NUM_CHANNELS):
                 if self.chart_filtering_flag:
                     signal_filtering(data[channel])
+                # r_data - redraw_data
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
-                        r_data[i] + self.chart_amplitude +
-                        (NUM_CHANNELS - 1 - channel) * 2 *
-                        self.chart_amplitude)
+                        r_data[i] + self.chart_amp +
+                        (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
-    def impedance_update(self):
+        except:
+            pass
+
+    def timer_impedance(self):
         data = self.board.get_current_board_data(1)
 
         if np.any(data) > 0:
@@ -196,12 +261,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.ButtonSave.setEnabled(False)
 
-    def update_buff(self):
-        data = self.board.get_board_data()[EXG_CHANNELS, :]
+    def timer_update_buff(self):
+        data = self.board.get_board_data()[SAVE_CHANNEL, :]
         if np.any(data):
             self.main_buffer.add(data)
 
-    def save_file_periodic(self):
+    def timer_save_file(self):
         data = self.main_buffer.get_buff_from(self.last_save_index)
         if self.save_filtered_flag:
             for channel in range(NUM_CHANNELS):
@@ -239,19 +304,20 @@ class MainWindow(QMainWindow):
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
-        # main bufer init
-        self.main_buffer = Buffer(buffer_size=10000, channels_num=NUM_CHANNELS)
+        # main bufer init +1 - for timestamp
+        self.main_buffer = Buffer(buffer_size=10000,
+                                  channels_num=NUM_CHANNELS + 1)
 
         # timer to save file
         self.save_timer = QTimer()
-        self.save_timer.timeout.connect(self.save_file_periodic)
+        self.save_timer.timeout.connect(self.timer_save_file)
         self.last_save_index = 0
         if self.save_flag:
             self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start
         self.board_timer = QTimer()
-        self.board_timer.timeout.connect(self.update_buff)
+        self.board_timer.timeout.connect(self.timer_update_buff)
         self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
 
         # CHART buffer renew
@@ -263,14 +329,14 @@ class MainWindow(QMainWindow):
 
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
-        self.chart_redraw_timer.timeout.connect(self.redraw_charts)
+        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
         self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
-        self.board_timer.stop()
         self.save_timer.stop()
+        self.board_timer.stop()
 
         self.board.stop_stream()
 
@@ -302,7 +368,7 @@ class MainWindow(QMainWindow):
 
         # Start timer for impedance renew
         self.impedance_update_timer = QTimer()
-        self.impedance_update_timer.timeout.connect(self.impedance_update)
+        self.impedance_update_timer.timeout.connect(self.timer_impedance)
         self.impedance_update_timer.start(UPDATE_IMPEDANCE_SPEED_MS)
 
         self.ui.ButtonImpedanceStart.setEnabled(False)
@@ -312,9 +378,9 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
 
     def _stop_impedance(self):
+        self.impedance_update_timer.stop()
         self.board.config_board('CommandStopResist')
         self.board.stop_stream()
-        self.impedance_update_timer.stop()
 
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.ButtonImpedanceStop.setEnabled(False)
@@ -337,7 +403,19 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         try:
             self.chart_redraw_timer.stop()
+            self.board_timer.stop()
+            self.save_timer.stop()
+            # this is poor
+            self.session.stop_session()
+        except:
+            pass
+
+        try:
             self.board.stop_stream()
+        except:
+            pass
+
+        try:
             if self.board.is_prepared():
                 self.board.release_session()
         except:

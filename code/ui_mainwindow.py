@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(910, 774)
+        MainWindow.resize(987, 820)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -212,9 +212,9 @@ class Ui_MainWindow(object):
         self.SliderDuration = QSlider(self.groupBox)
         self.SliderDuration.setObjectName(u"SliderDuration")
         self.SliderDuration.setMinimum(1)
-        self.SliderDuration.setMaximum(10)
-        self.SliderDuration.setValue(10)
-        self.SliderDuration.setSliderPosition(10)
+        self.SliderDuration.setMaximum(20)
+        self.SliderDuration.setValue(20)
+        self.SliderDuration.setSliderPosition(20)
         self.SliderDuration.setOrientation(Qt.Horizontal)
         self.SliderDuration.setTickPosition(QSlider.TicksAbove)
         self.SliderDuration.setTickInterval(1)
@@ -313,7 +313,13 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.WidgetControl, 0, 0, 1, 1)
 
-        self.WidgetCharts = QWidget(self.centralwidget)
+        self.widget_7 = QWidget(self.centralwidget)
+        self.widget_7.setObjectName(u"widget_7")
+        self.verticalLayout_2 = QVBoxLayout(self.widget_7)
+        self.verticalLayout_2.setSpacing(0)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.WidgetCharts = QWidget(self.widget_7)
         self.WidgetCharts.setObjectName(u"WidgetCharts")
         self.WidgetCharts.setToolTipDuration(-1)
         self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
@@ -321,12 +327,22 @@ class Ui_MainWindow(object):
         self.LayoutCharts.setObjectName(u"LayoutCharts")
         self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
 
-        self.gridLayout.addWidget(self.WidgetCharts, 0, 1, 1, 1)
+        self.verticalLayout_2.addWidget(self.WidgetCharts)
+
+        self.SliderChart = QSlider(self.widget_7)
+        self.SliderChart.setObjectName(u"SliderChart")
+        self.SliderChart.setMaximum(200)
+        self.SliderChart.setOrientation(Qt.Horizontal)
+
+        self.verticalLayout_2.addWidget(self.SliderChart)
+
+
+        self.gridLayout.addWidget(self.widget_7, 0, 1, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 910, 22))
+        self.menubar.setGeometry(QRect(0, 0, 987, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -370,7 +386,7 @@ class Ui_MainWindow(object):
         self.ProgressBarCh2.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
         self.ProgressBarCh3.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
-        self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 1", None))
+        self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
         self.CheckBoxFilterChart.setText(QCoreApplication.translate("MainWindow", u"Signal filtering", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Patient data", None))
