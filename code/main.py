@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -255,15 +256,39 @@ class MainWindow(QMainWindow):
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
-        params.timeout = 10
+        params.timeout = 5
         self.board = BoardShim(BOARD_ID, params)
-        self.board.prepare_session()
 
-    def result_connect_toBB(self):
-        self.ui.ButtonStart.setEnabled(True)
-        self.ui.ButtonDisconnect.setEnabled(True)
-        self.ui.ButtonImpedanceStart.setEnabled(True)
-        self.ui.ButtonSave.setEnabled(False)
+        self.ui.statusbar.showMessage('Connecting...')
+        try:
+            self.board.prepare_session()
+        except BaseException as e:
+            self.ui.statusbar.showMessage(
+                'Do not connect. Trying to connect again. ' +
+                f'Exception: {e}.')
+            exception = True
+        else:
+            exception = False
+
+        if exception:
+            sleep(3)
+            self.ui.statusbar.showMessage('Connecting...')
+            try:
+                self.board.prepare_session()
+            except BaseException as exception:
+                self.ui.statusbar.showMessage(
+                    f'Do not connect. Exception: {exception}.')
+                self.ui.ButtonConnect.setEnabled(True)
+                exception = True
+            else:
+                exception = False
+
+        if not exception:
+            self.ui.statusbar.showMessage('Connected.')
+            self.ui.ButtonStart.setEnabled(True)
+            self.ui.ButtonDisconnect.setEnabled(True)
+            self.ui.ButtonImpedanceStart.setEnabled(True)
+            self.ui.ButtonSave.setEnabled(False)
 
     def timer_update_buff(self):
         data = self.board.get_board_data()[SAVE_CHANNEL, :]
@@ -284,7 +309,6 @@ class MainWindow(QMainWindow):
         self.ui.ButtonConnect.setEnabled(False)
 
         worker = Worker(self.connect_toBB)
-        worker.signals.result.connect(self.result_connect_toBB)
         self.threadpool.start(worker)
 
     def _start_capture(self):
@@ -360,6 +384,8 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         if self.board.is_prepared():
             self.board.release_session()
+
+        self.ui.statusbar.showMessage('Disсonnected.')
 
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
