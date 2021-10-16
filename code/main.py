@@ -88,9 +88,9 @@ class MainWindow(QMainWindow):
 
         axis_c.append(f'{-self.chart_amp}', 0)
         for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            axis_c.append(f'{int(-self.chart_amp / 2)}' + i * ' ', i + 0.25)
+            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
             axis_c.append(ch_name, i + 0.5)
-            axis_c.append(f'{int(self.chart_amp / 2)}' + i * ' ', i + 0.75)
+            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
             axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
         axis_c.append(f'{self.chart_amp}', i + 1)
 
@@ -153,9 +153,9 @@ class MainWindow(QMainWindow):
 
         for i in range(NUM_CHANNELS):
             axis_c.replaceLabel(labels[1 + i * 4],
-                                f'{int(-self.chart_amp / 2)}' + i * ' ')
+                                f'{-self.chart_amp // 2}' + i * ' ')
             axis_c.replaceLabel(labels[3 + i * 4],
-                                f'{int(self.chart_amp / 2)}' + i * ' ')
+                                f'{self.chart_amp // 2}' + i * ' ')
             axis_c.replaceLabel(labels[4 + i * 4],
                                 f'({self.chart_amp})' + i * ' ')
 
@@ -219,7 +219,7 @@ class MainWindow(QMainWindow):
 
         # if np.any(data):
         try:
-            start_time = data[-1, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
+            start_time = data[-2, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
             axis_t = self.chart_view.chart().axes()[2]
             self.update_time_axis(axis_t,
                                   start_time=QDateTime.fromMSecsSinceEpoch(
@@ -302,7 +302,8 @@ class MainWindow(QMainWindow):
                 signal_filtering(data[channel])
         self.last_save_index += data.shape[1]
 
-        save_file(data, self.file_name)
+        save_file(data, self.file_name, self.save_first)
+        self.save_first = False
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -322,6 +323,8 @@ class MainWindow(QMainWindow):
         self.ui.LinePatientLastName.setEnabled(False)
         self.ui.ButtonSave.setEnabled(False)
 
+        self.save_first = True
+
         self.session = Session()
 
         if self.save_flag:
@@ -332,9 +335,9 @@ class MainWindow(QMainWindow):
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
-        # main bufer init +1 - for timestamp
+        # main bufer init
         self.main_buffer = Buffer(buffer_size=10000,
-                                  channels_num=NUM_CHANNELS + 1)
+                                  channels_num=len(SAVE_CHANNEL))
 
         # timer to save file
         self.save_timer = QTimer()
