@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
 
         # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
-        axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION)
+        axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         # axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
         # axis_x.setMinorTickCount(1)
         axis_x.setVisible(False)
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
             series = QLineSeries()
             # series.setColor('#209fdf')
             self.chart_buffers.append([
-                QPointF(x / SAMPLE_RATE, 20 + (NUM_CHANNELS - 1 - i) * 40)
+                QPointF(x, 20 + (NUM_CHANNELS - 1 - i) * 40)
                 for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
             ])
             series.append(self.chart_buffers[-1])
@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
             axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
 
         axis_t.append(
-            start_time.addSecs(self.chart_duration -1).toString('hh:mm:ss'),
+            start_time.addSecs(self.chart_duration - 1).toString('hh:mm:ss'),
             offset + (self.chart_duration - 1) * 1000)
 
         return axis_t
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
 
         axis_x = self.chart_view.chart().axisX()
         axis_x.setTickCount(self.chart_duration + 1)
-        axis_x.setRange(0, self.chart_duration)
+        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
 
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
                 QPointF(
-                    x / SAMPLE_RATE, self.chart_amp +
+                    x, self.chart_amp +
                     (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
@@ -242,17 +242,16 @@ class MainWindow(QMainWindow):
         data = self.board.get_current_board_data(1)
 
         if np.any(data) > 0:
-            data = data[RESISTANCE_CHANNELS, 0]
-            print(data)
+            data = data[RESISTANCE_CHANNELS, 0] / 1000
             self.ui.ProgressBarCh0.setValue(
-                int(data[0]) if data[0] <= 200000 else 200000)
+                int(data[0]) if data[0] <= 500 else 500)
             self.ui.ProgressBarCh1.setValue(
-                int(data[1]) if data[1] <= 200000 else 200000)
+                int(data[1]) if data[1] <= 500 else 500)
             if len(RESISTANCE_CHANNELS) > 2:
                 self.ui.ProgressBarCh2.setValue(
-                    int(data[2]) if data[2] <= 200000 else 200000)
+                    int(data[2]) if data[2] <= 500 else 500)
                 self.ui.ProgressBarCh3.setValue(
-                    int(data[3]) if data[3] <= 200000 else 200000)
+                    int(data[3]) if data[3] <= 500 else 500)
 
     def connect_toBB(self):
         params = BrainFlowInputParams()

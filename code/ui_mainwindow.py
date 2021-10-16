@@ -141,7 +141,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
         self.ProgressBarCh0 = QProgressBar(self.widget_6)
         self.ProgressBarCh0.setObjectName(u"ProgressBarCh0")
-        self.ProgressBarCh0.setMaximum(200000)
+        self.ProgressBarCh0.setMaximum(500)
         self.ProgressBarCh0.setValue(0)
         self.ProgressBarCh0.setAlignment(Qt.AlignCenter)
 
@@ -149,7 +149,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh1 = QProgressBar(self.widget_6)
         self.ProgressBarCh1.setObjectName(u"ProgressBarCh1")
-        self.ProgressBarCh1.setMaximum(200000)
+        self.ProgressBarCh1.setMaximum(500)
         self.ProgressBarCh1.setValue(0)
         self.ProgressBarCh1.setAlignment(Qt.AlignCenter)
 
@@ -157,7 +157,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh2 = QProgressBar(self.widget_6)
         self.ProgressBarCh2.setObjectName(u"ProgressBarCh2")
-        self.ProgressBarCh2.setMaximum(200000)
+        self.ProgressBarCh2.setMaximum(500)
         self.ProgressBarCh2.setValue(0)
         self.ProgressBarCh2.setAlignment(Qt.AlignCenter)
 
@@ -165,7 +165,7 @@ class Ui_MainWindow(object):
 
         self.ProgressBarCh3 = QProgressBar(self.widget_6)
         self.ProgressBarCh3.setObjectName(u"ProgressBarCh3")
-        self.ProgressBarCh3.setMaximum(200000)
+        self.ProgressBarCh3.setMaximum(500)
         self.ProgressBarCh3.setValue(0)
         self.ProgressBarCh3.setAlignment(Qt.AlignCenter)
 
@@ -381,10 +381,10 @@ class Ui_MainWindow(object):
         self.LabelCh1.setText(QCoreApplication.translate("MainWindow", u"T4", None))
         self.LabelCh2.setText(QCoreApplication.translate("MainWindow", u"O1", None))
         self.LabelCh3.setText(QCoreApplication.translate("MainWindow", u"O2", None))
-        self.ProgressBarCh0.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
-        self.ProgressBarCh1.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
-        self.ProgressBarCh2.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
-        self.ProgressBarCh3.setFormat(QCoreApplication.translate("MainWindow", u"%v", None))
+        self.ProgressBarCh0.setFormat(QCoreApplication.translate("MainWindow", u"%v kOhm", None))
+        self.ProgressBarCh1.setFormat(QCoreApplication.translate("MainWindow", u"%v kOhm", None))
+        self.ProgressBarCh2.setFormat(QCoreApplication.translate("MainWindow", u"%v kOhm", None))
+        self.ProgressBarCh3.setFormat(QCoreApplication.translate("MainWindow", u"%v kOhm", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
