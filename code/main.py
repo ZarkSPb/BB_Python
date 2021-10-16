@@ -50,7 +50,8 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
 
         chart = QChart()
-        chart.legend().hide()
+        chart.legend().setVisible(True)
+        chart.legend().setAlignment(QtCore.Qt.AlignBottom)
 
         # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
@@ -99,6 +100,7 @@ class MainWindow(QMainWindow):
 
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
+            series.setName(f'{EEG_CHANNEL_NAMES[i]}')
             # series.setColor('#209fdf')
             self.chart_buffers.append([
                 QPointF(x, 20 + (NUM_CHANNELS - 1 - i) * 40)
