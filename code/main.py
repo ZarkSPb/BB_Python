@@ -302,7 +302,8 @@ class MainWindow(QMainWindow):
                 signal_filtering(data[channel])
         self.last_save_index += data.shape[1]
 
-        save_file(data, self.file_name)
+        save_file(data, self.file_name, self.save_first)
+        self.save_first = False
 
     # --------------------BUTTONS--------------------
     def _connect(self):
@@ -321,6 +322,8 @@ class MainWindow(QMainWindow):
         self.ui.LinePatientFirstName.setEnabled(False)
         self.ui.LinePatientLastName.setEnabled(False)
         self.ui.ButtonSave.setEnabled(False)
+
+        self.save_first = True
 
         self.session = Session()
 

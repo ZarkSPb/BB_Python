@@ -4,9 +4,22 @@ from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from settings import *
 
 
-def save_file(data, file_name='eeg.csv'):
+def save_file(data, file_name='eeg.csv', save_first=True):
     with open(file_name, 'a') as file_object:
-        np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+        if save_first:
+            header = ''
+            for channel_names in EEG_CHANNEL_NAMES:
+                header += f'{channel_names};'
+            header += 'LinuxTime;BoardIndex'
+            print(header)
+            np.savetxt(file_object,
+                       data.T,
+                       fmt='%6.3f',
+                       delimiter=';',
+                       header=header,
+                       comments='')
+        else:
+            np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 
 
 def signal_filtering(data):
