@@ -259,7 +259,7 @@
                 <item>
                  <widget class="QProgressBar" name="ProgressBarCh0">
                   <property name="maximum">
-                   <number>200000</number>
+                   <number>500</number>
                   </property>
                   <property name="value">
                    <number>0</number>
@@ -268,14 +268,14 @@
                    <set>Qt::AlignCenter</set>
                   </property>
                   <property name="format">
-                   <string>%v</string>
+                   <string>%v kOhm</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QProgressBar" name="ProgressBarCh1">
                   <property name="maximum">
-                   <number>200000</number>
+                   <number>500</number>
                   </property>
                   <property name="value">
                    <number>0</number>
@@ -284,14 +284,14 @@
                    <set>Qt::AlignCenter</set>
                   </property>
                   <property name="format">
-                   <string>%v</string>
+                   <string>%v kOhm</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QProgressBar" name="ProgressBarCh2">
                   <property name="maximum">
-                   <number>200000</number>
+                   <number>500</number>
                   </property>
                   <property name="value">
                    <number>0</number>
@@ -300,14 +300,14 @@
                    <set>Qt::AlignCenter</set>
                   </property>
                   <property name="format">
-                   <string>%v</string>
+                   <string>%v kOhm</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QProgressBar" name="ProgressBarCh3">
                   <property name="maximum">
-                   <number>200000</number>
+                   <number>500</number>
                   </property>
                   <property name="value">
                    <number>0</number>
@@ -316,7 +316,7 @@
                    <set>Qt::AlignCenter</set>
                   </property>
                   <property name="format">
-                   <string>%v</string>
+                   <string>%v kOhm</string>
                   </property>
                  </widget>
                 </item>
