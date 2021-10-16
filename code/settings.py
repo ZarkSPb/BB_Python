@@ -11,6 +11,7 @@ NUM_CHANNELS = len(EXG_CHANNELS)
 EEG_CHANNEL_NAMES = BoardShim.get_eeg_names(BOARD_ID)
 RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
+PACKAGE_NUM_CHANNEL = BoardShim.get_package_num_channel(BOARD_ID)
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
@@ -28,3 +29,4 @@ if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
 
 SAVE_CHANNEL = EXG_CHANNELS.copy()
 SAVE_CHANNEL.append(TIMESTAMP_CHANNEL)
+SAVE_CHANNEL.append(PACKAGE_NUM_CHANNEL)
