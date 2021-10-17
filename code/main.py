@@ -238,8 +238,7 @@ class MainWindow(QMainWindow):
                                       int(start_time * 1000)))
 
             for channel in range(NUM_CHANNELS):
-                if self.chart_filtering_flag:
-                    signal_filtering(data[channel])
+                signal_filtering(data[channel], self.chart_filtering_flag)
                 # r_data - redraw_data
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for i in range(r_data.shape[0]):

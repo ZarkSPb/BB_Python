@@ -13,7 +13,7 @@ def save_file(data, file_name='eeg.csv', save_first=True):
             header += 'LinuxTime;BoardIndex'
             np.savetxt(file_object,
                        data.T,
-                       fmt='%6.3f',
+                       fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
                        delimiter=';',
                        header=header,
                        comments='')
@@ -21,16 +21,17 @@ def save_file(data, file_name='eeg.csv', save_first=True):
             np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 
 
-def signal_filtering(data):
+def signal_filtering(data, filtration=True):
     DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
+    if filtration:
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
 
 
 def file_name_constructor(patient, session):
