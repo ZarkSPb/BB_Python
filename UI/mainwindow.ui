@@ -563,7 +563,7 @@
              <string>Save filtered data</string>
             </property>
             <property name="checked">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -682,8 +682,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>106</x>
-     <y>388</y>
+     <x>118</x>
+     <y>432</y>
     </hint>
     <hint type="destinationlabel">
      <x>247</x>
@@ -698,8 +698,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>106</x>
-     <y>439</y>
+     <x>118</x>
+     <y>483</y>
     </hint>
     <hint type="destinationlabel">
      <x>235</x>
@@ -810,44 +810,12 @@
    <slot>_save_data()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>154</x>
-     <y>628</y>
+     <x>166</x>
+     <y>719</y>
     </hint>
     <hint type="destinationlabel">
-     <x>229</x>
-     <y>639</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CheckBoxAutosave</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>580</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>204</x>
-     <y>588</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>CheckBoxFiltered</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>613</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>294</x>
-     <y>613</y>
+     <x>235</x>
+     <y>707</y>
     </hint>
    </hints>
   </connection>

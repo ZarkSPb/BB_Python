@@ -293,7 +293,7 @@ class Ui_MainWindow(object):
 
         self.CheckBoxFiltered = QCheckBox(self.groupBox_5)
         self.CheckBoxFiltered.setObjectName(u"CheckBoxFiltered")
-        self.CheckBoxFiltered.setChecked(False)
+        self.CheckBoxFiltered.setChecked(True)
 
         self.LayoutSave.addWidget(self.CheckBoxFiltered)
 
@@ -360,8 +360,6 @@ class Ui_MainWindow(object):
         self.ButtonImpedanceStart.clicked.connect(MainWindow._start_impedance)
         self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
         self.ButtonSave.clicked.connect(MainWindow._save_data)
-        self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
-        self.CheckBoxFiltered.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
 
         QMetaObject.connectSlotsByName(MainWindow)

@@ -1,3 +1,4 @@
+from os import add_dll_directory
 import sys
 from time import sleep
 
@@ -171,8 +172,6 @@ class MainWindow(QMainWindow):
             axis_c.replaceLabel(labels[4 + i * 4],
                                 f'({self.chart_amp})' + i * ' ')
 
-    # //////////////////////////////////////////////////////////////////////////
-
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
         # Read slider params
@@ -204,8 +203,6 @@ class MainWindow(QMainWindow):
 
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Filtered save checkbox
-        self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
         # Filtered chart checkbox
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
 
@@ -226,7 +223,7 @@ class MainWindow(QMainWindow):
             pass
 
     def timer_redraw_charts(self):
-        data = self.main_buffer.get_buff_last(
+        data = self.buffer_main.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         # if np.any(data):
@@ -238,7 +235,8 @@ class MainWindow(QMainWindow):
                                       int(start_time * 1000)))
 
             for channel in range(NUM_CHANNELS):
-                signal_filtering(data[channel], self.chart_filtering_flag)
+                if self.chart_filtering_flag:
+                    signal_filtering(data[channel])
                 # r_data - redraw_data
                 r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
                 for i in range(r_data.shape[0]):
@@ -304,16 +302,30 @@ class MainWindow(QMainWindow):
     def timer_update_buff(self):
         data = self.board.get_board_data()[SAVE_CHANNEL, :]
         if np.any(data):
-            self.main_buffer.add(data)
+            self.buffer_main.add(data)
+
+        add_sample = data.shape[1]
+        if add_sample != 0:
+            self.filtered_buffer_update(add_sample)
+
+    def filtered_buffer_update(self, add_sample):
+        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
+                                              SAMPLE_RATE + add_sample)
+
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel])
+
+        self.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_save_file(self):
-        data = self.main_buffer.get_buff_from(self.last_save_index)
-        if self.save_filtered_flag:
-            for channel in range(NUM_CHANNELS):
-                signal_filtering(data[channel])
-        self.last_save_index += data.shape[1]
+        if self.ui.CheckBoxFiltered:
+            data = self.buffer_filtered.get_buff_from(self.last_save_index)
+            save_file(data, self.file_name, self.save_first)
+        else:
+            data = self.buffer_main.get_buff_from(self.last_save_index)
+            save_file(data, self.file_name, self.save_first)
 
-        save_file(data, self.file_name, self.save_first)
+        self.last_save_index += data.shape[1]
         self.save_first = False
 
     # --------------------BUTTONS--------------------
@@ -336,7 +348,7 @@ class MainWindow(QMainWindow):
 
         self.save_first = True
 
-        self.session = Session()
+        self.session = Session(self.ui.CheckBoxFiltered.isChecked())
 
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
@@ -347,9 +359,9 @@ class MainWindow(QMainWindow):
             self.ui.statusbar.showMessage(f'No saved')
 
         # bufers init
-        self.main_buffer = Buffer(buffer_size=10000,
+        self.buffer_main = Buffer(buffer_size=10000,
                                   channels_num=len(SAVE_CHANNEL))
-        self.filtered_buffer = Buffer(buffer_size=10000,
+        self.buffer_filtered = Buffer(buffer_size=10000,
                                       channels_num=len(SAVE_CHANNEL))
 
         # timer to save file
@@ -440,7 +452,7 @@ class MainWindow(QMainWindow):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
-        data = self.main_buffer.get_buff_last()
+        data = self.buffer_main.get_buff_last()
 
         if file_name[0]:
             save_file(data, file_name[0])
