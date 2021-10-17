@@ -6,8 +6,8 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
                               QLineSeries, QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
-from PySide6.QtGui import QPainter
+from PySide6.QtCore import QDateTime, QPointF, QRectF, QThreadPool, QTimer
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 from buff import Buffer
@@ -50,8 +50,18 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
 
         chart = QChart()
-        chart.legend().setVisible(True)
-        chart.legend().setAlignment(QtCore.Qt.AlignBottom)
+        chart.legend().setVisible(False)
+        # # chart.legend().setAlignment(QtCore.Qt.AlignBottom)
+        # legend = chart.legend()
+        # legend.detachFromChart()
+        # legend.setBackgroundVisible(True)
+        # legend.setBrush(QBrush(QColor(128, 128, 128, 128)))
+        # legend.setPen(QPen(QColor(192, 192, 192, 192)))
+        # legend.setInteractive(False)
+        # # legend.attachToChart()
+        # # legend.setBackgroundVisible(False)
+        # legend.setGeometry(QRectF(80, 50, 100, 180))
+        # legend.update()
 
         # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
@@ -90,7 +100,7 @@ class MainWindow(QMainWindow):
         axis_c.append(f'{-self.chart_amp}', 0)
         for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
             axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
-            axis_c.append(ch_name, i + 0.5)
+            axis_c.append(f'--{ch_name}--', i + 0.5)
             axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
             axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
         axis_c.append(f'{self.chart_amp}', i + 1)
@@ -137,7 +147,7 @@ class MainWindow(QMainWindow):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i)
-            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+            axis_t.append(shifted_time.toString(':ss'), offset + i * 1000)
 
         axis_t.append(
             start_time.addSecs(self.chart_duration - 1).toString('hh:mm:ss'),
@@ -337,9 +347,11 @@ class MainWindow(QMainWindow):
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
-        # main bufer init
+        # bufers init
         self.main_buffer = Buffer(buffer_size=10000,
                                   channels_num=len(SAVE_CHANNEL))
+        self.filtered_buffer = Buffer(buffer_size=10000,
+                                      channels_num=len(SAVE_CHANNEL))
 
         # timer to save file
         self.save_timer = QTimer()

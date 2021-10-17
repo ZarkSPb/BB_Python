@@ -11,7 +11,6 @@ def save_file(data, file_name='eeg.csv', save_first=True):
             for channel_names in EEG_CHANNEL_NAMES:
                 header += f'{channel_names};'
             header += 'LinuxTime;BoardIndex'
-            print(header)
             np.savetxt(file_object,
                        data.T,
                        fmt='%6.3f',
