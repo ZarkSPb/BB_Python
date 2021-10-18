@@ -233,6 +233,9 @@ class MainWindow(QMainWindow):
             data = self.buffer_main.get_buff_last(self.chart_duration *
                                                   SAMPLE_RATE)
 
+        self.redraw_charts(data)
+
+    def redraw_charts(self, data):
         # if np.any(data):
         try:
             start_time = data[-2, 0]
@@ -358,6 +361,11 @@ class MainWindow(QMainWindow):
             self.file_name = '(f)' if self.session.save_filtered else ''
             self.file_name += file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
+            # timer to save file
+            self.save_timer = QTimer()
+            self.save_timer.timeout.connect(self.timer_save_file)
+            self.save_timer.start(SAVE_INTERVAL_MS)
+            self.last_save_index = 0
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
@@ -367,12 +375,6 @@ class MainWindow(QMainWindow):
         self.buffer_filtered = Buffer(buffer_size=10000,
                                       channels_num=len(SAVE_CHANNEL))
 
-        # timer to save file
-        self.save_timer = QTimer()
-        self.save_timer.timeout.connect(self.timer_save_file)
-        self.last_save_index = 0
-        if self.save_flag:
-            self.save_timer.start(SAVE_INTERVAL_MS)
 
         # board timer init and start
         self.board_timer = QTimer()
@@ -401,7 +403,8 @@ class MainWindow(QMainWindow):
 
         self.session.stop_session()
 
-        self.timer_save_file()
+        if self.save_flag:
+            self.timer_save_file()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)

@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(987, 820)
+        MainWindow.resize(1045, 824)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -332,6 +332,7 @@ class Ui_MainWindow(object):
         self.SliderChart = QSlider(self.widget_7)
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setMaximum(200)
+        self.SliderChart.setSingleStep(1)
         self.SliderChart.setOrientation(Qt.Horizontal)
         self.SliderChart.setTickPosition(QSlider.NoTicks)
 
@@ -343,7 +344,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 987, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1045, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -363,6 +364,7 @@ class Ui_MainWindow(object):
         self.ButtonSave.clicked.connect(MainWindow._save_data)
         self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
