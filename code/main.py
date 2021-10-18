@@ -169,8 +169,9 @@ class MainWindow(QMainWindow):
                                 f'{-self.chart_amp // 2}' + i * ' ')
             axis_c.replaceLabel(labels[3 + i * 4],
                                 f'{self.chart_amp // 2}' + i * ' ')
-            axis_c.replaceLabel(labels[4 + i * 4],
-                                f'({self.chart_amp})' + i * ' ')
+            if i < NUM_CHANNELS - 1:
+                axis_c.replaceLabel(labels[4 + i * 4],
+                                    f'({self.chart_amp})' + i * ' ')
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
@@ -223,28 +224,27 @@ class MainWindow(QMainWindow):
             pass
 
     def timer_redraw_charts(self):
-        data = self.buffer_main.get_buff_last(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+        if self.chart_filtering_flag:
+            data = self.buffer_filtered.get_buff_last(self.chart_duration *
+                                                      SAMPLE_RATE)
+        else:
+            data = self.buffer_main.get_buff_last(self.chart_duration *
+                                                  SAMPLE_RATE)
 
         # if np.any(data):
         try:
-            start_time = data[-2, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
+            start_time = data[-2, 0]
             axis_t = self.chart_view.chart().axes()[2]
             self.update_time_axis(axis_t,
                                   start_time=QDateTime.fromMSecsSinceEpoch(
                                       int(start_time * 1000)))
-
             for channel in range(NUM_CHANNELS):
-                if self.chart_filtering_flag:
-                    signal_filtering(data[channel])
-                # r_data - redraw_data
-                r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+                r_data = data[channel]
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
                         r_data[i] + self.chart_amp +
                         (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
                 self.serieses[channel].replace(self.chart_buffers[channel])
-
         except:
             pass
 
@@ -311,10 +311,8 @@ class MainWindow(QMainWindow):
     def filtered_buffer_update(self, add_sample):
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
                                               SAMPLE_RATE + add_sample)
-
         for channel in range(NUM_CHANNELS):
             signal_filtering(data[channel])
-
         self.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_save_file(self):
@@ -448,11 +446,18 @@ class MainWindow(QMainWindow):
     def _save_data(self):
         self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
-        fileName = file_name_constructor(self.patient, self.session)
+
+        filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+        
+        fileName = '(f)' if filtered_flag else ''
+        fileName += file_name_constructor(self.patient, self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
-        data = self.buffer_main.get_buff_last()
+        if filtered_flag:
+            data = self.buffer_filtered.get_buff_last()
+        else:
+            data = self.buffer_main.get_buff_last()
 
         if file_name[0]:
             save_file(data, file_name[0])

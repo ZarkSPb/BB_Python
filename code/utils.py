@@ -34,8 +34,8 @@ def signal_filtering(data):
 
 
 def file_name_constructor(patient, session):
-    file_name = '(f)' if session.save_filtered else ''
-    file_name += session.start_time.strftime('%Y-%m-%d__%H-%M-%S')
+    # file_name = '(f)' if session.save_filtered else ''
+    file_name = session.start_time.strftime('%Y-%m-%d__%H-%M-%S')
     patient_name = patient.get_full_name()
     if patient_name:
         file_name += '__' + patient_name
