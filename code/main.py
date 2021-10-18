@@ -351,7 +351,10 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
-            self.file_name = file_name_constructor(self.patient, self.session)
+            
+            filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+            self.file_name = '(f)' if filtered_flag else ''
+            self.file_name += file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
         else:
             self.ui.statusbar.showMessage(f'No saved')
@@ -395,6 +398,8 @@ class MainWindow(QMainWindow):
         self.board.stop_stream()
 
         self.session.stop_session()
+
+        self.timer_save_file()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
