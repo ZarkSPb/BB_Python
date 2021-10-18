@@ -1,3 +1,4 @@
+from os import add_dll_directory
 import sys
 from time import sleep
 
@@ -6,8 +7,8 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
                               QLineSeries, QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
-from PySide6.QtGui import QPainter
+from PySide6.QtCore import QDateTime, QPointF, QRectF, QThreadPool, QTimer
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QApplication, QMainWindow
 
 from buff import Buffer
@@ -50,7 +51,18 @@ class MainWindow(QMainWindow):
         self.chart_buffers = []
 
         chart = QChart()
-        chart.legend().hide()
+        chart.legend().setVisible(False)
+        # # chart.legend().setAlignment(QtCore.Qt.AlignBottom)
+        # legend = chart.legend()
+        # legend.detachFromChart()
+        # legend.setBackgroundVisible(True)
+        # legend.setBrush(QBrush(QColor(128, 128, 128, 128)))
+        # legend.setPen(QPen(QColor(192, 192, 192, 192)))
+        # legend.setInteractive(False)
+        # # legend.attachToChart()
+        # # legend.setBackgroundVisible(False)
+        # legend.setGeometry(QRectF(80, 50, 100, 180))
+        # legend.update()
 
         # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
@@ -89,7 +101,7 @@ class MainWindow(QMainWindow):
         axis_c.append(f'{-self.chart_amp}', 0)
         for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
             axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
-            axis_c.append(ch_name, i + 0.5)
+            axis_c.append(f'--{ch_name}--', i + 0.5)
             axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
             axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
         axis_c.append(f'{self.chart_amp}', i + 1)
@@ -99,6 +111,7 @@ class MainWindow(QMainWindow):
 
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
+            series.setName(f'{EEG_CHANNEL_NAMES[i]}')
             # series.setColor('#209fdf')
             self.chart_buffers.append([
                 QPointF(x, 20 + (NUM_CHANNELS - 1 - i) * 40)
@@ -135,7 +148,7 @@ class MainWindow(QMainWindow):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i)
-            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+            axis_t.append(shifted_time.toString(':ss'), offset + i * 1000)
 
         axis_t.append(
             start_time.addSecs(self.chart_duration - 1).toString('hh:mm:ss'),
@@ -156,10 +169,9 @@ class MainWindow(QMainWindow):
                                 f'{-self.chart_amp // 2}' + i * ' ')
             axis_c.replaceLabel(labels[3 + i * 4],
                                 f'{self.chart_amp // 2}' + i * ' ')
-            axis_c.replaceLabel(labels[4 + i * 4],
-                                f'({self.chart_amp})' + i * ' ')
-
-    # //////////////////////////////////////////////////////////////////////////
+            if i < NUM_CHANNELS - 1:
+                axis_c.replaceLabel(labels[4 + i * 4],
+                                    f'({self.chart_amp})' + i * ' ')
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
@@ -192,8 +204,6 @@ class MainWindow(QMainWindow):
 
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Filtered save checkbox
-        self.save_filtered_flag = self.ui.CheckBoxFiltered.isChecked()
         # Filtered chart checkbox
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
 
@@ -214,28 +224,27 @@ class MainWindow(QMainWindow):
             pass
 
     def timer_redraw_charts(self):
-        data = self.main_buffer.get_buff_last(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+        if self.chart_filtering_flag:
+            data = self.buffer_filtered.get_buff_last(self.chart_duration *
+                                                      SAMPLE_RATE)
+        else:
+            data = self.buffer_main.get_buff_last(self.chart_duration *
+                                                  SAMPLE_RATE)
 
         # if np.any(data):
         try:
-            start_time = data[-2, SIGNAL_CLIPPING_SEC * SAMPLE_RATE]
+            start_time = data[-2, 0]
             axis_t = self.chart_view.chart().axes()[2]
             self.update_time_axis(axis_t,
                                   start_time=QDateTime.fromMSecsSinceEpoch(
                                       int(start_time * 1000)))
-
             for channel in range(NUM_CHANNELS):
-                if self.chart_filtering_flag:
-                    signal_filtering(data[channel])
-                # r_data - redraw_data
-                r_data = data[channel, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+                r_data = data[channel]
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
                         r_data[i] + self.chart_amp +
                         (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
                 self.serieses[channel].replace(self.chart_buffers[channel])
-
         except:
             pass
 
@@ -293,16 +302,28 @@ class MainWindow(QMainWindow):
     def timer_update_buff(self):
         data = self.board.get_board_data()[SAVE_CHANNEL, :]
         if np.any(data):
-            self.main_buffer.add(data)
+            self.buffer_main.add(data)
+
+        add_sample = data.shape[1]
+        if add_sample != 0:
+            self.filtered_buffer_update(add_sample)
+
+    def filtered_buffer_update(self, add_sample):
+        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
+                                              SAMPLE_RATE + add_sample)
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel])
+        self.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_save_file(self):
-        data = self.main_buffer.get_buff_from(self.last_save_index)
-        if self.save_filtered_flag:
-            for channel in range(NUM_CHANNELS):
-                signal_filtering(data[channel])
-        self.last_save_index += data.shape[1]
+        if self.ui.CheckBoxFiltered:
+            data = self.buffer_filtered.get_buff_from(self.last_save_index)
+            save_file(data, self.file_name, self.save_first)
+        else:
+            data = self.buffer_main.get_buff_from(self.last_save_index)
+            save_file(data, self.file_name, self.save_first)
 
-        save_file(data, self.file_name, self.save_first)
+        self.last_save_index += data.shape[1]
         self.save_first = False
 
     # --------------------BUTTONS--------------------
@@ -325,19 +346,24 @@ class MainWindow(QMainWindow):
 
         self.save_first = True
 
-        self.session = Session()
+        self.session = Session(self.ui.CheckBoxFiltered.isChecked())
 
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
-            self.file_name = file_name_constructor(self.patient, self.session)
+            
+            filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+            self.file_name = '(f)' if filtered_flag else ''
+            self.file_name += file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
         else:
             self.ui.statusbar.showMessage(f'No saved')
 
-        # main bufer init
-        self.main_buffer = Buffer(buffer_size=10000,
+        # bufers init
+        self.buffer_main = Buffer(buffer_size=10000,
                                   channels_num=len(SAVE_CHANNEL))
+        self.buffer_filtered = Buffer(buffer_size=10000,
+                                      channels_num=len(SAVE_CHANNEL))
 
         # timer to save file
         self.save_timer = QTimer()
@@ -372,6 +398,8 @@ class MainWindow(QMainWindow):
         self.board.stop_stream()
 
         self.session.stop_session()
+
+        self.timer_save_file()
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -423,11 +451,18 @@ class MainWindow(QMainWindow):
     def _save_data(self):
         self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
-        fileName = file_name_constructor(self.patient, self.session)
+
+        filtered_flag = self.ui.CheckBoxFiltered.isChecked()
+        
+        fileName = '(f)' if filtered_flag else ''
+        fileName += file_name_constructor(self.patient, self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
-        data = self.main_buffer.get_buff_last()
+        if filtered_flag:
+            data = self.buffer_filtered.get_buff_last()
+        else:
+            data = self.buffer_main.get_buff_last()
 
         if file_name[0]:
             save_file(data, file_name[0])
