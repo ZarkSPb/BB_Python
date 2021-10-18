@@ -206,6 +206,8 @@ class MainWindow(QMainWindow):
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Filtered chart checkbox
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
+        # Save fitered data flag
+        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
         self.chart_buffer_update()
 
@@ -316,7 +318,7 @@ class MainWindow(QMainWindow):
         self.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_save_file(self):
-        if self.ui.CheckBoxFiltered:
+        if self.session.save_filtered:
             data = self.buffer_filtered.get_buff_from(self.last_save_index)
             save_file(data, self.file_name, self.save_first)
         else:
@@ -339,21 +341,21 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.CheckBoxAutosave.setEnabled(False)
-        self.ui.CheckBoxFiltered.setEnabled(False)
+        self.ui.CheckBoxSaveFiltered.setEnabled(False)
         self.ui.LinePatientFirstName.setEnabled(False)
         self.ui.LinePatientLastName.setEnabled(False)
         self.ui.ButtonSave.setEnabled(False)
+        self.ui.SliderChart.setEnabled(False)
 
         self.save_first = True
 
-        self.session = Session(self.ui.CheckBoxFiltered.isChecked())
+        self.session = Session(self.save_filtered_flag)
 
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
             
-            filtered_flag = self.ui.CheckBoxFiltered.isChecked()
-            self.file_name = '(f)' if filtered_flag else ''
+            self.file_name = '(f)' if self.session.save_filtered else ''
             self.file_name += file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
         else:
@@ -406,10 +408,11 @@ class MainWindow(QMainWindow):
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
         self.ui.CheckBoxAutosave.setEnabled(True)
-        self.ui.CheckBoxFiltered.setEnabled(True)
+        self.ui.CheckBoxSaveFiltered.setEnabled(True)
         self.ui.LinePatientFirstName.setEnabled(True)
         self.ui.LinePatientLastName.setEnabled(True)
         self.ui.ButtonSave.setEnabled(True)
+        self.ui.SliderChart.setEnabled(True)
 
     def _disconnect(self):
         # Release all BB resources
@@ -451,15 +454,13 @@ class MainWindow(QMainWindow):
     def _save_data(self):
         self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
-
-        filtered_flag = self.ui.CheckBoxFiltered.isChecked()
         
-        fileName = '(f)' if filtered_flag else ''
+        fileName = '(f)' if self.save_filtered_flag else ''
         fileName += file_name_constructor(self.patient, self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
-        if filtered_flag:
+        if self.save_filtered_flag:
             data = self.buffer_filtered.get_buff_last()
         else:
             data = self.buffer_main.get_buff_last()

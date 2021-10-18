@@ -291,11 +291,11 @@ class Ui_MainWindow(object):
 
         self.LayoutSave.addWidget(self.CheckBoxAutosave)
 
-        self.CheckBoxFiltered = QCheckBox(self.groupBox_5)
-        self.CheckBoxFiltered.setObjectName(u"CheckBoxFiltered")
-        self.CheckBoxFiltered.setChecked(True)
+        self.CheckBoxSaveFiltered = QCheckBox(self.groupBox_5)
+        self.CheckBoxSaveFiltered.setObjectName(u"CheckBoxSaveFiltered")
+        self.CheckBoxSaveFiltered.setChecked(True)
 
-        self.LayoutSave.addWidget(self.CheckBoxFiltered)
+        self.LayoutSave.addWidget(self.CheckBoxSaveFiltered)
 
         self.ButtonSave = QPushButton(self.groupBox_5)
         self.ButtonSave.setObjectName(u"ButtonSave")
@@ -333,6 +333,7 @@ class Ui_MainWindow(object):
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setMaximum(200)
         self.SliderChart.setOrientation(Qt.Horizontal)
+        self.SliderChart.setTickPosition(QSlider.NoTicks)
 
         self.verticalLayout_2.addWidget(self.SliderChart)
 
@@ -361,6 +362,7 @@ class Ui_MainWindow(object):
         self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
         self.ButtonSave.clicked.connect(MainWindow._save_data)
         self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -393,7 +395,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Last name:", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Save settings", None))
         self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
-        self.CheckBoxFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
+        self.CheckBoxSaveFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
         self.ButtonSave.setText(QCoreApplication.translate("MainWindow", u"Save...", None))
     # retranslateUi
 
