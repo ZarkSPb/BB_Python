@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
 
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
-        
+
         # bufers init
         self.buffer_main = Buffer(buffer_size=10000,
                                   channels_num=len(SAVE_CHANNEL))
@@ -185,23 +185,34 @@ class MainWindow(QMainWindow):
         self.chart_duration = self.ui.SliderDuration.value()
         self.chart_amp = self.ui.SliderAmplitude.value()
 
+        # Autosave checkbox
+        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
+        # Filtered chart checkbox
+        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
+        # Save fitered data flag
+        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
+
         # ////////////////////////////////////////////////////// Duration slider
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
 
         axis_x = self.chart_view.chart().axisX()
-        axis_x.setTickCount(self.chart_duration + 1)
         axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
-
-        axis_t = self.chart_view.chart().axes()[2]
-        axis_t.setRange(0, self.chart_duration * 1000)
-        self.update_time_axis(axis_t)
 
         self.buff_size = self.buffer_filtered.get_last_num()
         self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
         if self.slider_maximum < 0:
             self.slider_maximum = 0
+
+        if self.ui.SliderChart.value() > self.slider_maximum:
+            self.ui.SliderChart.setValue(self.slider_maximum)
         self.ui.SliderChart.setMaximum(self.slider_maximum)
+
+        self._slider_value_cnd()
+
+        axis_t = self.chart_view.chart().axes()[2]
+        axis_t.setRange(0, self.chart_duration * 1000)
+        self.update_time_axis(axis_t)
         # //////////////////////////////////////////////////////////////////////
 
         # ///////////////////////////////////////////////////// Amplitude slider
@@ -214,14 +225,8 @@ class MainWindow(QMainWindow):
         self.update_channels_axis(axis_c)
         # //////////////////////////////////////////////////////////////////////
 
-        # Autosave checkbox
-        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Filtered chart checkbox
-        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
-        # Save fitered data flag
-        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
-
         self.chart_buffer_update()
+        self.timer_redraw_charts()
 
     def chart_buffer_update(self):
         self.chart_buffers = []
@@ -232,10 +237,6 @@ class MainWindow(QMainWindow):
                     (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
-        try:
-            self.timer_redraw_charts()
-        except:
-            pass
 
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
@@ -245,10 +246,10 @@ class MainWindow(QMainWindow):
             data = self.buffer_main.get_buff_last(self.chart_duration *
                                                   SAMPLE_RATE)
 
-        self.redraw_charts(data)
+        if np.any(data):
+            self.redraw_charts(data)
 
     def redraw_charts(self, data):
-        # if np.any(data):
         start_time = data[-2, 0]
         axis_t = self.chart_view.chart().axes()[2]
         self.update_time_axis(axis_t,
@@ -391,10 +392,12 @@ class MainWindow(QMainWindow):
 
         # CHART buffer renew
         self.chart_buffer_update()
+        self.timer_redraw_charts()
 
         # board start eeg stream
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
+        self.board.get_board_data()
 
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
@@ -414,12 +417,6 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             self.timer_save_file()
 
-        self.buff_size = self.buffer_filtered.get_last_num()
-        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
-        if self.slider_maximum < 0:
-            self.slider_maximum = 0
-        self.ui.SliderChart.setMaximum(self.slider_maximum)
-
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
@@ -430,6 +427,13 @@ class MainWindow(QMainWindow):
         self.ui.LinePatientLastName.setEnabled(True)
         self.ui.ButtonSave.setEnabled(True)
         self.ui.SliderChart.setEnabled(True)
+
+        self.buff_size = self.buffer_filtered.get_last_num()
+        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
+        if self.slider_maximum < 0:
+            self.slider_maximum = 0
+        self.ui.SliderChart.setMaximum(self.slider_maximum)
+        self.ui.SliderChart.setValue(self.slider_maximum)
 
     def _disconnect(self):
         # Release all BB resources
@@ -486,15 +490,16 @@ class MainWindow(QMainWindow):
             save_file(data, file_name[0])
 
     def _slider_value_cnd(self):
-
+        print(self.ui.SliderChart.value())
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
-        
+
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_from(start_index, end_index)
         else:
             data = self.buffer_main.get_buff_from(start_index, end_index)
-            
+
+        self.chart_buffer_update()
         self.redraw_charts(data)
 
     def closeEvent(self, event):
