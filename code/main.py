@@ -35,6 +35,12 @@ class MainWindow(QMainWindow):
 
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
+        
+        # bufers init
+        self.buffer_main = Buffer(buffer_size=10000,
+                                  channels_num=len(SAVE_CHANNEL))
+        self.buffer_filtered = Buffer(buffer_size=10000,
+                                      channels_num=len(SAVE_CHANNEL))
 
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -190,6 +196,12 @@ class MainWindow(QMainWindow):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
         self.update_time_axis(axis_t)
+
+        self.buff_size = self.buffer_filtered.get_last_num()
+        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
+        if self.slider_maximum < 0:
+            self.slider_maximum = 0
+        self.ui.SliderChart.setMaximum(self.slider_maximum)
         # //////////////////////////////////////////////////////////////////////
 
         # ///////////////////////////////////////////////////// Amplitude slider
@@ -237,21 +249,18 @@ class MainWindow(QMainWindow):
 
     def redraw_charts(self, data):
         # if np.any(data):
-        try:
-            start_time = data[-2, 0]
-            axis_t = self.chart_view.chart().axes()[2]
-            self.update_time_axis(axis_t,
-                                  start_time=QDateTime.fromMSecsSinceEpoch(
-                                      int(start_time * 1000)))
-            for channel in range(NUM_CHANNELS):
-                r_data = data[channel]
-                for i in range(r_data.shape[0]):
-                    self.chart_buffers[channel][i].setY(
-                        r_data[i] + self.chart_amp +
-                        (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
-                self.serieses[channel].replace(self.chart_buffers[channel])
-        except:
-            pass
+        start_time = data[-2, 0]
+        axis_t = self.chart_view.chart().axes()[2]
+        self.update_time_axis(axis_t,
+                              start_time=QDateTime.fromMSecsSinceEpoch(
+                                  int(start_time * 1000)))
+        for channel in range(NUM_CHANNELS):
+            r_data = data[channel]
+            for i in range(r_data.shape[0]):
+                self.chart_buffers[channel][i].setY(
+                    r_data[i] + self.chart_amp +
+                    (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+            self.serieses[channel].replace(self.chart_buffers[channel])
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -357,7 +366,7 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                    self.ui.LinePatientLastName.text())
-            
+
             self.file_name = '(f)' if self.session.save_filtered else ''
             self.file_name += file_name_constructor(self.patient, self.session)
             self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
@@ -374,7 +383,6 @@ class MainWindow(QMainWindow):
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered = Buffer(buffer_size=10000,
                                       channels_num=len(SAVE_CHANNEL))
-
 
         # board timer init and start
         self.board_timer = QTimer()
@@ -405,6 +413,12 @@ class MainWindow(QMainWindow):
 
         if self.save_flag:
             self.timer_save_file()
+
+        self.buff_size = self.buffer_filtered.get_last_num()
+        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
+        if self.slider_maximum < 0:
+            self.slider_maximum = 0
+        self.ui.SliderChart.setMaximum(self.slider_maximum)
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -457,7 +471,7 @@ class MainWindow(QMainWindow):
     def _save_data(self):
         self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
-        
+
         fileName = '(f)' if self.save_filtered_flag else ''
         fileName += file_name_constructor(self.patient, self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
@@ -470,6 +484,18 @@ class MainWindow(QMainWindow):
 
         if file_name[0]:
             save_file(data, file_name[0])
+
+    def _slider_value_cnd(self):
+
+        start_index = self.ui.SliderChart.value()
+        end_index = start_index + self.chart_duration * SAMPLE_RATE
+        
+        if self.chart_filtering_flag:
+            data = self.buffer_filtered.get_buff_from(start_index, end_index)
+        else:
+            data = self.buffer_main.get_buff_from(start_index, end_index)
+            
+        self.redraw_charts(data)
 
     def closeEvent(self, event):
         # Release all BB resources

@@ -365,6 +365,7 @@ class Ui_MainWindow(object):
         self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
+        self.SliderChart.valueChanged.connect(MainWindow._slider_value_cnd)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi

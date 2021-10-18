@@ -26,8 +26,14 @@ class Buffer:
         else:
             return self.buff[:, self.last - count:self.last].copy()
 
-    def get_buff_from(self, count=0):
-        return self.buff[:, count:self.last].copy()
+    def get_buff_from(self, start_index=0, end_index=0):
+        if end_index == 0:
+            return self.buff[:, start_index:self.last].copy()
+        else:
+            return self.buff[:, start_index:end_index].copy()
+    
+    def get_last_num(self):
+        return self.last
 
 
 
