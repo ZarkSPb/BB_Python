@@ -99,14 +99,7 @@ class MainWindow(QMainWindow):
         axis_c.setRange(0, 4)
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-
-        axis_c.append(f'{-self.chart_amp}', 0)
-        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
-            axis_c.append(f'--{ch_name}--', i + 0.5)
-            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
-            axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
-        axis_c.append(f'{self.chart_amp}', i + 1)
+        self.update_channels_axis(axis_c)
 
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # //////////////////////////////////////////////////////////////////////
@@ -162,39 +155,21 @@ class MainWindow(QMainWindow):
 
         return axis_t
 
-    # //////////////////////////////////////////////////////////////////////////
-
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c):
         labels = axis_c.categoriesLabels()
         for i in range(len(labels)):
-            labels.remove(labels[-1])
-
-        print(labels)
+            axis_c.remove(labels[i])
 
         axis_c.append(f'{-self.chart_amp}', 0)
         for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
             axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
             axis_c.append(f'--{ch_name}--', i + 0.5)
             axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
-            axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
-        axis_c.append(f'{self.chart_amp}', i + 1)
-
-        labels = axis_c.categoriesLabels()
-        print(labels)
-
-        
-
-        # axis_c.replaceLabel(labels[0], str(-self.chart_amp))
-        # axis_c.replaceLabel(labels[-1], str(self.chart_amp))
-        # for i in range(NUM_CHANNELS):
-        #     axis_c.replaceLabel(labels[1 + i * 4],
-        #                         f'{-self.chart_amp // 2}' + i * ' ')
-        #     axis_c.replaceLabel(labels[3 + i * 4],
-        #                         f'{self.chart_amp // 2}' + i * ' ')
-        #     if i < NUM_CHANNELS - 1:
-        #         axis_c.replaceLabel(labels[4 + i * 4],
-        #                             f'({self.chart_amp})' + i * ' ')
+            if i < NUM_CHANNELS - 1:
+                axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
+            else:
+                axis_c.append(f'{self.chart_amp}', i + 1)
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
