@@ -132,21 +132,23 @@ class MainWindow(QMainWindow):
     def update_time_axis(self, axis_t, start_time=0):
         if start_time == 0:
             start_time = QDateTime.currentDateTime()
-        start_time = start_time.addSecs(1)
+
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
         for label in labels:
             axis_t.remove(label)
 
-        axis_t.append(start_time.toString('hh:mm:ss'), offset)
+        axis_t.append(start_time.toString('hh:mm:ss.zzz'), 0)
+        axis_t.append(' ', offset)
 
         for i in range(1, self.chart_duration - 1):
-            shifted_time = start_time.addSecs(i)
+            shifted_time = start_time.addSecs(i + 1)
             axis_t.append(shifted_time.toString(':ss'), offset + i * 1000)
 
+        axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
         axis_t.append(
-            start_time.addSecs(self.chart_duration - 1).toString('hh:mm:ss'),
-            offset + (self.chart_duration - 1) * 1000)
+            start_time.addSecs(self.chart_duration).toString('hh:mm:ss.zzz'),
+            self.chart_duration * 1000)
 
         return axis_t
 
