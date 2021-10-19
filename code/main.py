@@ -100,7 +100,6 @@ class MainWindow(QMainWindow):
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         self.update_channels_axis(axis_c)
-
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # //////////////////////////////////////////////////////////////////////
 
@@ -133,10 +132,6 @@ class MainWindow(QMainWindow):
     def update_time_axis(self, axis_t, start_time=0):
         if start_time == 0:
             start_time = QDateTime.currentDateTime()
-
-        # print(start_time)
-        # print(traceback.print_stack())
-        # print()
         start_time = start_time.addSecs(1)
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
