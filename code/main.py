@@ -495,9 +495,9 @@ class MainWindow(QMainWindow):
             if self.ui.SliderChart.value() > self.slider_maximum:
                 self.ui.SliderChart.setValue(self.slider_maximum)
             self.ui.SliderChart.setMaximum(self.slider_maximum)
-            self._slider_value_cnd(self.session.time_init)
+            self._slider_value_cnd()
         else:
-            self.update_time_axis(axis_t)
+            self.update_time_axis(axis_t, self.session.time_init)
 
     def _slider_value_cnd(self):
         # print(self.ui.SliderChart.value())
