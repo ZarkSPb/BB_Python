@@ -37,11 +37,19 @@ class MainWindow(QMainWindow):
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
 
-        # # bufers init
-        # self.buffer_main = Buffer(buffer_size=10000,
-        #                           channels_num=len(SAVE_CHANNEL))
-        # self.buffer_filtered = Buffer(buffer_size=10000,
-        #                               channels_num=len(SAVE_CHANNEL))
+        # bufers init
+        self.buffer_main = Buffer(buffer_size=10000,
+                                  channels_num=len(SAVE_CHANNEL))
+        self.buffer_main.add(
+            np.array([[0], [0], [0], [0],
+                      [self.session.time_init.toMSecsSinceEpoch() / 1000],
+                      [0]]))
+        self.buffer_filtered = Buffer(buffer_size=10000,
+                                      channels_num=len(SAVE_CHANNEL))
+        self.buffer_filtered.add(
+            np.array([[0], [0], [0], [0],
+                      [self.session.time_init.toMSecsSinceEpoch() / 1000],
+                      [0]]))
 
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -59,23 +67,10 @@ class MainWindow(QMainWindow):
 
         chart = QChart()
         chart.legend().setVisible(False)
-        # # chart.legend().setAlignment(QtCore.Qt.AlignBottom)
-        # legend = chart.legend()
-        # legend.detachFromChart()
-        # legend.setBackgroundVisible(True)
-        # legend.setBrush(QBrush(QColor(128, 128, 128, 128)))
-        # legend.setPen(QPen(QColor(192, 192, 192, 192)))
-        # legend.setInteractive(False)
-        # # legend.attachToChart()
-        # # legend.setBackgroundVisible(False)
-        # legend.setGeometry(QRectF(80, 50, 100, 180))
-        # legend.update()
 
         # ////////////////////////////////////////////////////////////////axis_x
         axis_x = QValueAxis()
         axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
-        # axis_x.setTickCount(MAX_CHART_SIGNAL_DURATION + 1)
-        # axis_x.setMinorTickCount(1)
         axis_x.setVisible(False)
         axis_x.setLabelFormat('%i')
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
@@ -83,7 +78,7 @@ class MainWindow(QMainWindow):
 
         # ////////////////////////////////////////////////////////////////axis_y
         axis_y = QValueAxis()
-        axis_y.setRange(0, 400)
+        axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
         axis_y.setTickCount(9)
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
@@ -172,23 +167,37 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c):
         labels = axis_c.categoriesLabels()
-        axis_c.replaceLabel(labels[0], str(-self.chart_amp))
-        axis_c.replaceLabel(labels[-1], str(self.chart_amp))
+        for i in range(len(labels)):
+            labels.remove(labels[-1])
 
-        for i in range(NUM_CHANNELS):
-            axis_c.replaceLabel(labels[1 + i * 4],
-                                f'{-self.chart_amp // 2}' + i * ' ')
-            axis_c.replaceLabel(labels[3 + i * 4],
-                                f'{self.chart_amp // 2}' + i * ' ')
-            if i < NUM_CHANNELS - 1:
-                axis_c.replaceLabel(labels[4 + i * 4],
-                                    f'({self.chart_amp})' + i * ' ')
+        print(labels)
+
+        axis_c.append(f'{-self.chart_amp}', 0)
+        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
+            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
+            axis_c.append(f'--{ch_name}--', i + 0.5)
+            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
+            axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
+        axis_c.append(f'{self.chart_amp}', i + 1)
+
+        labels = axis_c.categoriesLabels()
+        print(labels)
+
+        
+
+        # axis_c.replaceLabel(labels[0], str(-self.chart_amp))
+        # axis_c.replaceLabel(labels[-1], str(self.chart_amp))
+        # for i in range(NUM_CHANNELS):
+        #     axis_c.replaceLabel(labels[1 + i * 4],
+        #                         f'{-self.chart_amp // 2}' + i * ' ')
+        #     axis_c.replaceLabel(labels[3 + i * 4],
+        #                         f'{self.chart_amp // 2}' + i * ' ')
+        #     if i < NUM_CHANNELS - 1:
+        #         axis_c.replaceLabel(labels[4 + i * 4],
+        #                             f'({self.chart_amp})' + i * ' ')
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
-        # Read slider params
-        self.chart_amp = self.ui.SliderAmplitude.value()
-
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Filtered chart checkbox
@@ -196,22 +205,8 @@ class MainWindow(QMainWindow):
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
-        # ////////////////////////////////////////////////////// Duration slider
-        
-        # //////////////////////////////////////////////////////////////////////
-
-        # ///////////////////////////////////////////////////// Amplitude slider
-        text = "Amplitude (uV): " + str(self.chart_amp)
-        self.ui.LabelAmplitude.setText(text)
-
-        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
-
-        axis_c = self.chart_view.chart().axes()[3]
-        self.update_channels_axis(axis_c)
-        # //////////////////////////////////////////////////////////////////////
-
         self.chart_buffer_update()
-        # self.timer_redraw_charts()
+        self.timer_redraw_charts()
 
     def chart_buffer_update(self):
         self.chart_buffers = []
@@ -326,7 +321,7 @@ class MainWindow(QMainWindow):
         self.last_save_index += data.shape[1]
         self.save_first = False
 
-    # --------------------BUTTONS--------------------
+    # ///////////////////////////////////////////////////////////////UI BEHAVIOR
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
@@ -498,6 +493,21 @@ class MainWindow(QMainWindow):
             self._slider_value_cnd()
         else:
             self.update_time_axis(axis_t, self.session.time_init)
+            self.chart_buffer_update()
+            self.timer_redraw_charts()
+
+    def _sliderAmplitude_cnd(self):
+        self.chart_amp = self.ui.SliderAmplitude.value()
+        text = "Amplitude (uV): " + str(self.chart_amp)
+        self.ui.LabelAmplitude.setText(text)
+
+        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+
+        axis_c = self.chart_view.chart().axes()[3]
+        self.update_channels_axis(axis_c)
+
+        self.chart_buffer_update()
+        self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
         # print(self.ui.SliderChart.value())

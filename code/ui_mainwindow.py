@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1045, 824)
+        MainWindow.resize(1045, 801)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -354,7 +354,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.SliderDuration.valueChanged.connect(MainWindow._sliderDuration_cnd)
-        self.SliderAmplitude.valueChanged.connect(MainWindow.update_ui)
+        self.SliderAmplitude.valueChanged.connect(MainWindow._sliderAmplitude_cnd)
         self.ButtonConnect.clicked.connect(MainWindow._connect)
         self.ButtonStart.clicked.connect(MainWindow._start_capture)
         self.ButtonStop.clicked.connect(MainWindow._stop_capture)

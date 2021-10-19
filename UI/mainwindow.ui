@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1045</width>
-    <height>824</height>
+    <height>801</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -701,7 +701,7 @@
    <sender>SliderAmplitude</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
+   <slot>_sliderAmplitude_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
@@ -881,11 +881,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>514</x>
-     <y>775</y>
+     <y>770</y>
     </hint>
     <hint type="destinationlabel">
-     <x>408</x>
-     <y>829</y>
+     <x>163</x>
+     <y>758</y>
     </hint>
    </hints>
   </connection>
@@ -901,5 +901,6 @@
   <slot>_save_data()</slot>
   <slot>_slider_value_cnd()</slot>
   <slot>_sliderDuration_cnd()</slot>
+  <slot>_sliderAmplitude_cnd()</slot>
  </slots>
 </ui>
