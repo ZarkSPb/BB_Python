@@ -353,7 +353,7 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
         self.retranslateUi(MainWindow)
-        self.SliderDuration.valueChanged.connect(MainWindow.update_ui)
+        self.SliderDuration.valueChanged.connect(MainWindow._sliderDuration_cnd)
         self.SliderAmplitude.valueChanged.connect(MainWindow.update_ui)
         self.ButtonConnect.clicked.connect(MainWindow._connect)
         self.ButtonStart.clicked.connect(MainWindow._start_capture)

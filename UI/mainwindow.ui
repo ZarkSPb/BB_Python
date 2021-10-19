@@ -685,7 +685,7 @@
    <sender>SliderDuration</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
+   <slot>_sliderDuration_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
@@ -900,5 +900,6 @@
   <slot>_stop_impedance()</slot>
   <slot>_save_data()</slot>
   <slot>_slider_value_cnd()</slot>
+  <slot>_sliderDuration_cnd()</slot>
  </slots>
 </ui>

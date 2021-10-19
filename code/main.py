@@ -1,6 +1,6 @@
-from os import add_dll_directory
 import sys
 from time import sleep
+import traceback
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -35,12 +35,13 @@ class MainWindow(QMainWindow):
 
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
+        self.session = Session()
 
-        # bufers init
-        self.buffer_main = Buffer(buffer_size=10000,
-                                  channels_num=len(SAVE_CHANNEL))
-        self.buffer_filtered = Buffer(buffer_size=10000,
-                                      channels_num=len(SAVE_CHANNEL))
+        # # bufers init
+        # self.buffer_main = Buffer(buffer_size=10000,
+        #                           channels_num=len(SAVE_CHANNEL))
+        # self.buffer_filtered = Buffer(buffer_size=10000,
+        #                               channels_num=len(SAVE_CHANNEL))
 
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -144,6 +145,10 @@ class MainWindow(QMainWindow):
     def update_time_axis(self, axis_t, start_time=0):
         if start_time == 0:
             start_time = QDateTime.currentDateTime()
+
+        # print(start_time)
+        # print(traceback.print_stack())
+        # print()
         start_time = start_time.addSecs(1)
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
@@ -182,7 +187,6 @@ class MainWindow(QMainWindow):
     # //////////////////////////////////////////////////////////////// UPDATE UI
     def update_ui(self):
         # Read slider params
-        self.chart_duration = self.ui.SliderDuration.value()
         self.chart_amp = self.ui.SliderAmplitude.value()
 
         # Autosave checkbox
@@ -193,26 +197,7 @@ class MainWindow(QMainWindow):
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
         # ////////////////////////////////////////////////////// Duration slider
-        text = "Duration (sec): " + str(self.chart_duration)
-        self.ui.LabelDuration.setText(text)
-
-        axis_x = self.chart_view.chart().axisX()
-        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
-
-        self.buff_size = self.buffer_filtered.get_last_num()
-        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
-        if self.slider_maximum < 0:
-            self.slider_maximum = 0
-
-        if self.ui.SliderChart.value() > self.slider_maximum:
-            self.ui.SliderChart.setValue(self.slider_maximum)
-        self.ui.SliderChart.setMaximum(self.slider_maximum)
-
-        self._slider_value_cnd()
-
-        axis_t = self.chart_view.chart().axes()[2]
-        axis_t.setRange(0, self.chart_duration * 1000)
-        self.update_time_axis(axis_t)
+        
         # //////////////////////////////////////////////////////////////////////
 
         # ///////////////////////////////////////////////////// Amplitude slider
@@ -226,7 +211,7 @@ class MainWindow(QMainWindow):
         # //////////////////////////////////////////////////////////////////////
 
         self.chart_buffer_update()
-        self.timer_redraw_charts()
+        # self.timer_redraw_charts()
 
     def chart_buffer_update(self):
         self.chart_buffers = []
@@ -363,6 +348,7 @@ class MainWindow(QMainWindow):
         self.save_first = True
 
         self.session = Session(self.save_filtered_flag)
+        self.session.session_start()
 
         if self.save_flag:
             self.patient = Patient(self.ui.LinePatientFirstName.text(),
@@ -489,8 +475,32 @@ class MainWindow(QMainWindow):
         if file_name[0]:
             save_file(data, file_name[0])
 
+    def _sliderDuration_cnd(self):
+        self.chart_duration = self.ui.SliderDuration.value()
+        text = "Duration (sec): " + str(self.chart_duration)
+        self.ui.LabelDuration.setText(text)
+
+        axis_x = self.chart_view.chart().axisX()
+        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
+
+        axis_t = self.chart_view.chart().axes()[2]
+        axis_t.setRange(0, self.chart_duration * 1000)
+
+        if self.session.status:
+            self.buff_size = self.buffer_filtered.get_last_num()
+            self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
+            if self.slider_maximum < 0:
+                self.slider_maximum = 0
+
+            if self.ui.SliderChart.value() > self.slider_maximum:
+                self.ui.SliderChart.setValue(self.slider_maximum)
+            self.ui.SliderChart.setMaximum(self.slider_maximum)
+            self._slider_value_cnd(self.session.time_init)
+        else:
+            self.update_time_axis(axis_t)
+
     def _slider_value_cnd(self):
-        print(self.ui.SliderChart.value())
+        # print(self.ui.SliderChart.value())
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
 
