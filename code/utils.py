@@ -4,10 +4,24 @@ from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from settings import *
 
 
-def save_file(data, file_name='eeg.csv', save_first=True):
+def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
     with open(file_name, 'a') as file_object:
         if save_first:
+
             header = ''
+            if patient.first_name != '':
+                header += patient.first_name + '\n'
+            else:
+                header += 'no first name\n'
+
+            if patient.last_name != '':
+                header += patient.last_name + '\n'
+            else:
+                header += 'no last name\n'
+
+            header += session.time_init.toString('yyyy.MM.dd') + '\n'
+            header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
+
             for channel_names in EEG_CHANNEL_NAMES:
                 header += f'{channel_names}, uV;'
             header += 'LinuxTime, sec.;BoardIndex, 0-255'
