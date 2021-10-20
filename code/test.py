@@ -1,14 +1,9 @@
-class K:
-    def __init__(self):
-        self.k = 5
-    
-    def get_k(self):
-        return self.k
+from re import findall
 
-a = K()
+str = "aasdf(sfsdsd)!fsfsdfsdf-sd"
+reg_kernel = '[а-яёa-z-()]+'
 
-b = a.k
 
-a.k = 6
+result = findall(reg_kernel, str)
 
-print(b)
+print(''.join(result))

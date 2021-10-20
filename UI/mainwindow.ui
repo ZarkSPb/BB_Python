@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1045</width>
-    <height>801</height>
+    <height>827</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -881,11 +881,43 @@
    <hints>
     <hint type="sourcelabel">
      <x>514</x>
-     <y>770</y>
+     <y>775</y>
     </hint>
     <hint type="destinationlabel">
      <x>163</x>
      <y>758</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LinePatientFirstName</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_firstName_edit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>148</x>
+     <y>562</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>565</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LinePatientLastName</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_lastName_edit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>606</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>218</x>
+     <y>612</y>
     </hint>
    </hints>
   </connection>
@@ -902,5 +934,7 @@
   <slot>_slider_value_cnd()</slot>
   <slot>_sliderDuration_cnd()</slot>
   <slot>_sliderAmplitude_cnd()</slot>
+  <slot>_firstName_edit()</slot>
+  <slot>_lastName_edit()</slot>
  </slots>
 </ui>
