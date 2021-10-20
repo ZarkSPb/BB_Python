@@ -11,8 +11,14 @@ def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
             header = ''
             if patient.first_name != '':
                 header += patient.first_name + '\n'
+            else:
+                header += 'no first name\n'
+
             if patient.last_name != '':
                 header += patient.last_name + '\n'
+            else:
+                header += 'no last name\n'
+
             header += session.time_init.toString('yyyy.MM.dd') + '\n'
             header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
 
