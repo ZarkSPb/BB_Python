@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1045, 827)
+        MainWindow.resize(1045, 836)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -247,6 +247,13 @@ class Ui_MainWindow(object):
 
         self.LayoutChartSettings.addWidget(self.CheckBoxFilterChart)
 
+        self.CheckBoxDetrendChart = QCheckBox(self.groupBox)
+        self.CheckBoxDetrendChart.setObjectName(u"CheckBoxDetrendChart")
+        self.CheckBoxDetrendChart.setEnabled(False)
+        self.CheckBoxDetrendChart.setChecked(False)
+
+        self.LayoutChartSettings.addWidget(self.CheckBoxDetrendChart)
+
 
         self.verticalLayout.addWidget(self.groupBox)
 
@@ -362,12 +369,13 @@ class Ui_MainWindow(object):
         self.ButtonImpedanceStart.clicked.connect(MainWindow._start_impedance)
         self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
         self.ButtonSave.clicked.connect(MainWindow._save_data)
-        self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxFilterChart.stateChanged.connect(MainWindow._checkBoxFilteredChart)
         self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
         self.SliderChart.valueChanged.connect(MainWindow._slider_value_cnd)
         self.LinePatientFirstName.textEdited.connect(MainWindow._firstName_edit)
         self.LinePatientLastName.textEdited.connect(MainWindow._lastName_edit)
+        self.CheckBoxDetrendChart.stateChanged.connect(MainWindow._checkBoxDetrendChart)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -394,6 +402,7 @@ class Ui_MainWindow(object):
         self.LabelDuration.setText(QCoreApplication.translate("MainWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
         self.CheckBoxFilterChart.setText(QCoreApplication.translate("MainWindow", u"Signal filtering", None))
+        self.CheckBoxDetrendChart.setText(QCoreApplication.translate("MainWindow", u"Signal detrend", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Patient data", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"First name:", None))
         self.LinePatientFirstName.setText("")
