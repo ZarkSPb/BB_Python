@@ -381,12 +381,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(True)
         self.ui.SliderChart.setEnabled(True)
 
-        self.buff_size = self.buffer_filtered.get_last_num()
-        self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
-        if self.slider_maximum < 0:
-            self.slider_maximum = 0
-        self.ui.SliderChart.setMaximum(self.slider_maximum)
-        self.ui.SliderChart.setValue(self.slider_maximum)
+        buff_size = self.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+        self.ui.SliderChart.setMaximum(slider_maximum)
+        self.ui.SliderChart.setValue(slider_maximum)
 
     def _disconnect(self):
         # Release all BB resources
@@ -454,14 +454,14 @@ class MainWindow(QMainWindow):
         axis_t.setRange(0, self.chart_duration * 1000)
 
         if self.session.status:
-            self.buff_size = self.buffer_filtered.get_last_num()
-            self.slider_maximum = self.buff_size - self.chart_duration * SAMPLE_RATE
-            if self.slider_maximum < 0:
-                self.slider_maximum = 0
+            buff_size = self.buffer_filtered.get_last_num()
+            slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+            if slider_maximum < 0:
+                slider_maximum = 0
 
-            if self.ui.SliderChart.value() > self.slider_maximum:
-                self.ui.SliderChart.setValue(self.slider_maximum)
-            self.ui.SliderChart.setMaximum(self.slider_maximum)
+            if self.ui.SliderChart.value() > slider_maximum:
+                self.ui.SliderChart.setValue(slider_maximum)
+            self.ui.SliderChart.setMaximum(slider_maximum)
             self._slider_value_cnd()
         else:
             self.update_time_axis(axis_t, self.session.time_init)
