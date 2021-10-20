@@ -285,10 +285,11 @@ class MainWindow(QMainWindow):
     def timer_save_file(self):
         if self.session.save_filtered:
             data = self.buffer_filtered.get_buff_from(self.last_save_index)
-            save_file(data, self.file_name, self.save_first)
         else:
             data = self.buffer_main.get_buff_from(self.last_save_index)
-            save_file(data, self.file_name, self.save_first)
+
+        save_file(data, self.patient, self.session, self.file_name,
+                  self.save_first)
 
         self.last_save_index += data.shape[1]
         self.save_first = False
