@@ -47,6 +47,10 @@ def signal_filtering(data):
                                 FilterTypes.BUTTERWORTH.value, 0)
 
 
+def signal_detrend(data):
+    DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
+
+
 def file_name_constructor(patient, session):
     # file_name = '(f)' if session.save_filtered else ''
     file_name = session.time_start.toString('yyyy-MM-dd__hh-mm-ss')

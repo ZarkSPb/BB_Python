@@ -17,7 +17,7 @@ from patient import Patient
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from utils import file_name_constructor, save_file, signal_filtering
+from utils import file_name_constructor, save_file, signal_filtering, signal_detrend
 from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
@@ -53,6 +53,8 @@ class MainWindow(QMainWindow):
                       [0]]))
 
         self.battery_value = 0
+        self.chart_filtering_flag = True
+        self.chart_detrend_flag = False
 
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -185,8 +187,6 @@ class MainWindow(QMainWindow):
     def update_ui(self):
         # Autosave checkbox
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Filtered chart checkbox
-        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
@@ -210,6 +210,10 @@ class MainWindow(QMainWindow):
         else:
             data = self.buffer_main.get_buff_last(self.chart_duration *
                                                   SAMPLE_RATE)
+
+            if self.chart_detrend_flag:
+                for channel in range(NUM_CHANNELS):
+                    signal_detrend(data[channel])
 
         if np.any(data):
             self.redraw_charts(data)
@@ -511,6 +515,23 @@ class MainWindow(QMainWindow):
 
         self.chart_buffer_update()
         self.redraw_charts(data)
+
+    def _checkBoxFilteredChart(self):
+        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
+        self.ui.CheckBoxDetrendChart.setEnabled(not self.chart_filtering_flag)
+
+        if self.chart_filtering_flag:
+            self.ui.CheckBoxDetrendChart.setChecked(False)
+
+        self.chart_buffer_update()
+        self.timer_redraw_charts()
+
+    def _checkBoxDetrendChart(self):
+        self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
+        if self.chart_detrend_flag:
+            self.ui.SliderAmplitude.setMaximum(400000)
+        else:
+            self.ui.SliderAmplitude.setMaximum(200)
 
     def _firstName_edit(self):
         text = self.ui.LinePatientFirstName.text()
