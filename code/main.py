@@ -1,6 +1,6 @@
 import sys
+from re import findall
 from time import sleep
-import traceback
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -494,6 +494,18 @@ class MainWindow(QMainWindow):
 
         self.chart_buffer_update()
         self.redraw_charts(data)
+
+    def _firstName_edit(self):
+        text = self.ui.LinePatientFirstName.text()
+        result = ''.join(findall(REG_KERNEL, text))
+        if text != result:
+            self.ui.LinePatientFirstName.setText(''.join(result))
+
+    def _lastName_edit(self):
+        text = self.ui.LinePatientLastName.text()
+        result = ''.join(findall(REG_KERNEL, text))
+        if text != result:
+            self.ui.LinePatientLastName.setText(''.join(result))
 
     def closeEvent(self, event):
         # Release all BB resources

@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1045, 801)
+        MainWindow.resize(1045, 827)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -366,6 +366,8 @@ class Ui_MainWindow(object):
         self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
         self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
         self.SliderChart.valueChanged.connect(MainWindow._slider_value_cnd)
+        self.LinePatientFirstName.textEdited.connect(MainWindow._firstName_edit)
+        self.LinePatientLastName.textEdited.connect(MainWindow._lastName_edit)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
