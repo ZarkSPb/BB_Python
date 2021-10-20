@@ -9,8 +9,8 @@ def save_file(data, file_name='eeg.csv', save_first=True):
         if save_first:
             header = ''
             for channel_names in EEG_CHANNEL_NAMES:
-                header += f'{channel_names};'
-            header += 'LinuxTime;BoardIndex'
+                header += f'{channel_names}, uV;'
+            header += 'LinuxTime, sec.;BoardIndex, 0-255'
             np.savetxt(file_object,
                        data.T,
                        fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
