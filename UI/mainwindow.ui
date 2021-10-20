@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>987</width>
-    <height>820</height>
+    <width>1045</width>
+    <height>801</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -558,7 +558,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="CheckBoxFiltered">
+           <widget class="QCheckBox" name="CheckBoxSaveFiltered">
             <property name="text">
              <string>Save filtered data</string>
             </property>
@@ -643,8 +643,14 @@
          <property name="maximum">
           <number>200</number>
          </property>
+         <property name="singleStep">
+          <number>1</number>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="tickPosition">
+          <enum>QSlider::NoTicks</enum>
          </property>
         </widget>
        </item>
@@ -658,7 +664,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>987</width>
+     <width>1045</width>
      <height>22</height>
     </rect>
    </property>
@@ -679,15 +685,15 @@
    <sender>SliderDuration</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
+   <slot>_sliderDuration_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
      <y>432</y>
     </hint>
     <hint type="destinationlabel">
-     <x>247</x>
-     <y>374</y>
+     <x>348</x>
+     <y>417</y>
     </hint>
    </hints>
   </connection>
@@ -695,15 +701,15 @@
    <sender>SliderAmplitude</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>update_ui()</slot>
+   <slot>_sliderAmplitude_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
      <y>483</y>
     </hint>
     <hint type="destinationlabel">
-     <x>235</x>
-     <y>426</y>
+     <x>252</x>
+     <y>470</y>
     </hint>
    </hints>
   </connection>
@@ -734,8 +740,8 @@
      <y>96</y>
     </hint>
     <hint type="destinationlabel">
-     <x>269</x>
-     <y>100</y>
+     <x>274</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -751,7 +757,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>249</x>
-     <y>129</y>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -766,8 +772,8 @@
      <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>158</y>
+     <x>275</x>
+     <y>146</y>
     </hint>
    </hints>
   </connection>
@@ -782,8 +788,8 @@
      <y>193</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>225</y>
+     <x>263</x>
+     <y>195</y>
     </hint>
    </hints>
   </connection>
@@ -798,8 +804,8 @@
      <y>228</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>255</y>
+     <x>252</x>
+     <y>223</y>
     </hint>
    </hints>
   </connection>
@@ -830,8 +836,56 @@
      <y>497</y>
     </hint>
     <hint type="destinationlabel">
-     <x>454</x>
-     <y>386</y>
+     <x>257</x>
+     <y>496</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxSaveFiltered</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>681</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>237</x>
+     <y>683</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CheckBoxAutosave</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>update_ui()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>95</x>
+     <y>659</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>660</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderChart</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_slider_value_cnd()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>514</x>
+     <y>770</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>163</x>
+     <y>758</y>
     </hint>
    </hints>
   </connection>
@@ -845,5 +899,8 @@
   <slot>_start_impedance()</slot>
   <slot>_stop_impedance()</slot>
   <slot>_save_data()</slot>
+  <slot>_slider_value_cnd()</slot>
+  <slot>_sliderDuration_cnd()</slot>
+  <slot>_sliderAmplitude_cnd()</slot>
  </slots>
 </ui>

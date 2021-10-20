@@ -1,10 +1,14 @@
-from datetime import datetime
-
+from PySide6.QtCore import QDateTime
 
 class Session:
     def __init__(self, save_filtered=True):
-        self.start_time = datetime.now()
         self.save_filtered = save_filtered
+        self.status = False
+        self.time_init = QDateTime.currentDateTime()
+
+    def session_start(self):
+        self.time_start = QDateTime.currentDateTime()
+        self.status = True
 
     def stop_session(self):
-        self.stop_time = datetime.now()
+        self.time_stop = QDateTime.currentDateTime()

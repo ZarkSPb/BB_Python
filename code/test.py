@@ -1,16 +1,14 @@
-import numpy as np
+class K:
+    def __init__(self):
+        self.k = 5
+    
+    def get_k(self):
+        return self.k
 
-kerneldt = np.dtype([
-    ('Ch1', np.float16),
-    ('Ch2', np.float16),
-    ('Ch3', np.float16),
-    ('Ch4', np.float16),
-    ('time', np.float16),
-    ('index', np.int8)
-])
+a = K()
 
-x = np.zeros((10,), dtype=kerneldt)
+b = a.k
 
-x[['Ch1', 'index']] = (5.0, 59)
+a.k = 6
 
-np.savetxt('1.csv', x, delimiter=';')
+print(b)

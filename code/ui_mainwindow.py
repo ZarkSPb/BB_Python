@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(987, 820)
+        MainWindow.resize(1045, 801)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -291,11 +291,11 @@ class Ui_MainWindow(object):
 
         self.LayoutSave.addWidget(self.CheckBoxAutosave)
 
-        self.CheckBoxFiltered = QCheckBox(self.groupBox_5)
-        self.CheckBoxFiltered.setObjectName(u"CheckBoxFiltered")
-        self.CheckBoxFiltered.setChecked(True)
+        self.CheckBoxSaveFiltered = QCheckBox(self.groupBox_5)
+        self.CheckBoxSaveFiltered.setObjectName(u"CheckBoxSaveFiltered")
+        self.CheckBoxSaveFiltered.setChecked(True)
 
-        self.LayoutSave.addWidget(self.CheckBoxFiltered)
+        self.LayoutSave.addWidget(self.CheckBoxSaveFiltered)
 
         self.ButtonSave = QPushButton(self.groupBox_5)
         self.ButtonSave.setObjectName(u"ButtonSave")
@@ -332,7 +332,9 @@ class Ui_MainWindow(object):
         self.SliderChart = QSlider(self.widget_7)
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setMaximum(200)
+        self.SliderChart.setSingleStep(1)
         self.SliderChart.setOrientation(Qt.Horizontal)
+        self.SliderChart.setTickPosition(QSlider.NoTicks)
 
         self.verticalLayout_2.addWidget(self.SliderChart)
 
@@ -342,7 +344,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 987, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1045, 22))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -351,8 +353,8 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
 
         self.retranslateUi(MainWindow)
-        self.SliderDuration.valueChanged.connect(MainWindow.update_ui)
-        self.SliderAmplitude.valueChanged.connect(MainWindow.update_ui)
+        self.SliderDuration.valueChanged.connect(MainWindow._sliderDuration_cnd)
+        self.SliderAmplitude.valueChanged.connect(MainWindow._sliderAmplitude_cnd)
         self.ButtonConnect.clicked.connect(MainWindow._connect)
         self.ButtonStart.clicked.connect(MainWindow._start_capture)
         self.ButtonStop.clicked.connect(MainWindow._stop_capture)
@@ -361,6 +363,9 @@ class Ui_MainWindow(object):
         self.ButtonImpedanceStop.clicked.connect(MainWindow._stop_impedance)
         self.ButtonSave.clicked.connect(MainWindow._save_data)
         self.CheckBoxFilterChart.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxSaveFiltered.stateChanged.connect(MainWindow.update_ui)
+        self.CheckBoxAutosave.stateChanged.connect(MainWindow.update_ui)
+        self.SliderChart.valueChanged.connect(MainWindow._slider_value_cnd)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -393,7 +398,7 @@ class Ui_MainWindow(object):
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Last name:", None))
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Save settings", None))
         self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
-        self.CheckBoxFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
+        self.CheckBoxSaveFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
         self.ButtonSave.setText(QCoreApplication.translate("MainWindow", u"Save...", None))
     # retranslateUi
 
