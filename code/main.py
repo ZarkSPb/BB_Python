@@ -1,6 +1,7 @@
 import sys
 from re import findall
 from time import sleep
+# import PySide6
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -9,7 +10,7 @@ from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
                               QLineSeries, QValueAxis)
 from PySide6.QtCore import QDateTime, QPointF, QRectF, QThreadPool, QTimer
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
-from PySide6.QtWidgets import QApplication, QMainWindow
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from buff import Buffer
 from patient import Patient
@@ -50,6 +51,8 @@ class MainWindow(QMainWindow):
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
+
+        self.battery_value = 0
 
         # --------------------Impedance label fill--------------------
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -125,6 +128,16 @@ class MainWindow(QMainWindow):
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
+
+        self.statusBar_main = QLabel()
+
+        self.progressBar_battery = QProgressBar()
+        self.progressBar_battery.setAlignment(QtCore.Qt.AlignCenter)
+        self.progressBar_battery.setMaximumWidth(100)
+        self.progressBar_battery.setMaximumHeight(18)
+
+        self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
+        self.ui.statusbar.addWidget(self.statusBar_main)
 
         self.update_ui()
 
@@ -235,11 +248,11 @@ class MainWindow(QMainWindow):
         params.timeout = 5
         self.board = BoardShim(BOARD_ID, params)
 
-        self.ui.statusbar.showMessage('Connecting...')
+        self.statusBar_main.setText('Connecting...')
         try:
             self.board.prepare_session()
         except BaseException as e:
-            self.ui.statusbar.showMessage(
+            self.statusBar_main.setText(
                 'Do not connect. Trying to connect again. ' +
                 f'Exception: {e}.')
             exception = True
@@ -248,11 +261,11 @@ class MainWindow(QMainWindow):
 
         if exception:
             sleep(3)
-            self.ui.statusbar.showMessage('Connecting...')
+            self.statusBar_main.setText('Connecting...')
             try:
                 self.board.prepare_session()
             except BaseException as exception:
-                self.ui.statusbar.showMessage(
+                self.statusBar_main.setText(
                     f'Do not connect. Exception: {exception}.')
                 self.ui.ButtonConnect.setEnabled(True)
                 exception = True
@@ -260,16 +273,21 @@ class MainWindow(QMainWindow):
                 exception = False
 
         if not exception:
-            self.ui.statusbar.showMessage('Connected.')
+            self.statusBar_main.setText('Connected.')
             self.ui.ButtonStart.setEnabled(True)
             self.ui.ButtonDisconnect.setEnabled(True)
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
 
     def timer_update_buff(self):
-        data = self.board.get_board_data()[SAVE_CHANNEL, :]
+        data = self.board.get_board_data()
         if np.any(data):
-            self.buffer_main.add(data)
+            self.buffer_main.add(data[SAVE_CHANNEL, :])
+
+            bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
+            if self.battery_value != bat_val:
+                self.battery_value = bat_val
+                self.progressBar_battery.setValue(self.battery_value)
 
         add_sample = data.shape[1]
         if add_sample != 0:
@@ -324,14 +342,14 @@ class MainWindow(QMainWindow):
 
             self.file_name = '(f)' if self.session.save_filtered else ''
             self.file_name += file_name_constructor(self.patient, self.session)
-            self.ui.statusbar.showMessage(f'Saved in: {self.file_name}')
+            self.statusBar_main.setText(f'Saved in: {self.file_name}')
             # timer to save file
             self.save_timer = QTimer()
             self.save_timer.timeout.connect(self.timer_save_file)
             self.save_timer.start(SAVE_INTERVAL_MS)
             self.last_save_index = 0
         else:
-            self.ui.statusbar.showMessage(f'No saved')
+            self.statusBar_main.setText(f'No saved')
 
         # bufers init
         self.buffer_main = Buffer(buffer_size=10000,
@@ -394,7 +412,7 @@ class MainWindow(QMainWindow):
         if self.board.is_prepared():
             self.board.release_session()
 
-        self.ui.statusbar.showMessage('Disсonnected.')
+        self.statusBar_main.setText('Disсonnected.')
 
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
@@ -483,7 +501,6 @@ class MainWindow(QMainWindow):
         self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
-        # print(self.ui.SliderChart.value())
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
 
