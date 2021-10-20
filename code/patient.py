@@ -8,7 +8,7 @@ class Patient:
         if self.first_name:
             fullname = self.first_name
             if self.last_name:
-                fullname += '-' + self.last_name
+                fullname += '_' + self.last_name
         elif self.last_name:
             fullname = self.last_name
 
