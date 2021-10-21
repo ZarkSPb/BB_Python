@@ -30,12 +30,19 @@ class MainWindow(QMainWindow):
 
         self.threadpool = QThreadPool()
 
-        self.charts = []
-
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
+        self.battery_value = 0
+        self.chart_filtering_flag = True
+        self.chart_detrend_flag = False
+
+        self.charts = []
+
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
 
@@ -53,94 +60,71 @@ class MainWindow(QMainWindow):
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
 
-        self.battery_value = 0
-        self.chart_filtering_flag = True
-        self.chart_detrend_flag = False
-
-        # --------------------Impedance label fill--------------------
+        # ///////////////////////////////////////////////// Impedance label fill
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
         self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
         self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
         self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3])
 
-        # --------------------CHART MAKE--------------------
+        # /////////////////////////////////////////////////////////// CHART MAKE
         self.channel_names = BoardShim.get_board_descr(
             BOARD_ID)['eeg_names'].split(',')
-
-        # serieses fill
-        self.serieses = []
-        self.chart_buffers = []
 
         chart = QChart()
         chart.legend().setVisible(False)
 
-        # ////////////////////////////////////////////////////////////////axis_x
+        # /////////////////////////////////////////////////////////////// axis_x
         axis_x = QValueAxis()
         axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         axis_x.setVisible(False)
         axis_x.setLabelFormat('%i')
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-        # //////////////////////////////////////////////////////////////////////
 
-        # ////////////////////////////////////////////////////////////////axis_y
+        # /////////////////////////////////////////////////////////////// axis_y
         axis_y = QValueAxis()
         axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
         axis_y.setTickCount(9)
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-        # //////////////////////////////////////////////////////////////////////
 
-        # ////////////////////////////////////////////////////////////////axis_t
+        # /////////////////////////////////////////////////////////////// axis_t
         axis_t = QCategoryAxis()
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
         axis_t = self.update_time_axis(axis_t)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
-        # //////////////////////////////////////////////////////////////////////
 
-        # ////////////////////////////////////////////////////////////////axis_c
+        # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setRange(0, 4)
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         self.update_channels_axis(axis_c)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
-        # //////////////////////////////////////////////////////////////////////
 
+        # //////////////////////////////////////////////////////// serieses fill
+        self.serieses = []
+        self.chart_buffers_update()
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.setName(f'{EEG_CHANNEL_NAMES[i]}')
-            # series.setColor('#209fdf')
-            self.chart_buffers.append([
-                QPointF(
-                    x, self.chart_amp +
-                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                for x in range(self.chart_duration * SAMPLE_RATE)
-            ])
-            series.append(self.chart_buffers[-1])
+            series.append(self.chart_buffers[i])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
-            # self.serieses[-1].setUseOpenGL(True)
 
         self.chart_view = QChartView(chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
-        self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
-        self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
-
         self.statusBar_main = QLabel()
-
         self.progressBar_battery = QProgressBar()
         self.progressBar_battery.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar_battery.setMaximumWidth(100)
         self.progressBar_battery.setMaximumHeight(18)
-
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
@@ -193,10 +177,7 @@ class MainWindow(QMainWindow):
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
-        self.chart_buffer_update()
-        self.timer_redraw_charts()
-
-    def chart_buffer_update(self):
+    def chart_buffers_update(self):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
@@ -370,7 +351,7 @@ class MainWindow(QMainWindow):
         self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
 
         # CHART buffer renew
-        self.chart_buffer_update()
+        self.chart_buffers_update()
         self.timer_redraw_charts()
 
         # board start eeg stream
@@ -491,7 +472,7 @@ class MainWindow(QMainWindow):
             self._slider_value_cnd()
         else:
             self.update_time_axis(axis_t, self.session.time_init)
-            self.chart_buffer_update()
+            self.chart_buffers_update()
             self.timer_redraw_charts()
 
     def _sliderAmplitude_cnd(self):
@@ -504,7 +485,7 @@ class MainWindow(QMainWindow):
         axis_c = self.chart_view.chart().axes()[3]
         self.update_channels_axis(axis_c)
 
-        self.chart_buffer_update()
+        self.chart_buffers_update()
         self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
@@ -516,7 +497,7 @@ class MainWindow(QMainWindow):
         else:
             data = self.buffer_main.get_buff_from(start_index, end_index)
 
-        self.chart_buffer_update()
+        self.chart_buffers_update()
         self.redraw_charts(data)
 
     def _checkBoxFilteredChart(self):
@@ -526,7 +507,7 @@ class MainWindow(QMainWindow):
         if self.chart_filtering_flag:
             self.ui.CheckBoxDetrendChart.setChecked(False)
 
-        self.chart_buffer_update()
+        self.chart_buffers_update()
         self.timer_redraw_charts()
 
     def _checkBoxDetrendChart(self):

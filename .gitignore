@@ -5,3 +5,5 @@
 /.qt_for_python
 _eeg.py
 *.csv
+/Artifacts
+/main*
