@@ -1,15 +1,14 @@
 import sys
 from re import findall
 from time import sleep
-# import PySide6
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
-                              QLineSeries, QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QRectF, QThreadPool, QTimer
-from PySide6.QtGui import QBrush, QColor, QPainter, QPen
+from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
+                              QValueAxis)
+from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from buff import Buffer
@@ -17,8 +16,10 @@ from patient import Patient
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from utils import file_name_constructor, save_file, signal_filtering, signal_detrend
+from utils import (file_name_constructor, save_file, signal_filtering)
 from worker import Worker
+
+# import PySide6
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -113,8 +114,10 @@ class MainWindow(QMainWindow):
             series.setName(f'{EEG_CHANNEL_NAMES[i]}')
             # series.setColor('#209fdf')
             self.chart_buffers.append([
-                QPointF(x, 20 + (NUM_CHANNELS - 1 - i) * 40)
-                for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
+                QPointF(
+                    x, self.chart_amp +
+                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
+                for x in range(self.chart_duration * SAMPLE_RATE)
             ])
             series.append(self.chart_buffers[-1])
             self.serieses.append(series)
@@ -213,7 +216,7 @@ class MainWindow(QMainWindow):
 
             if self.chart_detrend_flag:
                 for channel in range(NUM_CHANNELS):
-                    signal_detrend(data[channel])
+                    signal_filtering(data[channel], filtering=False)
 
         if np.any(data):
             self.redraw_charts(data)

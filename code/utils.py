@@ -1,4 +1,5 @@
-import numpy as np
+# import numpy as np
+from numpy import savetxt
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 
 from settings import *
@@ -6,16 +7,20 @@ from settings import *
 
 def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
     with open(file_name, 'a') as file_object:
+
+        first_name = patient.get_first_name()
+        last_name = patient.get_last_name()
+
         if save_first:
 
             header = ''
-            if patient.first_name != '':
-                header += patient.first_name + '\n'
+            if first_name != '':
+                header += first_name + '\n'
             else:
                 header += 'no first name\n'
 
-            if patient.last_name != '':
-                header += patient.last_name + '\n'
+            if last_name != '':
+                header += last_name + '\n'
             else:
                 header += 'no last name\n'
 
@@ -25,30 +30,27 @@ def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
             for channel_names in EEG_CHANNEL_NAMES:
                 header += f'{channel_names}, uV;'
             header += 'LinuxTime, sec.;BoardIndex, 0-255'
-            np.savetxt(file_object,
+            savetxt(file_object,
                        data.T,
                        fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
                        delimiter=';',
                        header=header,
                        comments='')
         else:
-            np.savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+            savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 
 
-def signal_filtering(data):
+def signal_filtering(data, filtering=True):
     DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                FilterTypes.BUTTERWORTH.value, 0)
-
-
-def signal_detrend(data):
-    DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
+    if filtering:
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
+        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                    FilterTypes.BUTTERWORTH.value, 0)
 
 
 def file_name_constructor(patient, session):
