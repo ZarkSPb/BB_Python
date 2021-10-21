@@ -40,27 +40,25 @@ class MainWindow(QMainWindow):
         self.battery_value = 0
         self.chart_filtering_flag = True
         self.chart_detrend_flag = False
-
-        self.charts = []
-
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
+        self.charts = []
 
-        # bufers init
-        self.buffer_main = Buffer(buffer_size=10000,
+        # ///////////////////////////////////////////////////////// BUFFERS INIT
+        self.buffer_main = Buffer(buffer_size=10,
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_main.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
-        self.buffer_filtered = Buffer(buffer_size=10000,
+        self.buffer_filtered = Buffer(buffer_size=10,
                                       channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
 
-        # ///////////////////////////////////////////////// Impedance label fill
+        # ///////////////////////////////////////////////// IMPEDANCE LABEL FILL
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
         self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
         self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
@@ -69,17 +67,14 @@ class MainWindow(QMainWindow):
         # /////////////////////////////////////////////////////////// CHART MAKE
         self.channel_names = BoardShim.get_board_descr(
             BOARD_ID)['eeg_names'].split(',')
-
         chart = QChart()
         chart.legend().setVisible(False)
-
         # /////////////////////////////////////////////////////////////// axis_x
         axis_x = QValueAxis()
         axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         axis_x.setVisible(False)
         axis_x.setLabelFormat('%i')
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-
         # /////////////////////////////////////////////////////////////// axis_y
         axis_y = QValueAxis()
         axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
@@ -87,7 +82,6 @@ class MainWindow(QMainWindow):
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-
         # /////////////////////////////////////////////////////////////// axis_t
         axis_t = QCategoryAxis()
         axis_t.setRange(0, self.chart_duration * 1000)
@@ -95,7 +89,6 @@ class MainWindow(QMainWindow):
         axis_t.setTruncateLabels(False)
         axis_t = self.update_time_axis(axis_t)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
-
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setRange(0, 4)
@@ -103,7 +96,6 @@ class MainWindow(QMainWindow):
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         self.update_channels_axis(axis_c)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
-
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
         self.chart_buffers_update()
@@ -115,11 +107,12 @@ class MainWindow(QMainWindow):
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
-
+        # //////////////////////////////////////////////////// Chart viev create
         self.chart_view = QChartView(chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
+        # ////////////////////////////////////////////////////// STATUS BAR MAKE
         self.statusBar_main = QLabel()
         self.progressBar_battery = QProgressBar()
         self.progressBar_battery.setAlignment(QtCore.Qt.AlignCenter)
@@ -129,6 +122,13 @@ class MainWindow(QMainWindow):
         self.ui.statusbar.addWidget(self.statusBar_main)
 
         self.update_ui()
+
+    # //////////////////////////////////////////////////////////////// UPDATE UI
+    def update_ui(self):
+        # Autosave checkbox
+        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
+        # Save fitered data flag
+        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
     # ///////////////////////////////////////////////////////// Update TIME axis
     def update_time_axis(self, axis_t, start_time=0):
@@ -169,13 +169,6 @@ class MainWindow(QMainWindow):
                 axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
             else:
                 axis_c.append(f'{self.chart_amp}', i + 1)
-
-    # //////////////////////////////////////////////////////////////// UPDATE UI
-    def update_ui(self):
-        # Autosave checkbox
-        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Save fitered data flag
-        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
     def chart_buffers_update(self):
         self.chart_buffers = []
@@ -231,6 +224,32 @@ class MainWindow(QMainWindow):
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
 
+    def timer_update_buff(self):
+        data = self.board.get_board_data()
+        if np.any(data):
+            self.buffer_main.add(data[SAVE_CHANNEL, :])
+
+            bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
+            if self.battery_value != bat_val:
+                self.battery_value = bat_val
+                self.progressBar_battery.setValue(self.battery_value)
+
+        add_sample = data.shape[1]
+        if add_sample != 0:
+            self.filtered_buffer_update(add_sample)
+
+    def timer_save_file(self):
+        if self.session.save_filtered:
+            data = self.buffer_filtered.get_buff_from(self.last_save_index)
+        else:
+            data = self.buffer_main.get_buff_from(self.last_save_index)
+
+        save_file(data, self.patient, self.session, self.file_name,
+                  self.save_first)
+
+        self.last_save_index += data.shape[1]
+        self.save_first = False
+
     def connect_toBB(self):
         params = BrainFlowInputParams()
         params.timeout = 5
@@ -267,20 +286,6 @@ class MainWindow(QMainWindow):
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
 
-    def timer_update_buff(self):
-        data = self.board.get_board_data()
-        if np.any(data):
-            self.buffer_main.add(data[SAVE_CHANNEL, :])
-
-            bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
-            if self.battery_value != bat_val:
-                self.battery_value = bat_val
-                self.progressBar_battery.setValue(self.battery_value)
-
-        add_sample = data.shape[1]
-        if add_sample != 0:
-            self.filtered_buffer_update(add_sample)
-
     def filtered_buffer_update(self, add_sample):
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
                                               SAMPLE_RATE + add_sample)
@@ -288,19 +293,7 @@ class MainWindow(QMainWindow):
             signal_filtering(data[channel])
         self.buffer_filtered.add(data[:, -add_sample:])
 
-    def timer_save_file(self):
-        if self.session.save_filtered:
-            data = self.buffer_filtered.get_buff_from(self.last_save_index)
-        else:
-            data = self.buffer_main.get_buff_from(self.last_save_index)
-
-        save_file(data, self.patient, self.session, self.file_name,
-                  self.save_first)
-
-        self.last_save_index += data.shape[1]
-        self.save_first = False
-
-    # ///////////////////////////////////////////////////////////////UI BEHAVIOR
+    # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
@@ -308,27 +301,16 @@ class MainWindow(QMainWindow):
         self.threadpool.start(worker)
 
     def _start_capture(self):
-        self.ui.ButtonStart.setEnabled(False)
-        self.ui.ButtonDisconnect.setEnabled(False)
-        self.ui.ButtonStop.setEnabled(True)
-        self.ui.ButtonImpedanceStart.setEnabled(False)
-        self.ui.CheckBoxAutosave.setEnabled(False)
-        self.ui.CheckBoxSaveFiltered.setEnabled(False)
-        self.ui.LinePatientFirstName.setEnabled(False)
-        self.ui.LinePatientLastName.setEnabled(False)
-        self.ui.ButtonSave.setEnabled(False)
-        self.ui.SliderChart.setEnabled(False)
-
         self.save_first = True
 
         self.session = Session(self.save_filtered_flag)
         self.session.session_start()
 
-        if self.save_flag:
-            self.patient = Patient(self.ui.LinePatientFirstName.text(),
-                                   self.ui.LinePatientLastName.text())
+        self.patient = Patient(self.ui.LinePatientFirstName.text(),
+                               self.ui.LinePatientLastName.text())
 
-            self.file_name = '(f)' if self.session.save_filtered else ''
+        if self.save_flag:
+            self.file_name = '(f)' if self.session.get_flt_status() else ''
             self.file_name += file_name_constructor(self.patient, self.session)
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             # timer to save file
@@ -345,11 +327,6 @@ class MainWindow(QMainWindow):
         self.buffer_filtered = Buffer(buffer_size=10000,
                                       channels_num=len(SAVE_CHANNEL))
 
-        # board timer init and start
-        self.board_timer = QTimer()
-        self.board_timer.timeout.connect(self.timer_update_buff)
-        self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
-
         # CHART buffer renew
         self.chart_buffers_update()
         self.timer_redraw_charts()
@@ -359,23 +336,43 @@ class MainWindow(QMainWindow):
         self.board.config_board('CommandStartSignal')
         self.board.get_board_data()
 
+        # board timer init and start
+        self.board_timer = QTimer()
+        self.board_timer.timeout.connect(self.timer_update_buff)
+        self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
+
         # Start timer for chart redraw
         self.chart_redraw_timer = QTimer()
         self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
         self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
+
+        self.ui.ButtonStart.setEnabled(False)
+        self.ui.ButtonDisconnect.setEnabled(False)
+        self.ui.ButtonStop.setEnabled(True)
+        self.ui.ButtonImpedanceStart.setEnabled(False)
+        self.ui.CheckBoxAutosave.setEnabled(False)
+        self.ui.CheckBoxSaveFiltered.setEnabled(False)
+        self.ui.LinePatientFirstName.setEnabled(False)
+        self.ui.LinePatientLastName.setEnabled(False)
+        self.ui.ButtonSave.setEnabled(False)
+        self.ui.SliderChart.setEnabled(False)
 
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
         self.save_timer.stop()
         self.board_timer.stop()
-
         self.board.stop_stream()
-
         self.session.stop_session()
-
         if self.save_flag:
             self.timer_save_file()
+
+        buff_size = self.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+        self.ui.SliderChart.setMaximum(slider_maximum)
+        self.ui.SliderChart.setValue(slider_maximum)
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -388,20 +385,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(True)
         self.ui.SliderChart.setEnabled(True)
 
-        buff_size = self.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
-        self.ui.SliderChart.setMaximum(slider_maximum)
-        self.ui.SliderChart.setValue(slider_maximum)
-
     def _disconnect(self):
         # Release all BB resources
         if self.board.is_prepared():
             self.board.release_session()
 
         self.statusBar_main.setText('Disсonnected.')
-
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
