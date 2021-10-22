@@ -8,7 +8,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
                               QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
+from PySide6.QtCore import QDateTime, QPointF, QThread, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
@@ -300,8 +300,20 @@ class MainWindow(QMainWindow):
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
-        worker = Worker(self.connect_toBB)
-        self.threadpool.start(worker)
+        # worker = Worker(self.connect_toBB)
+        # self.threadpool.start(worker)
+
+        def finish():
+            thread.quit()
+            thread.wait()
+        
+        thread = QThread()
+        worker = Worker()
+        worker.moveToThread(thread)
+        
+        worker.finished.connect(finish)
+        thread.started.connect(worker.start)
+        thread.start()
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
