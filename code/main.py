@@ -1,6 +1,7 @@
 import sys
 from re import findall
 from time import sleep
+from multiprocessing import Pool
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -18,8 +19,6 @@ from settings import *
 from ui_mainwindow import Ui_MainWindow
 from utils import (file_name_constructor, save_file, signal_filtering)
 from worker import Worker
-
-# import PySide6
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -177,7 +176,8 @@ class MainWindow(QMainWindow):
                 QPointF(
                     x, self.chart_amp +
                     (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                for x in range(self.chart_duration * SAMPLE_RATE)
+                for x in range(self.chart_duration *
+                               SAMPLE_RATE)  # range(60 * 60 * SAMPLE_RATE)
             ])
 
     def timer_redraw_charts(self):
@@ -238,6 +238,8 @@ class MainWindow(QMainWindow):
         if add_sample != 0:
             self.filtered_buffer_update(add_sample)
 
+        print(data.shape)
+
     def timer_save_file(self):
         if self.session.save_filtered:
             data = self.buffer_filtered.get_buff_from(self.last_save_index)
@@ -294,12 +296,14 @@ class MainWindow(QMainWindow):
         self.buffer_filtered.add(data[:, -add_sample:])
 
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
+    # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
 
         worker = Worker(self.connect_toBB)
         self.threadpool.start(worker)
 
+    # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
         self.save_first = True
 
@@ -357,6 +361,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
         self.ui.SliderChart.setEnabled(False)
 
+    # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
