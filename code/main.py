@@ -1,7 +1,6 @@
 import sys
 from re import findall
 from time import sleep
-from multiprocessing import Pool
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
@@ -207,6 +206,7 @@ class MainWindow(QMainWindow):
                 self.chart_buffers[channel][i].setY(
                     r_data[i] + self.chart_amp +
                     (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+            self.curr = QDateTime.currentMSecsSinceEpoch()
             self.serieses[channel].replace(self.chart_buffers[channel])
 
     def timer_impedance(self):
@@ -238,7 +238,7 @@ class MainWindow(QMainWindow):
         if add_sample != 0:
             self.filtered_buffer_update(add_sample)
 
-        print(data.shape)
+        # print(data.shape)
 
     def timer_save_file(self):
         if self.session.save_filtered:
@@ -288,6 +288,15 @@ class MainWindow(QMainWindow):
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
 
+        def slp():
+            sleep(3)
+            print(f'7777777777777777777777777777777')
+
+        timer = QTimer()
+        timer.timeout.connect(slp)
+        timer.start()
+        
+
     def filtered_buffer_update(self, add_sample):
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
                                               SAMPLE_RATE + add_sample)
@@ -299,21 +308,8 @@ class MainWindow(QMainWindow):
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
-
-        # worker = Worker(self.connect_toBB)
-        # self.threadpool.start(worker)
-
-        def finish():
-            thread.quit()
-            thread.wait()
-        
-        thread = QThread()
-        worker = Worker()
-        worker.moveToThread(thread)
-        
-        worker.finished.connect(finish)
-        thread.started.connect(worker.start)
-        thread.start()
+        worker = Worker(self.connect_toBB)
+        self.threadpool.start(worker)
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
