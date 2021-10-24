@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-from PySide6.QtCore import QObject, QRunnable, Signal, Slot
+from PySide6.QtCore import QObject, QRunnable, Signal, Slot, QThread
 
 
 class WorkerSignals(QObject):
@@ -10,7 +10,7 @@ class WorkerSignals(QObject):
     result = Signal(object)
 
 
-class Worker(QRunnable):
+class Worker(QThread):
     def __init__(self, fn, *args, **kwargs):
         super(Worker, self).__init__()
         self.fn = fn
@@ -18,9 +18,8 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-    @Slot()  #QtCore.Slot
+    # @Slot()  #QtCore.Slot
     def run(self):
-        # Retrieve args/kwargs here; and fire processing using them
         try:
             result = self.fn(*self.args, **self.kwargs)
         except:

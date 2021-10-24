@@ -119,6 +119,16 @@ class MainWindow(QMainWindow):
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
+        # ////////////////////////////////////////////////////////// Treads INIT
+        self.worker_connect = Worker(self.connect_toBB)
+        self.worker_connect.started.connect(self._connect)
+
+        self.worker_buff_main = Worker(self.update_buff)
+        # self.worker_buff_main.started.connect(self._start_capture)
+
+        self.worker_chart_redraw = Worker(self.thread_redraw_charts)
+        # self.worker_chart_redraw.started.connect(self_s)
+
         self.update_ui()
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
@@ -232,7 +242,7 @@ class MainWindow(QMainWindow):
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
 
-    def thread_update_buff(self):
+    def update_buff(self):
         while self.session.get_status():
             data = self.board.get_board_data()
             if np.any(data):
@@ -242,6 +252,8 @@ class MainWindow(QMainWindow):
             add_sample = data.shape[1]
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
+
+            print(data.shape)
 
             QThread.msleep(10)
 
@@ -308,8 +320,7 @@ class MainWindow(QMainWindow):
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
-        worker = Worker(self.connect_toBB)
-        self.threadpool.start(worker)
+        self.worker_connect.start()
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
@@ -347,12 +358,10 @@ class MainWindow(QMainWindow):
         self.board.config_board('CommandStartSignal')
 
         # thread buff capture START
-        self.worker_buff_main = Worker(self.thread_update_buff)
-        self.threadpool.start(self.worker_buff_main)
+        self.worker_buff_main.start()
 
         # Start thread for chart redraw
-        worker_chart_redraw = Worker(self.thread_redraw_charts)
-        self.threadpool.start(worker_chart_redraw)
+        self.worker_chart_redraw.start()
 
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
