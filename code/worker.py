@@ -8,7 +8,6 @@ class WorkerSignals(QObject):
     finished = Signal()
     error = Signal(tuple)
     result = Signal(object)
-    # progress = Signal(np.ndarray)
 
 
 class Worker(QRunnable):

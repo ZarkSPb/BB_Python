@@ -185,7 +185,6 @@ class MainWindow(QMainWindow):
 
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
-            print(self.buff_busy)
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
                                                       SAMPLE_RATE)
         else:
@@ -244,8 +243,14 @@ class MainWindow(QMainWindow):
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
 
-            # print(data.shape)
-            QThread.msleep(5)
+            QThread.msleep(10)
+
+    def filtered_buffer_update(self, add_sample):
+        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
+                                              SAMPLE_RATE + add_sample)
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel])
+        self.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_long_events(self):
         def sf(self):
@@ -298,18 +303,6 @@ class MainWindow(QMainWindow):
             self.ui.ButtonDisconnect.setEnabled(True)
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
-
-    def filtered_buffer_update(self, add_sample):
-
-        self.buff_busy = True
-
-        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
-                                              SAMPLE_RATE + add_sample)
-        for channel in range(NUM_CHANNELS):
-            signal_filtering(data[channel])
-        self.buffer_filtered.add(data[:, -add_sample:])
-    
-        self.buff_busy = False
 
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
