@@ -7,7 +7,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
                               QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThread, QThreadPool, QTimer
+from PySide6.QtCore import QDateTime, QPointF, QThread, QThreadPool, QTimer, Qt
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
@@ -179,6 +179,12 @@ class MainWindow(QMainWindow):
                                SAMPLE_RATE)  # range(60 * 60 * SAMPLE_RATE)
             ])
 
+    def thread_redraw_charts(self):
+        while self.thread_buffer_run:
+            print(333333333333333)
+            self.timer_redraw_charts()
+            QThread.usleep(40000)
+    
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
@@ -224,21 +230,23 @@ class MainWindow(QMainWindow):
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
 
-    def timer_update_buff(self):
-        data = self.board.get_board_data()
-        if np.any(data):
-            self.buffer_main.add(data[SAVE_CHANNEL, :])
+    def thread_update_buff(self):
+        while self.thread_buffer_run:
+            data = self.board.get_board_data()
+            if np.any(data):
+                self.buffer_main.add(data[SAVE_CHANNEL, :])
 
-            bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
-            if self.battery_value != bat_val:
-                self.battery_value = bat_val
-                self.progressBar_battery.setValue(self.battery_value)
+                # bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
+                # if self.battery_value != bat_val:
+                #     self.battery_value = bat_val
+                #     self.progressBar_battery.setValue(self.battery_value)
 
-        add_sample = data.shape[1]
-        if add_sample != 0:
-            self.filtered_buffer_update(add_sample)
+            add_sample = data.shape[1]
+            if add_sample != 0:
+                self.filtered_buffer_update(add_sample)
 
-        # print(data.shape)
+            # print(data.shape)
+            QThread.usleep(3000)
 
     def timer_save_file(self):
         if self.session.save_filtered:
@@ -287,15 +295,6 @@ class MainWindow(QMainWindow):
             self.ui.ButtonDisconnect.setEnabled(True)
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
-
-        def slp():
-            sleep(3)
-            print(f'7777777777777777777777777777777')
-
-        timer = QTimer()
-        timer.timeout.connect(slp)
-        timer.start()
-        
 
     def filtered_buffer_update(self, add_sample):
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
@@ -346,17 +345,19 @@ class MainWindow(QMainWindow):
         # board start eeg stream
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
-        self.board.get_board_data()
 
-        # board timer init and start
-        self.board_timer = QTimer()
-        self.board_timer.timeout.connect(self.timer_update_buff)
-        self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
+        # thread buff capture START
+        self.thread_buffer_run = True
+        worker_buff_main = Worker(self.thread_update_buff)
+        self.threadpool.start(worker_buff_main)
 
         # Start timer for chart redraw
-        self.chart_redraw_timer = QTimer()
-        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
-        self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
+        # self.chart_redraw_timer = QTimer()
+        # self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
+        # self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
+
+        worker_chart_redraw = Worker(self.thread_redraw_charts)
+        self.threadpool.start(worker_chart_redraw)
 
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
@@ -374,7 +375,8 @@ class MainWindow(QMainWindow):
         # stop timers
         self.chart_redraw_timer.stop()
         self.save_timer.stop()
-        self.board_timer.stop()
+        self.thread_buffer_run = False
+        # self.board_timer.stop()
         self.board.stop_stream()
         self.session.stop_session()
         if self.save_flag:
