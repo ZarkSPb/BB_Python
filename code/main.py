@@ -40,7 +40,6 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
-        self.chart_buffers_busy_flag = False
         self.charts = []
 
         # ///////////////////////////////////////////////////////// BUFFERS INIT
@@ -144,7 +143,7 @@ class MainWindow(QMainWindow):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i + 1)
-            axis_t.append(shifted_time.toString(':ss'), offset + i * 1000)
+            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
 
         axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
         axis_t.append(
@@ -170,26 +169,23 @@ class MainWindow(QMainWindow):
                 axis_c.append(f'{self.chart_amp}', i + 1)
 
     def chart_buffers_update(self):
-        if not self.chart_buffers_busy_flag:
-            # print(self.chart_buffers_busy_flag)
-            self.chart_buffers_busy_flag = True
-            self.chart_buffers = []
-            for i in range(NUM_CHANNELS):
-                self.chart_buffers.append([
-                    QPointF(
-                        x, self.chart_amp +
-                        (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                    for x in range(self.chart_duration * SAMPLE_RATE)
-                ])
-            self.chart_buffers_busy_flag = False
+        self.chart_buffers = []
+        for i in range(NUM_CHANNELS):
+            self.chart_buffers.append([
+                QPointF(
+                    x, self.chart_amp +
+                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
+                for x in range(self.chart_duration * SAMPLE_RATE)
+            ])
 
     def thread_redraw_charts(self):
         while self.session.get_status():
             self.timer_redraw_charts()
-            QThread.usleep(20000)
+            QThread.msleep(UPDATE_CHART_SPEED_MS)
 
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
+            print(self.buff_busy)
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
                                                       SAMPLE_RATE)
         else:
@@ -209,17 +205,18 @@ class MainWindow(QMainWindow):
         self.update_time_axis(axis_t,
                               start_time=QDateTime.fromMSecsSinceEpoch(
                                   int(start_time * 1000)))
-
-        if not self.chart_buffers_busy_flag:
-            self.chart_buffers_busy_flag = True
+        try:
             for channel in range(NUM_CHANNELS):
                 r_data = data[channel]
                 for i in range(r_data.shape[0]):
                     self.chart_buffers[channel][i].setY(
                         r_data[i] + self.chart_amp +
                         (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+
+            for channel in range(NUM_CHANNELS):
                 self.serieses[channel].replace(self.chart_buffers[channel])
-            self.chart_buffers_busy_flag = False
+        except:
+            pass
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -247,7 +244,8 @@ class MainWindow(QMainWindow):
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
 
-            QThread.usleep(3000)
+            # print(data.shape)
+            QThread.msleep(5)
 
     def timer_long_events(self):
         def sf(self):
@@ -302,11 +300,16 @@ class MainWindow(QMainWindow):
             self.ui.ButtonSave.setEnabled(False)
 
     def filtered_buffer_update(self, add_sample):
+
+        self.buff_busy = True
+
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
                                               SAMPLE_RATE + add_sample)
         for channel in range(NUM_CHANNELS):
             signal_filtering(data[channel])
         self.buffer_filtered.add(data[:, -add_sample:])
+    
+        self.buff_busy = False
 
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
@@ -327,7 +330,7 @@ class MainWindow(QMainWindow):
 
         self.long_timer = QTimer()
         self.long_timer.timeout.connect(self.timer_long_events)
-        self.long_timer.start(SAVE_INTERVAL_MS)
+        self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
         if self.save_flag:
             self.file_name = '(f)' if self.session.get_flt_status() else ''
