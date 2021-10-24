@@ -350,11 +350,11 @@ class MainWindow(QMainWindow):
 
         # Thread update_buff
         self.worker_buff_main = Worker(self.update_buff)
-        self.worker_buff_main.start()
+        self.worker_buff_main.start()#priority=QThread.HighPriority)
 
         #Thread thread_redraw_charts
         self.worker_chart_redraw = Worker(self.thread_redraw_charts)
-        self.worker_chart_redraw.start()
+        self.worker_chart_redraw.start()#priority=QThread.LowPriority)
 
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
