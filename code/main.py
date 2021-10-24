@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
+        self.chart_buffers_busy_flag = False
         self.charts = []
 
         # ///////////////////////////////////////////////////////// BUFFERS INIT
@@ -169,22 +170,24 @@ class MainWindow(QMainWindow):
                 axis_c.append(f'{self.chart_amp}', i + 1)
 
     def chart_buffers_update(self):
-        self.chart_buffers = []
-        for i in range(NUM_CHANNELS):
-            self.chart_buffers.append([
-                QPointF(
-                    x, self.chart_amp +
-                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                for x in range(self.chart_duration *
-                               SAMPLE_RATE)  # range(60 * 60 * SAMPLE_RATE)
-            ])
+        if not self.chart_buffers_busy_flag:
+            # print(self.chart_buffers_busy_flag)
+            self.chart_buffers_busy_flag = True
+            self.chart_buffers = []
+            for i in range(NUM_CHANNELS):
+                self.chart_buffers.append([
+                    QPointF(
+                        x, self.chart_amp +
+                        (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
+                    for x in range(self.chart_duration * SAMPLE_RATE)
+                ])
+            self.chart_buffers_busy_flag = False
 
     def thread_redraw_charts(self):
-        while self.thread_buffer_run:
-            print(333333333333333)
+        while self.session.get_status():
             self.timer_redraw_charts()
-            QThread.usleep(40000)
-    
+            QThread.usleep(20000)
+
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
@@ -206,14 +209,17 @@ class MainWindow(QMainWindow):
         self.update_time_axis(axis_t,
                               start_time=QDateTime.fromMSecsSinceEpoch(
                                   int(start_time * 1000)))
-        for channel in range(NUM_CHANNELS):
-            r_data = data[channel]
-            for i in range(r_data.shape[0]):
-                self.chart_buffers[channel][i].setY(
-                    r_data[i] + self.chart_amp +
-                    (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
-            self.curr = QDateTime.currentMSecsSinceEpoch()
-            self.serieses[channel].replace(self.chart_buffers[channel])
+
+        if not self.chart_buffers_busy_flag:
+            self.chart_buffers_busy_flag = True
+            for channel in range(NUM_CHANNELS):
+                r_data = data[channel]
+                for i in range(r_data.shape[0]):
+                    self.chart_buffers[channel][i].setY(
+                        r_data[i] + self.chart_amp +
+                        (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+                self.serieses[channel].replace(self.chart_buffers[channel])
+            self.chart_buffers_busy_flag = False
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -231,34 +237,33 @@ class MainWindow(QMainWindow):
                     int(data[3]) if data[3] <= 500 else 500)
 
     def thread_update_buff(self):
-        while self.thread_buffer_run:
+        while self.session.get_status():
             data = self.board.get_board_data()
             if np.any(data):
                 self.buffer_main.add(data[SAVE_CHANNEL, :])
-
-                # bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
-                # if self.battery_value != bat_val:
-                #     self.battery_value = bat_val
-                #     self.progressBar_battery.setValue(self.battery_value)
+                self.battery_value = data[BATTERY_CHANNEL, -1]
 
             add_sample = data.shape[1]
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
 
-            # print(data.shape)
             QThread.usleep(3000)
 
-    def timer_save_file(self):
-        if self.session.save_filtered:
-            data = self.buffer_filtered.get_buff_from(self.last_save_index)
-        else:
-            data = self.buffer_main.get_buff_from(self.last_save_index)
+    def timer_long_events(self):
+        def sf(self):
+            if self.session.save_filtered:
+                data = self.buffer_filtered.get_buff_from(self.last_save_index)
+            else:
+                data = self.buffer_main.get_buff_from(self.last_save_index)
+            save_file(data, self.patient, self.session, self.file_name,
+                      self.save_first)
+            self.last_save_index += data.shape[1]
+            self.save_first = False
 
-        save_file(data, self.patient, self.session, self.file_name,
-                  self.save_first)
+        if self.save_flag:
+            sf(self)
 
-        self.last_save_index += data.shape[1]
-        self.save_first = False
+            self.progressBar_battery.setValue(self.battery_value)
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -320,14 +325,14 @@ class MainWindow(QMainWindow):
         self.patient = Patient(self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
 
+        self.long_timer = QTimer()
+        self.long_timer.timeout.connect(self.timer_long_events)
+        self.long_timer.start(SAVE_INTERVAL_MS)
+
         if self.save_flag:
             self.file_name = '(f)' if self.session.get_flt_status() else ''
             self.file_name += file_name_constructor(self.patient, self.session)
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
-            # timer to save file
-            self.save_timer = QTimer()
-            self.save_timer.timeout.connect(self.timer_save_file)
-            self.save_timer.start(SAVE_INTERVAL_MS)
             self.last_save_index = 0
         else:
             self.statusBar_main.setText(f'No saved')
@@ -340,22 +345,16 @@ class MainWindow(QMainWindow):
 
         # CHART buffer renew
         self.chart_buffers_update()
-        self.timer_redraw_charts()
 
         # board start eeg stream
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
         # thread buff capture START
-        self.thread_buffer_run = True
-        worker_buff_main = Worker(self.thread_update_buff)
-        self.threadpool.start(worker_buff_main)
+        self.worker_buff_main = Worker(self.thread_update_buff)
+        self.threadpool.start(self.worker_buff_main)
 
-        # Start timer for chart redraw
-        # self.chart_redraw_timer = QTimer()
-        # self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
-        # self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
-
+        # Start thread for chart redraw
         worker_chart_redraw = Worker(self.thread_redraw_charts)
         self.threadpool.start(worker_chart_redraw)
 
@@ -373,14 +372,11 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         # stop timers
-        self.chart_redraw_timer.stop()
-        self.save_timer.stop()
-        self.thread_buffer_run = False
-        # self.board_timer.stop()
-        self.board.stop_stream()
         self.session.stop_session()
+        self.long_timer.stop()
+        self.board.stop_stream()
         if self.save_flag:
-            self.timer_save_file()
+            self.timer_long_events()
 
         buff_size = self.buffer_filtered.get_last_num()
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
@@ -536,10 +532,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         # Release all BB resources
         try:
-            self.chart_redraw_timer.stop()
-            self.board_timer.stop()
-            self.save_timer.stop()
-            # this is poor
+            self.long_timer.stop()
             self.session.stop_session()
         except:
             pass

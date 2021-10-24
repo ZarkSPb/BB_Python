@@ -12,6 +12,10 @@ class Session:
 
     def stop_session(self):
         self.time_stop = QDateTime.currentDateTime()
+        self.status = False
     
     def get_flt_status(self):
         return self.save_filtered
+
+    def get_status(self):
+        return self.status

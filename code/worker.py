@@ -19,8 +19,6 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-        # self.kwargs['progress_callback'] = self.signals.progress
-
     @Slot()  #QtCore.Slot
     def run(self):
         # Retrieve args/kwargs here; and fire processing using them
