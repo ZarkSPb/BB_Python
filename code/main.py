@@ -119,16 +119,6 @@ class MainWindow(QMainWindow):
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
-        # ////////////////////////////////////////////////////////// Treads INIT
-        self.worker_connect = Worker(self.connect_toBB)
-        self.worker_connect.started.connect(self._connect)
-
-        self.worker_buff_main = Worker(self.update_buff)
-        # self.worker_buff_main.started.connect(self._start_capture)
-
-        self.worker_chart_redraw = Worker(self.thread_redraw_charts)
-        # self.worker_chart_redraw.started.connect(self_s)
-
         self.update_ui()
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
@@ -253,9 +243,9 @@ class MainWindow(QMainWindow):
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
 
-            print(data.shape)
+            print(data.shape[1], '--' * data.shape[1])
 
-            QThread.msleep(10)
+            QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
     def filtered_buffer_update(self, add_sample):
         data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
@@ -320,6 +310,7 @@ class MainWindow(QMainWindow):
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
+        self.worker_connect = Worker(self.connect_toBB)
         self.worker_connect.start()
 
     # //////////////////////////////////////////////////////////////////// START
@@ -357,10 +348,12 @@ class MainWindow(QMainWindow):
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
-        # thread buff capture START
+        # Thread update_buff
+        self.worker_buff_main = Worker(self.update_buff)
         self.worker_buff_main.start()
 
-        # Start thread for chart redraw
+        #Thread thread_redraw_charts
+        self.worker_chart_redraw = Worker(self.thread_redraw_charts)
         self.worker_chart_redraw.start()
 
         self.ui.ButtonStart.setEnabled(False)

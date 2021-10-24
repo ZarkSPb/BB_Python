@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-from PySide6.QtCore import QObject, QRunnable, Signal, Slot, QThread
+from PySide6.QtCore import QObject, QRunnable, Signal, Slot, QThread, QTimer
 
 
 class WorkerSignals(QObject):
@@ -20,14 +20,4 @@ class Worker(QThread):
 
     # @Slot()  #QtCore.Slot
     def run(self):
-        try:
-            result = self.fn(*self.args, **self.kwargs)
-        except:
-            traceback.print_exc()
-            extype, value = sys.exc_info()[:2]
-            self.signals.error.emit((extype, value, traceback.format_exc()))
-        else:
-            # Return the result of the processing
-            self.signals.result.emit(result)
-        finally:
-            self.signals.finished.emit()  # Done
+        self.fn(*self.args, **self.kwargs)
