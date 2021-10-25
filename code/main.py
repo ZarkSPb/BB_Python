@@ -1,15 +1,14 @@
 import sys
 from re import findall
 from time import sleep
-# import PySide6
 
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QDateTimeAxis,
-                              QLineSeries, QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QRectF, QThreadPool, QTimer
-from PySide6.QtGui import QBrush, QColor, QPainter, QPen
+from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
+                              QValueAxis)
+from PySide6.QtCore import QDateTime, QPointF, QThread, QThreadPool, QTimer, Qt
+from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from buff import Buffer
@@ -17,7 +16,7 @@ from patient import Patient
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from utils import file_name_constructor, save_file, signal_filtering, signal_detrend
+from utils import (file_name_constructor, save_file, signal_filtering)
 from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
@@ -29,119 +28,106 @@ class MainWindow(QMainWindow):
 
         self.threadpool = QThreadPool()
 
-        self.charts = []
-
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
+        self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
+        self.battery_value = 0
+        self.chart_filtering_flag = True
+        self.chart_detrend_flag = False
+        self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
+        self.charts = []
 
-        # bufers init
-        self.buffer_main = Buffer(buffer_size=10000,
+        # ///////////////////////////////////////////////////////// BUFFERS INIT
+        self.buffer_main = Buffer(buffer_size=10,
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_main.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
-        self.buffer_filtered = Buffer(buffer_size=10000,
+        self.buffer_filtered = Buffer(buffer_size=10,
                                       channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
 
-        self.battery_value = 0
-        self.chart_filtering_flag = True
-        self.chart_detrend_flag = False
-
-        # --------------------Impedance label fill--------------------
+        # ///////////////////////////////////////////////// IMPEDANCE LABEL FILL
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
         self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
         self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
         self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3])
 
-        # --------------------CHART MAKE--------------------
+        # /////////////////////////////////////////////////////////// CHART MAKE
         self.channel_names = BoardShim.get_board_descr(
             BOARD_ID)['eeg_names'].split(',')
-
-        # serieses fill
-        self.serieses = []
-        self.chart_buffers = []
-
         chart = QChart()
         chart.legend().setVisible(False)
-
-        # ////////////////////////////////////////////////////////////////axis_x
+        # /////////////////////////////////////////////////////////////// axis_x
         axis_x = QValueAxis()
         axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
         axis_x.setVisible(False)
         axis_x.setLabelFormat('%i')
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-        # //////////////////////////////////////////////////////////////////////
-
-        # ////////////////////////////////////////////////////////////////axis_y
+        # /////////////////////////////////////////////////////////////// axis_y
         axis_y = QValueAxis()
         axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
         axis_y.setTickCount(9)
         axis_y.setMinorTickCount(1)
         axis_y.setLabelsVisible(False)
         chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-        # //////////////////////////////////////////////////////////////////////
-
-        # ////////////////////////////////////////////////////////////////axis_t
+        # /////////////////////////////////////////////////////////////// axis_t
         axis_t = QCategoryAxis()
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
         axis_t = self.update_time_axis(axis_t)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
-        # //////////////////////////////////////////////////////////////////////
-
-        # ////////////////////////////////////////////////////////////////axis_c
+        # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setRange(0, 4)
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         self.update_channels_axis(axis_c)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
-        # //////////////////////////////////////////////////////////////////////
-
+        # //////////////////////////////////////////////////////// serieses fill
+        self.serieses = []
+        self.chart_buffers_update()
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.setName(f'{EEG_CHANNEL_NAMES[i]}')
-            # series.setColor('#209fdf')
-            self.chart_buffers.append([
-                QPointF(x, 20 + (NUM_CHANNELS - 1 - i) * 40)
-                for x in range(MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
-            ])
-            series.append(self.chart_buffers[-1])
+            series.append(self.chart_buffers[i])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
-            # self.serieses[-1].setUseOpenGL(True)
-
+        # //////////////////////////////////////////////////// Chart viev create
         self.chart_view = QChartView(chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
-        self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
-        self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
-
+        # ////////////////////////////////////////////////////// STATUS BAR MAKE
         self.statusBar_main = QLabel()
-
         self.progressBar_battery = QProgressBar()
         self.progressBar_battery.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar_battery.setMaximumWidth(100)
         self.progressBar_battery.setMaximumHeight(18)
-
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
         self.update_ui()
+
+    # //////////////////////////////////////////////////////////////// UPDATE UI
+    def update_ui(self):
+        # Autosave checkbox
+        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
+        # Save fitered data flag
+        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
     # ///////////////////////////////////////////////////////// Update TIME axis
     def update_time_axis(self, axis_t, start_time=0):
@@ -158,7 +144,7 @@ class MainWindow(QMainWindow):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i + 1)
-            axis_t.append(shifted_time.toString(':ss'), offset + i * 1000)
+            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
 
         axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
         axis_t.append(
@@ -183,17 +169,7 @@ class MainWindow(QMainWindow):
             else:
                 axis_c.append(f'{self.chart_amp}', i + 1)
 
-    # //////////////////////////////////////////////////////////////// UPDATE UI
-    def update_ui(self):
-        # Autosave checkbox
-        self.save_flag = self.ui.CheckBoxAutosave.isChecked()
-        # Save fitered data flag
-        self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
-
-        self.chart_buffer_update()
-        self.timer_redraw_charts()
-
-    def chart_buffer_update(self):
+    def chart_buffers_update(self):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
             self.chart_buffers.append([
@@ -204,6 +180,8 @@ class MainWindow(QMainWindow):
             ])
 
     def timer_redraw_charts(self):
+        self.reqest_realisation()
+
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
                                                       SAMPLE_RATE)
@@ -213,10 +191,18 @@ class MainWindow(QMainWindow):
 
             if self.chart_detrend_flag:
                 for channel in range(NUM_CHANNELS):
-                    signal_detrend(data[channel])
+                    signal_filtering(data[channel], filtering=False)
 
         if np.any(data):
             self.redraw_charts(data)
+
+    def reqest_realisation(self):
+        if self.redraw_charts_request:
+            self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+            axis_c = self.chart_view.chart().axes()[3]
+            self.update_channels_axis(axis_c)
+            self.chart_buffers_update()
+            self.redraw_charts_request = False
 
     def redraw_charts(self, data):
         start_time = data[-2, 0]
@@ -230,6 +216,8 @@ class MainWindow(QMainWindow):
                 self.chart_buffers[channel][i].setY(
                     r_data[i] + self.chart_amp +
                     (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+
+        for channel in range(NUM_CHANNELS):
             self.serieses[channel].replace(self.chart_buffers[channel])
 
     def timer_impedance(self):
@@ -246,6 +234,44 @@ class MainWindow(QMainWindow):
                     int(data[2]) if data[2] <= 500 else 500)
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
+
+    def update_buff(self):
+        while self.session.get_status():
+            data = self.board.get_board_data()
+            if np.any(data):
+                self.buffer_main.add(data[SAVE_CHANNEL, :])
+                self.battery_value = data[BATTERY_CHANNEL, -1]
+
+            add_sample = data.shape[1]
+            if add_sample != 0:
+                self.filtered_buffer_update(add_sample)
+
+            # print(data.shape[1], '--' * data.shape[1])
+
+            QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+
+    def filtered_buffer_update(self, add_sample):
+        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
+                                              SAMPLE_RATE + add_sample)
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel])
+        self.buffer_filtered.add(data[:, -add_sample:])
+
+    def timer_long_events(self):
+        def sf(self):
+            if self.session.save_filtered:
+                data = self.buffer_filtered.get_buff_from(self.last_save_index)
+            else:
+                data = self.buffer_main.get_buff_from(self.last_save_index)
+            save_file(data, self.patient, self.session, self.file_name,
+                      self.save_first)
+            self.last_save_index += data.shape[1]
+            self.save_first = False
+
+        if self.save_flag:
+            sf(self)
+
+            self.progressBar_battery.setValue(self.battery_value)
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -283,47 +309,57 @@ class MainWindow(QMainWindow):
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
 
-    def timer_update_buff(self):
-        data = self.board.get_board_data()
-        if np.any(data):
-            self.buffer_main.add(data[SAVE_CHANNEL, :])
-
-            bat_val = np.ceil(np.mean(data[BATTERY_CHANNEL, -1]))
-            if self.battery_value != bat_val:
-                self.battery_value = bat_val
-                self.progressBar_battery.setValue(self.battery_value)
-
-        add_sample = data.shape[1]
-        if add_sample != 0:
-            self.filtered_buffer_update(add_sample)
-
-    def filtered_buffer_update(self, add_sample):
-        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
-                                              SAMPLE_RATE + add_sample)
-        for channel in range(NUM_CHANNELS):
-            signal_filtering(data[channel])
-        self.buffer_filtered.add(data[:, -add_sample:])
-
-    def timer_save_file(self):
-        if self.session.save_filtered:
-            data = self.buffer_filtered.get_buff_from(self.last_save_index)
-        else:
-            data = self.buffer_main.get_buff_from(self.last_save_index)
-
-        save_file(data, self.patient, self.session, self.file_name,
-                  self.save_first)
-
-        self.last_save_index += data.shape[1]
-        self.save_first = False
-
-    # ///////////////////////////////////////////////////////////////UI BEHAVIOR
+    # ////////////////////////////////////////////////////////////// UI BEHAVIOR
+    # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
+        self.worker_connect = Worker(self.connect_toBB)
+        self.worker_connect.start()
 
-        worker = Worker(self.connect_toBB)
-        self.threadpool.start(worker)
-
+    # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
+        self.save_first = True
+
+        # CHART buffer renew
+        self.chart_buffers_update()
+
+        self.session = Session(self.save_filtered_flag)
+        self.session.session_start()
+
+        self.patient = Patient(self.ui.LinePatientFirstName.text(),
+                               self.ui.LinePatientLastName.text())
+
+        self.long_timer = QTimer()
+        self.long_timer.timeout.connect(self.timer_long_events)
+        self.long_timer.start(LONG_TIMER_INTERVAL_MS)
+
+        if self.save_flag:
+            self.file_name = '(f)' if self.session.get_flt_status() else ''
+            self.file_name += file_name_constructor(self.patient, self.session)
+            self.statusBar_main.setText(f'Saved in: {self.file_name}')
+            self.last_save_index = 0
+        else:
+            self.statusBar_main.setText(f'No saved')
+
+        # bufers init
+        self.buffer_main = Buffer(buffer_size=10000,
+                                  channels_num=len(SAVE_CHANNEL))
+        self.buffer_filtered = Buffer(buffer_size=10000,
+                                      channels_num=len(SAVE_CHANNEL))
+
+        # board start eeg stream
+        self.board.start_stream(1000)
+        self.board.config_board('CommandStartSignal')
+
+        # Thread update_buffgit
+        self.worker_buff_main = Worker(self.update_buff)
+        self.worker_buff_main.start(priority=QThread.HighPriority)
+
+        # INIT and START timer_redraw_charts
+        self.chart_redraw_timer = QTimer()
+        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
+        self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
+
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
@@ -335,63 +371,22 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(False)
         self.ui.SliderChart.setEnabled(False)
 
-        self.save_first = True
-
-        self.session = Session(self.save_filtered_flag)
-        self.session.session_start()
-
-        if self.save_flag:
-            self.patient = Patient(self.ui.LinePatientFirstName.text(),
-                                   self.ui.LinePatientLastName.text())
-
-            self.file_name = '(f)' if self.session.save_filtered else ''
-            self.file_name += file_name_constructor(self.patient, self.session)
-            self.statusBar_main.setText(f'Saved in: {self.file_name}')
-            # timer to save file
-            self.save_timer = QTimer()
-            self.save_timer.timeout.connect(self.timer_save_file)
-            self.save_timer.start(SAVE_INTERVAL_MS)
-            self.last_save_index = 0
-        else:
-            self.statusBar_main.setText(f'No saved')
-
-        # bufers init
-        self.buffer_main = Buffer(buffer_size=10000,
-                                  channels_num=len(SAVE_CHANNEL))
-        self.buffer_filtered = Buffer(buffer_size=10000,
-                                      channels_num=len(SAVE_CHANNEL))
-
-        # board timer init and start
-        self.board_timer = QTimer()
-        self.board_timer.timeout.connect(self.timer_update_buff)
-        self.board_timer.start(UPDATE_BUFFER_SPEED_MS)
-
-        # CHART buffer renew
-        self.chart_buffer_update()
-        self.timer_redraw_charts()
-
-        # board start eeg stream
-        self.board.start_stream(1000)
-        self.board.config_board('CommandStartSignal')
-        self.board.get_board_data()
-
-        # Start timer for chart redraw
-        self.chart_redraw_timer = QTimer()
-        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
-        self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
-
+    # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
-        self.save_timer.stop()
-        self.board_timer.stop()
-
-        self.board.stop_stream()
-
         self.session.stop_session()
-
+        self.long_timer.stop()
+        self.board.stop_stream()
         if self.save_flag:
-            self.timer_save_file()
+            self.timer_long_events()
+
+        buff_size = self.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+        self.ui.SliderChart.setMaximum(slider_maximum)
+        self.ui.SliderChart.setValue(slider_maximum)
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -404,20 +399,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonSave.setEnabled(True)
         self.ui.SliderChart.setEnabled(True)
 
-        buff_size = self.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
-        self.ui.SliderChart.setMaximum(slider_maximum)
-        self.ui.SliderChart.setValue(slider_maximum)
-
     def _disconnect(self):
         # Release all BB resources
         if self.board.is_prepared():
             self.board.release_session()
 
         self.statusBar_main.setText('Disсonnected.')
-
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
@@ -488,7 +475,7 @@ class MainWindow(QMainWindow):
             self._slider_value_cnd()
         else:
             self.update_time_axis(axis_t, self.session.time_init)
-            self.chart_buffer_update()
+            self.chart_buffers_update()
             self.timer_redraw_charts()
 
     def _sliderAmplitude_cnd(self):
@@ -496,13 +483,14 @@ class MainWindow(QMainWindow):
         text = "Amplitude (uV): " + str(self.chart_amp)
         self.ui.LabelAmplitude.setText(text)
 
-        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+        self.chart_redraw_request()
 
-        axis_c = self.chart_view.chart().axes()[3]
-        self.update_channels_axis(axis_c)
-
-        self.chart_buffer_update()
-        self.timer_redraw_charts()
+    def chart_redraw_request(self):
+        if self.session.get_status():
+            self.redraw_charts_request = True
+        else:
+            self.chart_buffers_update()
+            self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
         start_index = self.ui.SliderChart.value()
@@ -513,7 +501,7 @@ class MainWindow(QMainWindow):
         else:
             data = self.buffer_main.get_buff_from(start_index, end_index)
 
-        self.chart_buffer_update()
+        self.chart_buffers_update()
         self.redraw_charts(data)
 
     def _checkBoxFilteredChart(self):
@@ -523,8 +511,7 @@ class MainWindow(QMainWindow):
         if self.chart_filtering_flag:
             self.ui.CheckBoxDetrendChart.setChecked(False)
 
-        self.chart_buffer_update()
-        self.timer_redraw_charts()
+        self.chart_redraw_request()
 
     def _checkBoxDetrendChart(self):
         self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
@@ -548,10 +535,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         # Release all BB resources
         try:
-            self.chart_redraw_timer.stop()
-            self.board_timer.stop()
-            self.save_timer.stop()
-            # this is poor
+            self.long_timer.stop()
             self.session.stop_session()
         except:
             pass
