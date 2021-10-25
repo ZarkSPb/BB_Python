@@ -11,21 +11,28 @@
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
+    QCursor, QFont, QFontDatabase, QGradient,
+    QIcon, QImage, QKeySequence, QLinearGradient,
+    QPainter, QPalette, QPixmap, QRadialGradient,
+    QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QHBoxLayout, QLabel, QLayout, QLineEdit,
-    QMainWindow, QMenuBar, QProgressBar, QPushButton,
-    QSizePolicy, QSlider, QSpacerItem, QStatusBar,
-    QVBoxLayout, QWidget)
+    QMainWindow, QMenu, QMenuBar, QProgressBar,
+    QPushButton, QSizePolicy, QSlider, QSpacerItem,
+    QStatusBar, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1045, 836)
+        self.actionOpen_File = QAction(MainWindow)
+        self.actionOpen_File.setObjectName(u"actionOpen_File")
+        self.action = QAction(MainWindow)
+        self.action.setObjectName(u"action")
+        self.actionExit = QAction(MainWindow)
+        self.actionExit.setObjectName(u"actionExit")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
@@ -352,12 +359,19 @@ class Ui_MainWindow(object):
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
         self.menubar.setGeometry(QRect(0, 0, 1045, 22))
+        self.menuFile = QMenu(self.menubar)
+        self.menuFile.setObjectName(u"menuFile")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         self.statusbar.setSizeGripEnabled(True)
         MainWindow.setStatusBar(self.statusbar)
         QWidget.setTabOrder(self.SliderDuration, self.SliderAmplitude)
+
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menuFile.addAction(self.actionOpen_File)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionExit)
 
         self.retranslateUi(MainWindow)
         self.SliderDuration.valueChanged.connect(MainWindow._sliderDuration_cnd)
@@ -376,12 +390,21 @@ class Ui_MainWindow(object):
         self.LinePatientFirstName.textEdited.connect(MainWindow._firstName_edit)
         self.LinePatientLastName.textEdited.connect(MainWindow._lastName_edit)
         self.CheckBoxDetrendChart.stateChanged.connect(MainWindow._checkBoxDetrendChart)
+        self.actionExit.triggered.connect(MainWindow.close)
+        self.actionOpen_File.triggered.connect(MainWindow._open_file)
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"BrainBit", None))
+        self.actionOpen_File.setText(QCoreApplication.translate("MainWindow", u"Open File...", None))
+        self.actionOpen_File.setIconText(QCoreApplication.translate("MainWindow", u"Open File", None))
+#if QT_CONFIG(shortcut)
+        self.actionOpen_File.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
+#endif // QT_CONFIG(shortcut)
+        self.action.setText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"BrainBit control", None))
         self.ButtonConnect.setText(QCoreApplication.translate("MainWindow", u"Connect", None))
         self.ButtonStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
@@ -411,5 +434,6 @@ class Ui_MainWindow(object):
         self.CheckBoxAutosave.setText(QCoreApplication.translate("MainWindow", u"Auto save", None))
         self.CheckBoxSaveFiltered.setText(QCoreApplication.translate("MainWindow", u"Save filtered data", None))
         self.ButtonSave.setText(QCoreApplication.translate("MainWindow", u"Save...", None))
+        self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
     # retranslateUi
 

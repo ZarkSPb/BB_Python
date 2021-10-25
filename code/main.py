@@ -120,6 +120,8 @@ class MainWindow(QMainWindow):
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
+        # //////////////////////////////////////////////////////////// MAIN MENU
+
         self.update_ui()
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
@@ -531,6 +533,17 @@ class MainWindow(QMainWindow):
         result = ''.join(findall(REG_KERNEL, text))
         if text != result:
             self.ui.LinePatientLastName.setText(''.join(result))
+
+    # ////////////////////////////////////////////////////////////// MENU ACTION
+    def _open_file(self):
+        file_name = QtWidgets.QFileDialog.getOpenFileName(
+            self, 'Open eeg data (*.csv)', filter="CSV file (*.csv)")
+        file_name = file_name[0]
+        # print(file_name)
+
+        data = np.genfromtxt(file_name, delimiter=';')
+
+        print(data.shape())
 
     def closeEvent(self, event):
         # Release all BB resources

@@ -24,7 +24,7 @@ def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
             else:
                 header += 'no last name\n'
 
-            header += session.time_init.toString('yyyy.MM.dd') + '\n'
+            header += session.time_init.toString('dd.MM.yyyy') + '\n'
             header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
 
             for channel_names in EEG_CHANNEL_NAMES:
