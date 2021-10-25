@@ -178,11 +178,6 @@ class MainWindow(QMainWindow):
                 for x in range(self.chart_duration * SAMPLE_RATE)
             ])
 
-    def thread_redraw_charts(self):
-        while self.session.get_status():
-            self.timer_redraw_charts()
-            QThread.msleep(UPDATE_CHART_SPEED_MS)
-
     def timer_redraw_charts(self):
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
@@ -204,18 +199,15 @@ class MainWindow(QMainWindow):
         self.update_time_axis(axis_t,
                               start_time=QDateTime.fromMSecsSinceEpoch(
                                   int(start_time * 1000)))
-        try:
-            for channel in range(NUM_CHANNELS):
-                r_data = data[channel]
-                for i in range(r_data.shape[0]):
-                    self.chart_buffers[channel][i].setY(
-                        r_data[i] + self.chart_amp +
-                        (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+        for channel in range(NUM_CHANNELS):
+            r_data = data[channel]
+            for i in range(r_data.shape[0]):
+                self.chart_buffers[channel][i].setY(
+                    r_data[i] + self.chart_amp +
+                    (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
 
             for channel in range(NUM_CHANNELS):
                 self.serieses[channel].replace(self.chart_buffers[channel])
-        except:
-            pass
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -348,13 +340,14 @@ class MainWindow(QMainWindow):
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
-        # Thread update_buff
+        # Thread update_buffgit
         self.worker_buff_main = Worker(self.update_buff)
-        self.worker_buff_main.start()#priority=QThread.HighPriority)
+        self.worker_buff_main.start(priority=QThread.HighPriority)
 
-        #Thread thread_redraw_charts
-        self.worker_chart_redraw = Worker(self.thread_redraw_charts)
-        self.worker_chart_redraw.start()#priority=QThread.LowPriority)
+        # INIT and START timer_redraw_charts
+        self.chart_redraw_timer = QTimer()
+        self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
+        self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
@@ -370,6 +363,7 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         # stop timers
+        self.chart_redraw_timer.stop()
         self.session.stop_session()
         self.long_timer.stop()
         self.board.stop_stream()
