@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
         self.battery_value = 0
         self.chart_filtering_flag = True
         self.chart_detrend_flag = False
+        self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session()
         self.charts = []
@@ -179,6 +180,8 @@ class MainWindow(QMainWindow):
             ])
 
     def timer_redraw_charts(self):
+        self.reqest_realisation()
+
         if self.chart_filtering_flag:
             data = self.buffer_filtered.get_buff_last(self.chart_duration *
                                                       SAMPLE_RATE)
@@ -193,6 +196,14 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.redraw_charts(data)
 
+    def reqest_realisation(self):
+        if self.redraw_charts_request:
+            self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+            axis_c = self.chart_view.chart().axes()[3]
+            self.update_channels_axis(axis_c)
+            self.chart_buffers_update()
+            self.redraw_charts_request = False
+
     def redraw_charts(self, data):
         start_time = data[-2, 0]
         axis_t = self.chart_view.chart().axes()[2]
@@ -206,8 +217,8 @@ class MainWindow(QMainWindow):
                     r_data[i] + self.chart_amp +
                     (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
 
-            for channel in range(NUM_CHANNELS):
-                self.serieses[channel].replace(self.chart_buffers[channel])
+        for channel in range(NUM_CHANNELS):
+            self.serieses[channel].replace(self.chart_buffers[channel])
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -235,7 +246,7 @@ class MainWindow(QMainWindow):
             if add_sample != 0:
                 self.filtered_buffer_update(add_sample)
 
-            print(data.shape[1], '--' * data.shape[1])
+            # print(data.shape[1], '--' * data.shape[1])
 
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
@@ -309,6 +320,9 @@ class MainWindow(QMainWindow):
     def _start_capture(self):
         self.save_first = True
 
+        # CHART buffer renew
+        self.chart_buffers_update()
+
         self.session = Session(self.save_filtered_flag)
         self.session.session_start()
 
@@ -332,9 +346,6 @@ class MainWindow(QMainWindow):
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered = Buffer(buffer_size=10000,
                                       channels_num=len(SAVE_CHANNEL))
-
-        # CHART buffer renew
-        self.chart_buffers_update()
 
         # board start eeg stream
         self.board.start_stream(1000)
@@ -472,13 +483,14 @@ class MainWindow(QMainWindow):
         text = "Amplitude (uV): " + str(self.chart_amp)
         self.ui.LabelAmplitude.setText(text)
 
-        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+        self.chart_redraw_request()
 
-        axis_c = self.chart_view.chart().axes()[3]
-        self.update_channels_axis(axis_c)
-
-        self.chart_buffers_update()
-        self.timer_redraw_charts()
+    def chart_redraw_request(self):
+        if self.session.get_status():
+            self.redraw_charts_request = True
+        else:
+            self.chart_buffers_update()
+            self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
         start_index = self.ui.SliderChart.value()
@@ -499,8 +511,7 @@ class MainWindow(QMainWindow):
         if self.chart_filtering_flag:
             self.ui.CheckBoxDetrendChart.setChecked(False)
 
-        self.chart_buffers_update()
-        self.timer_redraw_charts()
+        self.chart_redraw_request()
 
     def _checkBoxDetrendChart(self):
         self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
