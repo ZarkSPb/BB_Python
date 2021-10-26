@@ -1,6 +1,6 @@
 # import numpy as np
-from numpy import savetxt
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
+from numpy import savetxt
 
 from settings import *
 
@@ -31,11 +31,11 @@ def save_file(data, session, file_name='eeg.csv', save_first=True):
                 header += f'{channel_names}, uV;'
             header += 'LinuxTime, sec.;BoardIndex, 0-255'
             savetxt(file_object,
-                       data.T,
-                       fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
-                       delimiter=';',
-                       header=header,
-                       comments='#')
+                    data.T,
+                    fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
+                    delimiter=';',
+                    header=header,
+                    comments='#')
         else:
             savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 

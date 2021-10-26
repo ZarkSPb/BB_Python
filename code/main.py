@@ -39,19 +39,20 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
-        self.session = Session()
+        self.session = Session(buffer_size=10, channels_num=len(SAVE_CHANNEL))
         self.charts = []
 
         # ///////////////////////////////////////////////////////// BUFFERS INIT
-        self.buffer_main = Buffer(buffer_size=10,
-                                  channels_num=len(SAVE_CHANNEL))
-        self.buffer_main.add(
+        # self.buffer_main = Buffer(buffer_size=10,
+        #                           channels_num=len(SAVE_CHANNEL))
+        # self.buffer_filtered = Buffer(buffer_size=10,
+        #                               channels_num=len(SAVE_CHANNEL))
+        
+        self.session.buffer_main.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
-        self.buffer_filtered = Buffer(buffer_size=10,
-                                      channels_num=len(SAVE_CHANNEL))
-        self.buffer_filtered.add(
+        self.session.buffer_filtered.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
@@ -264,8 +265,7 @@ class MainWindow(QMainWindow):
                 data = self.buffer_filtered.get_buff_from(self.last_save_index)
             else:
                 data = self.buffer_main.get_buff_from(self.last_save_index)
-            save_file(data, self.session, self.file_name,
-                      self.save_first)
+            save_file(data, self.session, self.file_name, self.save_first)
             self.last_save_index += data.shape[1]
             self.save_first = False
 
@@ -325,8 +325,9 @@ class MainWindow(QMainWindow):
         self.chart_buffers_update()
 
         self.session = Session(self.save_filtered_flag,
-                               self.ui.LinePatientFirstName.text(),
-                               self.ui.LinePatientLastName.text())
+                               channels_num=len(SAVE_CHANNEL),
+                               first_name=self.ui.LinePatientFirstName.text(),
+                               last_name=self.ui.LinePatientLastName.text())
         self.session.session_start()
 
         self.long_timer = QTimer()
