@@ -1,12 +1,34 @@
-from PySide6.QtCore import QDateTime, QThread
 import numpy as np
+from PySide6.QtCore import QDateTime, QThread
 
 from buff import Buffer
-from patient import Patient
 from settings import (BATTERY_CHANNEL, NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
                       SIGNAL_CLIPPING_SEC, UPDATE_BUFFER_SPEED_MS)
 from utils import signal_filtering
 from worker import Worker
+
+
+class Patient:
+    def __init__(self, first_name='', last_name=''):
+        self.first_name = first_name
+        self.last_name = last_name
+
+    def get_first_name(self):
+        return self.first_name
+
+    def get_last_name(self):
+        return self.last_name
+
+    def get_full_name(self):
+        fullname = ''
+        if self.first_name:
+            fullname = self.first_name
+            if self.last_name:
+                fullname += '_' + self.last_name
+        elif self.last_name:
+            fullname = self.last_name
+
+        return fullname
 
 
 class Session():
