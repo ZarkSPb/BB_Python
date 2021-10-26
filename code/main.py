@@ -42,11 +42,7 @@ class MainWindow(QMainWindow):
         self.charts = []
 
         # ////////////////////////////////////////////////////// BUFFERS FILLING
-        self.session.buffer_main.add(
-            np.array([[0], [0], [0], [0],
-                      [self.session.time_init.toMSecsSinceEpoch() / 1000],
-                      [0]]))
-        self.session.buffer_filtered.add(
+        self.session.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
@@ -200,7 +196,6 @@ class MainWindow(QMainWindow):
         self.chart_amp = self.ui.SliderAmplitude.value()
         text = "Amplitude (uV): " + str(self.chart_amp)
         self.ui.LabelAmplitude.setText(text)
-
 
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
