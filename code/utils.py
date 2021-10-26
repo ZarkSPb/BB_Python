@@ -5,11 +5,11 @@ from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from settings import *
 
 
-def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
+def save_file(data, session, file_name='eeg.csv', save_first=True):
     with open(file_name, 'a') as file_object:
 
-        first_name = patient.get_first_name()
-        last_name = patient.get_last_name()
+        first_name = session.patient.get_first_name()
+        last_name = session.patient.get_last_name()
 
         if save_first:
 
@@ -53,10 +53,10 @@ def signal_filtering(data, filtering=True):
                                     FilterTypes.BUTTERWORTH.value, 0)
 
 
-def file_name_constructor(patient, session):
+def file_name_constructor(session):
     # file_name = '(f)' if session.save_filtered else ''
     file_name = session.time_start.toString('yyyy-MM-dd__hh-mm-ss')
-    patient_name = patient.get_full_name()
+    patient_name = session.patient.get_full_name()
     if patient_name:
         file_name += '__' + patient_name
     file_name += '.csv'

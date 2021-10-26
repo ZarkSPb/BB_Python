@@ -12,7 +12,6 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from buff import Buffer
-from patient import Patient
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
@@ -265,7 +264,7 @@ class MainWindow(QMainWindow):
                 data = self.buffer_filtered.get_buff_from(self.last_save_index)
             else:
                 data = self.buffer_main.get_buff_from(self.last_save_index)
-            save_file(data, self.patient, self.session, self.file_name,
+            save_file(data, self.session, self.file_name,
                       self.save_first)
             self.last_save_index += data.shape[1]
             self.save_first = False
@@ -325,19 +324,19 @@ class MainWindow(QMainWindow):
         # CHART buffer renew
         self.chart_buffers_update()
 
-        self.session = Session(self.save_filtered_flag)
-        self.session.session_start()
-
-        self.patient = Patient(self.ui.LinePatientFirstName.text(),
+        self.session = Session(self.save_filtered_flag,
+                               self.ui.LinePatientFirstName.text(),
                                self.ui.LinePatientLastName.text())
+        self.session.session_start()
 
         self.long_timer = QTimer()
         self.long_timer.timeout.connect(self.timer_long_events)
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
         if self.save_flag:
-            self.file_name = '(f)' if self.session.get_flt_status() else ''
-            self.file_name += file_name_constructor(self.patient, self.session)
+            self.file_name = '(f)' if self.session.get_filtered_status(
+            ) else ''
+            self.file_name += file_name_constructor(self.session)
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             self.last_save_index = 0
         else:
@@ -438,11 +437,8 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
 
     def _save_data(self):
-        self.patient = Patient(self.ui.LinePatientFirstName.text(),
-                               self.ui.LinePatientLastName.text())
-
         fileName = '(f)' if self.save_filtered_flag else ''
-        fileName += file_name_constructor(self.patient, self.session)
+        fileName += file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
