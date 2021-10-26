@@ -31,10 +31,9 @@ class Buffer:
             return self.buff[:, start_index:self.last].copy()
         else:
             return self.buff[:, start_index:end_index].copy()
-    
+
     def get_last_num(self):
         return self.last
-
 
 
 # b = Buffer(buffer_size=5, channels_num=2)

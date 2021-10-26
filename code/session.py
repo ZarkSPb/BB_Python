@@ -8,7 +8,7 @@ class Session():
     def __init__(self,
                  save_filtered=True,
                  channels_num=4,
-                 buffer_size=1000,
+                 buffer_size=10000,
                  first_name='',
                  last_name=''):
 
@@ -16,8 +16,10 @@ class Session():
         self.status = False
         self.time_init = QDateTime.currentDateTime()
         self.patient = Patient(first_name, last_name)
-        self.buffer_main = Buffer(buffer_size=buffer_size, channels_num=channels_num)
-        self.buffer_filtered = Buffer(buffer_size=buffer_size, channels_num=channels_num)
+        self.buffer_main = Buffer(buffer_size=buffer_size,
+                                  channels_num=channels_num)
+        self.buffer_filtered = Buffer(buffer_size=buffer_size,
+                                      channels_num=channels_num)
 
     def session_start(self):
         self.time_start = QDateTime.currentDateTime()

@@ -42,12 +42,7 @@ class MainWindow(QMainWindow):
         self.session = Session(buffer_size=10, channels_num=len(SAVE_CHANNEL))
         self.charts = []
 
-        # ///////////////////////////////////////////////////////// BUFFERS INIT
-        # self.buffer_main = Buffer(buffer_size=10,
-        #                           channels_num=len(SAVE_CHANNEL))
-        # self.buffer_filtered = Buffer(buffer_size=10,
-        #                               channels_num=len(SAVE_CHANNEL))
-        
+        # ////////////////////////////////////////////////////// BUFFERS FILLING
         self.session.buffer_main.add(
             np.array([[0], [0], [0], [0],
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
@@ -185,11 +180,11 @@ class MainWindow(QMainWindow):
         self.reqest_realisation()
 
         if self.chart_filtering_flag:
-            data = self.buffer_filtered.get_buff_last(self.chart_duration *
-                                                      SAMPLE_RATE)
+            data = self.session.buffer_filtered.get_buff_last(
+                self.chart_duration * SAMPLE_RATE)
         else:
-            data = self.buffer_main.get_buff_last(self.chart_duration *
-                                                  SAMPLE_RATE)
+            data = self.session.buffer_main.get_buff_last(self.chart_duration *
+                                                          SAMPLE_RATE)
 
             if self.chart_detrend_flag:
                 for channel in range(NUM_CHANNELS):
@@ -241,7 +236,7 @@ class MainWindow(QMainWindow):
         while self.session.get_status():
             data = self.board.get_board_data()
             if np.any(data):
-                self.buffer_main.add(data[SAVE_CHANNEL, :])
+                self.session.buffer_main.add(data[SAVE_CHANNEL, :])
                 self.battery_value = data[BATTERY_CHANNEL, -1]
 
             add_sample = data.shape[1]
@@ -253,18 +248,20 @@ class MainWindow(QMainWindow):
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
     def filtered_buffer_update(self, add_sample):
-        data = self.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
-                                              SAMPLE_RATE + add_sample)
+        data = self.session.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
+                                                      SAMPLE_RATE + add_sample)
         for channel in range(NUM_CHANNELS):
             signal_filtering(data[channel])
-        self.buffer_filtered.add(data[:, -add_sample:])
+        self.session.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_long_events(self):
         def sf(self):
             if self.session.save_filtered:
-                data = self.buffer_filtered.get_buff_from(self.last_save_index)
+                data = self.session.buffer_filtered.get_buff_from(
+                    self.last_save_index)
             else:
-                data = self.buffer_main.get_buff_from(self.last_save_index)
+                data = self.session.buffer_main.get_buff_from(
+                    self.last_save_index)
             save_file(data, self.session, self.file_name, self.save_first)
             self.last_save_index += data.shape[1]
             self.save_first = False
@@ -328,6 +325,7 @@ class MainWindow(QMainWindow):
                                channels_num=len(SAVE_CHANNEL),
                                first_name=self.ui.LinePatientFirstName.text(),
                                last_name=self.ui.LinePatientLastName.text())
+
         self.session.session_start()
 
         self.long_timer = QTimer()
@@ -342,12 +340,6 @@ class MainWindow(QMainWindow):
             self.last_save_index = 0
         else:
             self.statusBar_main.setText(f'No saved')
-
-        # bufers init
-        self.buffer_main = Buffer(buffer_size=10000,
-                                  channels_num=len(SAVE_CHANNEL))
-        self.buffer_filtered = Buffer(buffer_size=10000,
-                                      channels_num=len(SAVE_CHANNEL))
 
         # board start eeg stream
         self.board.start_stream(1000)
@@ -383,7 +375,7 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             self.timer_long_events()
 
-        buff_size = self.buffer_filtered.get_last_num()
+        buff_size = self.session.buffer_filtered.get_last_num()
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
         if slider_maximum < 0:
             slider_maximum = 0
@@ -444,9 +436,9 @@ class MainWindow(QMainWindow):
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
         if self.save_filtered_flag:
-            data = self.buffer_filtered.get_buff_last()
+            data = self.session.buffer_filtered.get_buff_last()
         else:
-            data = self.buffer_main.get_buff_last()
+            data = self.session.buffer_main.get_buff_last()
 
         if file_name[0]:
             save_file(data, file_name[0])
@@ -463,7 +455,7 @@ class MainWindow(QMainWindow):
         axis_t.setRange(0, self.chart_duration * 1000)
 
         if self.session.status:
-            buff_size = self.buffer_filtered.get_last_num()
+            buff_size = self.session.buffer_filtered.get_last_num()
             slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
             if slider_maximum < 0:
                 slider_maximum = 0
@@ -496,9 +488,11 @@ class MainWindow(QMainWindow):
         end_index = start_index + self.chart_duration * SAMPLE_RATE
 
         if self.chart_filtering_flag:
-            data = self.buffer_filtered.get_buff_from(start_index, end_index)
+            data = self.session.buffer_filtered.get_buff_from(
+                start_index, end_index)
         else:
-            data = self.buffer_main.get_buff_from(start_index, end_index)
+            data = self.session.buffer_main.get_buff_from(
+                start_index, end_index)
 
         self.chart_buffers_update()
         self.redraw_charts(data)
