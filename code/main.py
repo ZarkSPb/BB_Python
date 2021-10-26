@@ -536,14 +536,25 @@ class MainWindow(QMainWindow):
 
     # ////////////////////////////////////////////////////////////// MENU ACTION
     def _open_file(self):
+        delimiter = ';'
+
         file_name = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Open eeg data (*.csv)', filter="CSV file (*.csv)")
         file_name = file_name[0]
-        # print(file_name)
 
-        data = np.genfromtxt(file_name, delimiter=';')
+        with open(file_name) as file_object:
+            first_name = file_object.readline().rstrip().lstrip('#')
+            last_name = file_object.readline().rstrip().lstrip('#')
+            data = file_object.readline().rstrip().lstrip('#')
+            time = file_object.readline().rstrip().lstrip('#')
+            header = file_object.readline().rstrip().lstrip('#').split(
+                delimiter)
 
-        print(data.shape())
+        print('\n', first_name, last_name, data, time, '\n', header, '\n')
+
+        data = np.loadtxt(file_name, delimiter=delimiter).T
+
+        print(data[0])
 
     def closeEvent(self, event):
         # Release all BB resources

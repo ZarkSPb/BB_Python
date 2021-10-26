@@ -17,12 +17,12 @@ def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
             if first_name != '':
                 header += first_name + '\n'
             else:
-                header += 'no first name\n'
+                header += 'no_first_name\n'
 
             if last_name != '':
                 header += last_name + '\n'
             else:
-                header += 'no last name\n'
+                header += 'no_last_name\n'
 
             header += session.time_init.toString('dd.MM.yyyy') + '\n'
             header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
@@ -35,7 +35,7 @@ def save_file(data, patient, session, file_name='eeg.csv', save_first=True):
                        fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
                        delimiter=';',
                        header=header,
-                       comments='')
+                       comments='#')
         else:
             savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
 
