@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
-        self.session = Session(buffer_size=10, channels_num=len(SAVE_CHANNEL))
+        self.session = Session(buffer_size=10)
         self.charts = []
 
         # ////////////////////////////////////////////////////// BUFFERS FILLING
@@ -52,7 +52,7 @@ class MainWindow(QMainWindow):
                       [self.session.time_init.toMSecsSinceEpoch() / 1000],
                       [0]]))
 
-        # ///////////////////////////////////////////////// IMPEDANCE LABEL FILL
+        # ///////////////////////////////////////////////// IMPEDANSE LABEL FILL
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
         self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
         self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
@@ -236,23 +236,10 @@ class MainWindow(QMainWindow):
         while self.session.get_status():
             data = self.board.get_board_data()
             if np.any(data):
-                self.session.buffer_main.add(data[SAVE_CHANNEL, :])
+                self.session.add(data[SAVE_CHANNEL, :])
                 self.battery_value = data[BATTERY_CHANNEL, -1]
 
-            add_sample = data.shape[1]
-            if add_sample != 0:
-                self.filtered_buffer_update(add_sample)
-
-            # print(data.shape[1], '--' * data.shape[1])
-
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
-
-    def filtered_buffer_update(self, add_sample):
-        data = self.session.buffer_main.get_buff_last(SIGNAL_CLIPPING_SEC *
-                                                      SAMPLE_RATE + add_sample)
-        for channel in range(NUM_CHANNELS):
-            signal_filtering(data[channel])
-        self.session.buffer_filtered.add(data[:, -add_sample:])
 
     def timer_long_events(self):
         def sf(self):
@@ -322,7 +309,6 @@ class MainWindow(QMainWindow):
         self.chart_buffers_update()
 
         self.session = Session(self.save_filtered_flag,
-                               channels_num=len(SAVE_CHANNEL),
                                first_name=self.ui.LinePatientFirstName.text(),
                                last_name=self.ui.LinePatientLastName.text())
 
@@ -345,7 +331,7 @@ class MainWindow(QMainWindow):
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
 
-        # Thread update_buffgit
+        # Thread update_buff
         self.worker_buff_main = Worker(self.update_buff)
         self.worker_buff_main.start(priority=QThread.HighPriority)
 
