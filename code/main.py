@@ -177,7 +177,9 @@ class MainWindow(QMainWindow):
             ])
 
     def timer_redraw_charts(self):
-        self.reqest_realisation()
+        if self.redraw_charts_request:
+            self.request_realisation()
+            self.redraw_charts_request = False
 
         if self.chart_filtering_flag:
             data = self.session.buffer_filtered.get_buff_last(
@@ -193,13 +195,11 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.redraw_charts(data)
 
-    def reqest_realisation(self):
-        if self.redraw_charts_request:
-            self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
-            axis_c = self.chart_view.chart().axes()[3]
-            self.update_channels_axis(axis_c)
-            self.chart_buffers_update()
-            self.redraw_charts_request = False
+    def request_realisation(self):
+        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+        axis_c = self.chart_view.chart().axes()[3]
+        self.update_channels_axis(axis_c)
+        self.chart_buffers_update()
 
     def redraw_charts(self, data):
         start_time = data[-2, 0]
@@ -466,7 +466,7 @@ class MainWindow(QMainWindow):
         if self.session.get_status():
             self.redraw_charts_request = True
         else:
-            self.chart_buffers_update()
+            self.request_realisation()
             self.timer_redraw_charts()
 
     def _slider_value_cnd(self):
