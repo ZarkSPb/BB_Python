@@ -744,7 +744,7 @@
    <sender>SliderAmplitude</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>_sliderAmplitude_cnd()</slot>
+   <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
@@ -1024,7 +1024,7 @@
   <slot>_save_data()</slot>
   <slot>_slider_value_cnd()</slot>
   <slot>_sliderDuration_cnd()</slot>
-  <slot>_sliderAmplitude_cnd()</slot>
+  <slot>_chart_redraw_request()</slot>
   <slot>_firstName_edit()</slot>
   <slot>_lastName_edit()</slot>
   <slot>_checkBoxFilteredChart()</slot>

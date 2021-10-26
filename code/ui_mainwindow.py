@@ -375,7 +375,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.SliderDuration.valueChanged.connect(MainWindow._sliderDuration_cnd)
-        self.SliderAmplitude.valueChanged.connect(MainWindow._sliderAmplitude_cnd)
+        self.SliderAmplitude.valueChanged.connect(MainWindow._chart_redraw_request)
         self.ButtonConnect.clicked.connect(MainWindow._connect)
         self.ButtonStart.clicked.connect(MainWindow._start_capture)
         self.ButtonStop.clicked.connect(MainWindow._stop_capture)

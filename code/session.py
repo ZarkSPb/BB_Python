@@ -1,10 +1,12 @@
-from PySide6.QtCore import QDateTime
+from PySide6.QtCore import QDateTime, QThread
+import numpy as np
 
 from buff import Buffer
 from patient import Patient
-from settings import (NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
-                      SIGNAL_CLIPPING_SEC)
+from settings import (BATTERY_CHANNEL, NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
+                      SIGNAL_CLIPPING_SEC, UPDATE_BUFFER_SPEED_MS)
 from utils import signal_filtering
+from worker import Worker
 
 
 class Session():
@@ -23,11 +25,17 @@ class Session():
         self.buffer_filtered = Buffer(buffer_size=buffer_size,
                                       channels_num=len(SAVE_CHANNEL))
 
-    def session_start(self):
-        self.time_start = QDateTime.currentDateTime()
-        self.status = True
+    def session_start(self, board):
+        if self.status:
+            print('The thread is already running.')
+        else:
+            self.time_start = QDateTime.currentDateTime()
+            self.board = board
+            self.worker_buff_main = Worker(self.update_buff)
+            self.worker_buff_main.start(priority=QThread.HighPriority)
+            self.status = True
 
-    def stop_session(self):
+    def session_stop(self):
         self.time_stop = QDateTime.currentDateTime()
         self.status = False
 
@@ -50,3 +58,15 @@ class Session():
         for channel in range(NUM_CHANNELS):
             signal_filtering(data[channel])
         self.buffer_filtered.add(data[:, -add_sample:])
+
+    def update_buff(self):
+        while self.get_status():
+            data = self.board.get_board_data()
+            if np.any(data):
+                self.add(data[SAVE_CHANNEL, :])
+                self.battery_value = data[BATTERY_CHANNEL, -1]
+
+            QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+
+    def get_battery_value(self):
+        return self.battery_value if self.status else 0

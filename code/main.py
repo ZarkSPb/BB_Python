@@ -7,11 +7,10 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
                               QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThread, QThreadPool, QTimer, Qt
+from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
-from buff import Buffer
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
@@ -177,10 +176,6 @@ class MainWindow(QMainWindow):
             ])
 
     def timer_redraw_charts(self):
-        if self.redraw_charts_request:
-            self.request_realisation()
-            self.redraw_charts_request = False
-
         if self.chart_filtering_flag:
             data = self.session.buffer_filtered.get_buff_last(
                 self.chart_duration * SAMPLE_RATE)
@@ -195,7 +190,18 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.redraw_charts(data)
 
+        if self.redraw_charts_request:
+            self.redraw_charts_request = False
+            self.request_realisation()
+            self.timer_redraw_charts()
+
     def request_realisation(self):
+        # Slider AMPLITUDE
+        self.chart_amp = self.ui.SliderAmplitude.value()
+        text = "Amplitude (uV): " + str(self.chart_amp)
+        self.ui.LabelAmplitude.setText(text)
+
+
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
         self.update_channels_axis(axis_c)
@@ -232,15 +238,6 @@ class MainWindow(QMainWindow):
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
 
-    def update_buff(self):
-        while self.session.get_status():
-            data = self.board.get_board_data()
-            if np.any(data):
-                self.session.add(data[SAVE_CHANNEL, :])
-                self.battery_value = data[BATTERY_CHANNEL, -1]
-
-            QThread.msleep(UPDATE_BUFFER_SPEED_MS)
-
     def timer_long_events(self):
         def sf(self):
             if self.session.save_filtered:
@@ -256,7 +253,7 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             sf(self)
 
-            self.progressBar_battery.setValue(self.battery_value)
+        self.progressBar_battery.setValue(self.session.get_battery_value())
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -312,7 +309,7 @@ class MainWindow(QMainWindow):
                                first_name=self.ui.LinePatientFirstName.text(),
                                last_name=self.ui.LinePatientLastName.text())
 
-        self.session.session_start()
+        self.session.session_start(self.board)
 
         self.long_timer = QTimer()
         self.long_timer.timeout.connect(self.timer_long_events)
@@ -330,10 +327,6 @@ class MainWindow(QMainWindow):
         # board start eeg stream
         self.board.start_stream(1000)
         self.board.config_board('CommandStartSignal')
-
-        # Thread update_buff
-        self.worker_buff_main = Worker(self.update_buff)
-        self.worker_buff_main.start(priority=QThread.HighPriority)
 
         # INIT and START timer_redraw_charts
         self.chart_redraw_timer = QTimer()
@@ -355,7 +348,7 @@ class MainWindow(QMainWindow):
     def _stop_capture(self):
         # stop timers
         self.chart_redraw_timer.stop()
-        self.session.stop_session()
+        self.session.session_stop()
         self.long_timer.stop()
         self.board.stop_stream()
         if self.save_flag:
@@ -455,14 +448,7 @@ class MainWindow(QMainWindow):
             self.chart_buffers_update()
             self.timer_redraw_charts()
 
-    def _sliderAmplitude_cnd(self):
-        self.chart_amp = self.ui.SliderAmplitude.value()
-        text = "Amplitude (uV): " + str(self.chart_amp)
-        self.ui.LabelAmplitude.setText(text)
-
-        self.chart_redraw_request()
-
-    def chart_redraw_request(self):
+    def _chart_redraw_request(self):
         if self.session.get_status():
             self.redraw_charts_request = True
         else:
@@ -490,7 +476,7 @@ class MainWindow(QMainWindow):
         if self.chart_filtering_flag:
             self.ui.CheckBoxDetrendChart.setChecked(False)
 
-        self.chart_redraw_request()
+        self._chart_redraw_request()
 
     def _checkBoxDetrendChart(self):
         self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
@@ -537,7 +523,7 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         try:
             self.long_timer.stop()
-            self.session.stop_session()
+            self.session.session_stop()
         except:
             pass
 
