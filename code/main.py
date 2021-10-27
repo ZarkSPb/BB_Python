@@ -186,21 +186,25 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.redraw_charts(data)
 
-        if self.redraw_charts_request:
-            self.redraw_charts_request = False
-            self.request_realisation()
-            self.timer_redraw_charts()
 
     def request_realisation(self):
         # Slider AMPLITUDE
         self.chart_amp = self.ui.SliderAmplitude.value()
         text = "Amplitude (uV): " + str(self.chart_amp)
         self.ui.LabelAmplitude.setText(text)
-
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
         self.update_channels_axis(axis_c)
         self.chart_buffers_update()
+
+        # Slider DURATION
+        self.chart_duration = self.ui.SliderDuration.value()
+        text = "Duration (sec): " + str(self.chart_duration)
+        self.ui.LabelDuration.setText(text)
+        axis_x = self.chart_view.chart().axisX()
+        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
+        axis_t = self.chart_view.chart().axes()[2]
+        axis_t.setRange(0, self.chart_duration * 1000)
 
     def redraw_charts(self, data):
         start_time = data[-2, 0]
@@ -217,6 +221,11 @@ class MainWindow(QMainWindow):
 
         for channel in range(NUM_CHANNELS):
             self.serieses[channel].replace(self.chart_buffers[channel])
+            
+        if self.redraw_charts_request:
+            self.redraw_charts_request = False
+            self.request_realisation()
+            self.timer_redraw_charts()
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
@@ -418,30 +427,33 @@ class MainWindow(QMainWindow):
             save_file(data, file_name[0])
 
     def _sliderDuration_cnd(self):
-        self.chart_duration = self.ui.SliderDuration.value()
-        text = "Duration (sec): " + str(self.chart_duration)
-        self.ui.LabelDuration.setText(text)
+        self._chart_redraw_request()
 
-        axis_x = self.chart_view.chart().axisX()
-        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
+        # self.chart_duration = self.ui.SliderDuration.value()
+        # text = "Duration (sec): " + str(self.chart_duration)
+        # self.ui.LabelDuration.setText(text)
 
-        axis_t = self.chart_view.chart().axes()[2]
-        axis_t.setRange(0, self.chart_duration * 1000)
+        # axis_x = self.chart_view.chart().axisX()
+        # axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
 
-        if self.session.status:
-            buff_size = self.session.buffer_filtered.get_last_num()
-            slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-            if slider_maximum < 0:
-                slider_maximum = 0
+        # axis_t = self.chart_view.chart().axes()[2]
+        # axis_t.setRange(0, self.chart_duration * 1000)
 
-            if self.ui.SliderChart.value() > slider_maximum:
-                self.ui.SliderChart.setValue(slider_maximum)
-            self.ui.SliderChart.setMaximum(slider_maximum)
-            self._slider_value_cnd()
-        else:
-            self.update_time_axis(axis_t, self.session.time_init)
-            self.chart_buffers_update()
-            self.timer_redraw_charts()
+        # if not self.session.status:
+        #     buff_size = self.session.buffer_filtered.get_last_num()
+        #     slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        #     if slider_maximum < 0:
+        #         slider_maximum = 0
+
+        #     if self.ui.SliderChart.value() > slider_maximum:
+        #         self.ui.SliderChart.setValue(slider_maximum)
+
+        #     self.ui.SliderChart.setMaximum(slider_maximum)
+        #     self._slider_value_cnd()
+
+        #     self.update_time_axis(axis_t, self.session.time_init)
+        #     self.chart_buffers_update()
+        #     self.timer_redraw_charts()
 
     def _chart_redraw_request(self):
         if self.session.get_status():
@@ -460,6 +472,8 @@ class MainWindow(QMainWindow):
         else:
             data = self.session.buffer_main.get_buff_from(
                 start_index, end_index)
+
+        # print(data.shape)
 
         self.chart_buffers_update()
         self.redraw_charts(data)

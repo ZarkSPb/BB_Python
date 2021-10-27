@@ -653,6 +653,9 @@
        </item>
        <item>
         <widget class="QSlider" name="SliderChart">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="maximum">
           <number>200</number>
          </property>
