@@ -2,7 +2,8 @@ import numpy as np
 from PySide6.QtCore import QDateTime, QThread
 
 from settings import (BATTERY_CHANNEL, NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
-                      SIGNAL_CLIPPING_SEC, UPDATE_BUFFER_SPEED_MS)
+                      SIGNAL_CLIPPING_SEC, UPDATE_BUFFER_SPEED_MS,
+                      EEG_CHANNEL_NAMES)
 from utils import signal_filtering
 from worker import Worker
 
@@ -60,7 +61,6 @@ class Buffer:
             return self.buff[:, start_index:self.last].copy()
         else:
             return self.buff[:, start_index:end_index].copy()
-            
 
     def get_last_num(self):
         return self.last
@@ -71,7 +71,8 @@ class Session():
                  save_filtered=True,
                  buffer_size=10000,
                  first_name='',
-                 last_name=''):
+                 last_name='',
+                 eeg_channel_names=EEG_CHANNEL_NAMES):
 
         self.save_filtered = save_filtered
         self.status = False
@@ -81,6 +82,8 @@ class Session():
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered = Buffer(buffer_size=buffer_size,
                                       channels_num=len(SAVE_CHANNEL))
+        self.eeg_channel_names=eeg_channel_names
+        self.battery_value = 0
 
     def session_start(self, board):
         if self.status:
@@ -126,4 +129,4 @@ class Session():
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
     def get_battery_value(self):
-        return self.battery_value if self.status else 0
+        return self.battery_value

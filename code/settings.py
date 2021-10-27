@@ -13,6 +13,7 @@ RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
 PACKAGE_NUM_CHANNEL = BoardShim.get_package_num_channel(BOARD_ID)
 BATTERY_CHANNEL = BoardShim.get_battery_channel(BOARD_ID)
+BOARD_TIMEOUT = 5
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds

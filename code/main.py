@@ -16,6 +16,7 @@ from settings import *
 from ui_mainwindow import Ui_MainWindow
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
+from board import Board
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -266,7 +267,7 @@ class MainWindow(QMainWindow):
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
-        params.timeout = 5
+        params.timeout = BOARD_TIMEOUT
         self.board = BoardShim(BOARD_ID, params)
 
         self.statusBar_main.setText('Connecting...')
@@ -306,6 +307,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonConnect.setEnabled(False)
         self.worker_connect = Worker(self.connect_toBB)
         self.worker_connect.start()
+        # self.board = Board()
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
@@ -502,11 +504,20 @@ class MainWindow(QMainWindow):
             header = file_object.readline().rstrip().lstrip('#').split(
                 delimiter)
 
-        print('\n', first_name, last_name, data, time, '\n', header, '\n')
+        of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
-        data = np.loadtxt(file_name, delimiter=delimiter).T
+        table = np.loadtxt(file_name, delimiter=delimiter).T
 
-        print(data[0])
+        self.session = Session(buffer_size=table.shape[1],
+                               first_name=first_name,
+                               last_name=last_name,
+                               eeg_channel_names=of_eeg_channel_names)
+        
+        self.session.add(table)
+
+        self.slider_chart_prepare()
+        self._chart_redraw_request()
+        self.ui.SliderChart.setEnabled(True)
 
     def closeEvent(self, event):
         # Release all BB resources
