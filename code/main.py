@@ -7,7 +7,7 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
                               QValueAxis)
-from PySide6.QtCore import QDateTime, QPointF, QThreadPool, QTimer
+from PySide6.QtCore import QDateTime, QPointF, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
@@ -25,8 +25,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
-        self.threadpool = QThreadPool()
-
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -41,12 +39,6 @@ class MainWindow(QMainWindow):
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.session = Session(buffer_size=10)
         self.charts = []
-
-        # ////////////////////////////////////////////////////// BUFFERS FILLING
-        self.session.add(
-            np.array([[0], [0], [0], [0],
-                      [self.session.time_init.toMSecsSinceEpoch() / 1000],
-                      [0]]))
 
         # ///////////////////////////////////////////////// IMPEDANSE LABEL FILL
         self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
@@ -77,7 +69,7 @@ class MainWindow(QMainWindow):
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
-        axis_t = self.update_time_axis(axis_t)
+        axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
@@ -123,9 +115,8 @@ class MainWindow(QMainWindow):
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
 
     # ///////////////////////////////////////////////////////// Update TIME axis
-    def update_time_axis(self, axis_t, start_time=0):
-        if start_time == 0:
-            start_time = QDateTime.currentDateTime()
+    def update_time_axis(self, axis_t, start_time):
+        # start_time = QDateTime.currentDateTime()
         end_time = start_time.addSecs(self.chart_duration)
 
         # print(start_time.toString('hh:mm:ss.zzz'),
@@ -212,10 +203,13 @@ class MainWindow(QMainWindow):
         self.chart_buffers_update()
 
     def redraw_charts(self, data):
-        start_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, 0] * 1000))
+        start_tick = data[-2, 0]
+        if start_tick != 0:
+            start_time = QDateTime.fromMSecsSinceEpoch(int(start_tick * 1000))
+        else:
+            start_time = QDateTime.currentDateTime()
 
-        end_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, -1] * 1000))
-
+        # end_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, -1] * 1000))
         # print(start_time.toString('hh:mm:ss.zzz'),
         #       end_time.toString('hh:mm:ss.zzz'), ' - original time')
 
@@ -248,7 +242,7 @@ class MainWindow(QMainWindow):
                 self.ui.ProgressBarCh3.setValue(
                     int(data[3]) if data[3] <= 500 else 500)
 
-    def timer_long_events(self):
+    def timer_long(self):
         def sf(self):
             if self.session.save_filtered:
                 data = self.session.buffer_filtered.get_buff_from(
@@ -305,9 +299,24 @@ class MainWindow(QMainWindow):
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
+        self.ui.actionOpen_File.setEnabled(False)
         self.worker_connect = Worker(self.connect_toBB)
         self.worker_connect.start()
+
         # self.board = Board()
+
+        self.ui.LinePatientFirstName.setEnabled(True)
+        self.ui.LinePatientLastName.setEnabled(True)
+        self.ui.LinePatientFirstName.setText('')
+        self.ui.LinePatientLastName.setText('')
+        self.ui.CheckBoxFilterChart.setChecked(True)
+        self.ui.CheckBoxAutosave.setEnabled(True)
+        self.ui.CheckBoxSaveFiltered.setEnabled(True)
+
+        self.session = Session(self.save_filtered_flag,
+                               first_name=self.ui.LinePatientFirstName.text(),
+                               last_name=self.ui.LinePatientLastName.text())
+        self._chart_redraw_request()
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
@@ -316,14 +325,11 @@ class MainWindow(QMainWindow):
         # CHART buffer renew
         self.chart_buffers_update()
 
-        self.session = Session(self.save_filtered_flag,
-                               first_name=self.ui.LinePatientFirstName.text(),
-                               last_name=self.ui.LinePatientLastName.text())
-
         self.session.session_start(self.board)
 
+        # INIT and START timer_long_events
         self.long_timer = QTimer()
-        self.long_timer.timeout.connect(self.timer_long_events)
+        self.long_timer.timeout.connect(self.timer_long)
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
         if self.save_flag:
@@ -362,7 +368,7 @@ class MainWindow(QMainWindow):
         self.long_timer.stop()
         self.board.stop_stream()
         if self.save_flag:
-            self.timer_long_events()
+            self.timer_long()
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
@@ -388,6 +394,7 @@ class MainWindow(QMainWindow):
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonStart.setEnabled(False)
+        self.ui.actionOpen_File.setEnabled(True)
 
     def _start_impedance(self):
         self.board.start_stream(100)
@@ -496,28 +503,42 @@ class MainWindow(QMainWindow):
             self, 'Open eeg data (*.csv)', filter="CSV file (*.csv)")
         file_name = file_name[0]
 
-        with open(file_name) as file_object:
-            first_name = file_object.readline().rstrip().lstrip('#')
-            last_name = file_object.readline().rstrip().lstrip('#')
-            data = file_object.readline().rstrip().lstrip('#')
-            time = file_object.readline().rstrip().lstrip('#')
-            header = file_object.readline().rstrip().lstrip('#').split(
-                delimiter)
+        if file_name != '':
+            with open(file_name) as file_object:
+                first_name = file_object.readline().rstrip().lstrip('#')
+                last_name = file_object.readline().rstrip().lstrip('#')
+                data = file_object.readline().rstrip().lstrip('#')
+                time = file_object.readline().rstrip().lstrip('#')
+                header = file_object.readline().rstrip().lstrip('#').split(
+                    delimiter)
 
-        of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
+            of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
-        table = np.loadtxt(file_name, delimiter=delimiter).T
+            table = np.loadtxt(file_name, delimiter=delimiter).T
 
-        self.session = Session(buffer_size=table.shape[1],
-                               first_name=first_name,
-                               last_name=last_name,
-                               eeg_channel_names=of_eeg_channel_names)
-        
-        self.session.add(table)
+            self.session = Session(buffer_size=table.shape[1],
+                                   first_name=first_name,
+                                   last_name=last_name,
+                                   eeg_channel_names=of_eeg_channel_names)
 
-        self.slider_chart_prepare()
-        self._chart_redraw_request()
-        self.ui.SliderChart.setEnabled(True)
+            file_name = file_name.replace('/', '\\')
+            self.statusBar_main.setText(f'Open file: {file_name}')
+
+            self.ui.LinePatientFirstName.setEnabled(False)
+            self.ui.LinePatientLastName.setEnabled(False)
+            self.ui.LinePatientFirstName.setText(first_name)
+            self.ui.LinePatientLastName.setText(last_name)
+            self.ui.CheckBoxFilterChart.setChecked(False)
+            self.ui.CheckBoxAutosave.setEnabled(False)
+            self.ui.CheckBoxSaveFiltered.setEnabled(False)
+
+            self.session.add(table)
+            del table
+
+            self.slider_chart_prepare()
+            self._chart_redraw_request()
+            self.ui.SliderChart.setEnabled(True)
+
 
     def closeEvent(self, event):
         # Release all BB resources

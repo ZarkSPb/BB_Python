@@ -82,7 +82,7 @@ class Session():
                                   channels_num=len(SAVE_CHANNEL))
         self.buffer_filtered = Buffer(buffer_size=buffer_size,
                                       channels_num=len(SAVE_CHANNEL))
-        self.eeg_channel_names=eeg_channel_names
+        self.eeg_channel_names = eeg_channel_names
         self.battery_value = 0
 
     def session_start(self, board):
