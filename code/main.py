@@ -125,6 +125,11 @@ class MainWindow(QMainWindow):
     def update_time_axis(self, axis_t, start_time=0):
         if start_time == 0:
             start_time = QDateTime.currentDateTime()
+        end_time = start_time.addSecs(self.chart_duration)
+
+        print(start_time.toString('hh:mm:ss.zzz'),
+              end_time.toString('hh:mm:ss.zzz'))
+        print()
 
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
@@ -139,9 +144,8 @@ class MainWindow(QMainWindow):
             axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
 
         axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
-        axis_t.append(
-            start_time.addSecs(self.chart_duration).toString('hh:mm:ss.zzz'),
-            self.chart_duration * 1000)
+        axis_t.append(end_time.toString('hh:mm:ss.zzz'),
+                      self.chart_duration * 1000)
 
         return axis_t
 
@@ -186,7 +190,6 @@ class MainWindow(QMainWindow):
         if np.any(data):
             self.redraw_charts(data)
 
-
     def request_realisation(self):
         # Slider AMPLITUDE
         self.chart_amp = self.ui.SliderAmplitude.value()
@@ -195,7 +198,6 @@ class MainWindow(QMainWindow):
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
         self.update_channels_axis(axis_c)
-        self.chart_buffers_update()
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()
@@ -206,22 +208,26 @@ class MainWindow(QMainWindow):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
+        self.chart_buffers_update()
+
     def redraw_charts(self, data):
-        start_time = data[-2, 0]
+        start_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, 0] * 1000))
+
+        end_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, -1] * 1000))
+
+        print(start_time.toString('hh:mm:ss.zzz'),
+              end_time.toString('hh:mm:ss.zzz'), ' - original time')
+
         axis_t = self.chart_view.chart().axes()[2]
-        self.update_time_axis(axis_t,
-                              start_time=QDateTime.fromMSecsSinceEpoch(
-                                  int(start_time * 1000)))
+        self.update_time_axis(axis_t, start_time=start_time)
         for channel in range(NUM_CHANNELS):
             r_data = data[channel]
             for i in range(r_data.shape[0]):
                 self.chart_buffers[channel][i].setY(
                     r_data[i] + self.chart_amp +
                     (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
-
-        for channel in range(NUM_CHANNELS):
             self.serieses[channel].replace(self.chart_buffers[channel])
-            
+
         if self.redraw_charts_request:
             self.redraw_charts_request = False
             self.request_realisation()
@@ -229,7 +235,6 @@ class MainWindow(QMainWindow):
 
     def timer_impedance(self):
         data = self.board.get_current_board_data(1)
-
         if np.any(data) > 0:
             data = data[RESISTANCE_CHANNELS, 0] / 1000
             self.ui.ProgressBarCh0.setValue(
@@ -350,7 +355,6 @@ class MainWindow(QMainWindow):
 
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
-        # stop timers
         self.chart_redraw_timer.stop()
         self.session.session_stop()
         self.long_timer.stop()
@@ -426,45 +430,28 @@ class MainWindow(QMainWindow):
         if file_name[0]:
             save_file(data, file_name[0])
 
-    def _sliderDuration_cnd(self):
-        self._chart_redraw_request()
-
-        # self.chart_duration = self.ui.SliderDuration.value()
-        # text = "Duration (sec): " + str(self.chart_duration)
-        # self.ui.LabelDuration.setText(text)
-
-        # axis_x = self.chart_view.chart().axisX()
-        # axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
-
-        # axis_t = self.chart_view.chart().axes()[2]
-        # axis_t.setRange(0, self.chart_duration * 1000)
-
-        # if not self.session.status:
-        #     buff_size = self.session.buffer_filtered.get_last_num()
-        #     slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        #     if slider_maximum < 0:
-        #         slider_maximum = 0
-
-        #     if self.ui.SliderChart.value() > slider_maximum:
-        #         self.ui.SliderChart.setValue(slider_maximum)
-
-        #     self.ui.SliderChart.setMaximum(slider_maximum)
-        #     self._slider_value_cnd()
-
-        #     self.update_time_axis(axis_t, self.session.time_init)
-        #     self.chart_buffers_update()
-        #     self.timer_redraw_charts()
-
     def _chart_redraw_request(self):
         if self.session.get_status():
             self.redraw_charts_request = True
         else:
             self.request_realisation()
-            self.timer_redraw_charts()
+            self._slider_value_cnd()
 
     def _slider_value_cnd(self):
+        buff_size = self.session.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+
+        self.ui.SliderChart.setMaximum(slider_maximum)
+
+        if self.ui.SliderChart.value() > slider_maximum:
+            self.ui.SliderChart.setValue(slider_maximum)
+
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
+
+        # print(start_index, end_index, end_index - start_index)
 
         if self.chart_filtering_flag:
             data = self.session.buffer_filtered.get_buff_from(
@@ -472,8 +459,6 @@ class MainWindow(QMainWindow):
         else:
             data = self.session.buffer_main.get_buff_from(
                 start_index, end_index)
-
-        # print(data.shape)
 
         self.chart_buffers_update()
         self.redraw_charts(data)
