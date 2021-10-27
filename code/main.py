@@ -127,9 +127,9 @@ class MainWindow(QMainWindow):
             start_time = QDateTime.currentDateTime()
         end_time = start_time.addSecs(self.chart_duration)
 
-        print(start_time.toString('hh:mm:ss.zzz'),
-              end_time.toString('hh:mm:ss.zzz'))
-        print()
+        # print(start_time.toString('hh:mm:ss.zzz'),
+        #       end_time.toString('hh:mm:ss.zzz'))
+        # print()
 
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
@@ -215,8 +215,8 @@ class MainWindow(QMainWindow):
 
         end_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, -1] * 1000))
 
-        print(start_time.toString('hh:mm:ss.zzz'),
-              end_time.toString('hh:mm:ss.zzz'), ' - original time')
+        # print(start_time.toString('hh:mm:ss.zzz'),
+        #       end_time.toString('hh:mm:ss.zzz'), ' - original time')
 
         axis_t = self.chart_view.chart().axes()[2]
         self.update_time_axis(axis_t, start_time=start_time)
@@ -362,12 +362,8 @@ class MainWindow(QMainWindow):
         if self.save_flag:
             self.timer_long_events()
 
-        buff_size = self.session.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
-        self.ui.SliderChart.setMaximum(slider_maximum)
-        self.ui.SliderChart.setValue(slider_maximum)
+        self.slider_chart_prepare()
+        self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
 
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
@@ -438,15 +434,7 @@ class MainWindow(QMainWindow):
             self._slider_value_cnd()
 
     def _slider_value_cnd(self):
-        buff_size = self.session.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
-
-        self.ui.SliderChart.setMaximum(slider_maximum)
-
-        if self.ui.SliderChart.value() > slider_maximum:
-            self.ui.SliderChart.setValue(slider_maximum)
+        self.slider_chart_prepare()
 
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
@@ -462,6 +450,13 @@ class MainWindow(QMainWindow):
 
         self.chart_buffers_update()
         self.redraw_charts(data)
+
+    def slider_chart_prepare(self):
+        buff_size = self.session.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+        self.ui.SliderChart.setMaximum(slider_maximum)
 
     def _checkBoxFilteredChart(self):
         self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
