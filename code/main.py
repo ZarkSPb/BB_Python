@@ -306,6 +306,7 @@ class MainWindow(QMainWindow):
         self.ui.CheckBoxFilterChart.setChecked(True)
         self.ui.CheckBoxAutosave.setEnabled(True)
         self.ui.CheckBoxSaveFiltered.setEnabled(True)
+        self.ui.CheckBoxFilterChart.setEnabled(True)
 
         self.session = Session(self.save_filtered_flag,
                                first_name=self.ui.LinePatientFirstName.text(),
@@ -315,6 +316,11 @@ class MainWindow(QMainWindow):
 
     # //////////////////////////////////////////////////////////////////// START
     def _start_capture(self):
+        self.session = Session(self.save_filtered_flag,
+                               first_name=self.ui.LinePatientFirstName.text(),
+                               last_name=self.ui.LinePatientLastName.text())
+        self.set_eeg_ch_names()
+
         self.save_first = True
 
         # CHART buffer renew
@@ -504,8 +510,13 @@ class MainWindow(QMainWindow):
                 last_name = file_object.readline().rstrip().lstrip('#')
                 data = file_object.readline().rstrip().lstrip('#')
                 time = file_object.readline().rstrip().lstrip('#')
+                filtered_flag = file_object.readline().rstrip().lstrip('#')
                 header = file_object.readline().rstrip().lstrip('#').split(
                     delimiter)
+
+            filtered_flag = True if filtered_flag == 'filtered' else False
+            self.ui.CheckBoxFilterChart.setChecked(filtered_flag)
+            self.ui.CheckBoxFilterChart.setEnabled(False)
 
             of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
@@ -524,7 +535,6 @@ class MainWindow(QMainWindow):
             self.ui.LinePatientLastName.setEnabled(False)
             self.ui.LinePatientFirstName.setText(first_name)
             self.ui.LinePatientLastName.setText(last_name)
-            self.ui.CheckBoxFilterChart.setChecked(False)
             self.ui.CheckBoxAutosave.setEnabled(False)
             self.ui.CheckBoxSaveFiltered.setEnabled(False)
 

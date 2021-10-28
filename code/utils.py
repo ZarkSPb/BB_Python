@@ -14,18 +14,14 @@ def save_file(data, session, file_name='eeg.csv', save_first=True):
         if save_first:
 
             header = ''
-            if first_name != '':
-                header += first_name + '\n'
-            else:
-                header += 'no_first_name\n'
-
-            if last_name != '':
-                header += last_name + '\n'
-            else:
-                header += 'no_last_name\n'
-
+            header += first_name if first_name != '' else 'no_first_name'
+            header += '\n'
+            header += last_name if last_name != '' else 'no_last_name'
+            header += '\n'
             header += session.time_init.toString('dd.MM.yyyy') + '\n'
             header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
+            header += 'filtered\n' if session.get_filtered_status(
+            ) else 'no filtered\n'
 
             for channel_names in EEG_CHANNEL_NAMES:
                 header += f'{channel_names}, uV;'
