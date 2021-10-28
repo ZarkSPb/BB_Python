@@ -11,12 +11,12 @@ from PySide6.QtCore import QDateTime, QPointF, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
+from board import Board
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from board import Board
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -77,7 +77,6 @@ class MainWindow(QMainWindow):
         self.chart_buffers_update()
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
-            # series.setName(f'{EEG_CHANNEL_NAMES[i]}')
             series.append(self.chart_buffers[i])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
