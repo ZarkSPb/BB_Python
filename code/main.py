@@ -37,18 +37,12 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
-        self.session = Session(buffer_size=10)
         self.charts = []
 
-        # ///////////////////////////////////////////////// IMPEDANSE LABEL FILL
-        self.ui.LabelCh0.setText(EEG_CHANNEL_NAMES[0])
-        self.ui.LabelCh1.setText(EEG_CHANNEL_NAMES[1])
-        self.ui.LabelCh2.setText(EEG_CHANNEL_NAMES[2])
-        self.ui.LabelCh3.setText(EEG_CHANNEL_NAMES[3])
+        self.session = Session(buffer_size=10)
+        self.set_eeg_ch_names()
 
         # /////////////////////////////////////////////////////////// CHART MAKE
-        self.channel_names = BoardShim.get_board_descr(
-            BOARD_ID)['eeg_names'].split(',')
         chart = QChart()
         chart.legend().setVisible(False)
         # /////////////////////////////////////////////////////////////// axis_x
@@ -83,7 +77,7 @@ class MainWindow(QMainWindow):
         self.chart_buffers_update()
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
-            series.setName(f'{EEG_CHANNEL_NAMES[i]}')
+            # series.setName(f'{EEG_CHANNEL_NAMES[i]}')
             series.append(self.chart_buffers[i])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
@@ -316,6 +310,7 @@ class MainWindow(QMainWindow):
         self.session = Session(self.save_filtered_flag,
                                first_name=self.ui.LinePatientFirstName.text(),
                                last_name=self.ui.LinePatientLastName.text())
+        self.set_eeg_ch_names()
         self._chart_redraw_request()
 
     # //////////////////////////////////////////////////////////////////// START
@@ -520,6 +515,7 @@ class MainWindow(QMainWindow):
                                    first_name=first_name,
                                    last_name=last_name,
                                    eeg_channel_names=of_eeg_channel_names)
+            self.set_eeg_ch_names()
 
             file_name = file_name.replace('/', '\\')
             self.statusBar_main.setText(f'Open file: {file_name}')
@@ -539,6 +535,12 @@ class MainWindow(QMainWindow):
             self._chart_redraw_request()
             self.ui.SliderChart.setEnabled(True)
 
+    def set_eeg_ch_names(self):
+        self.channel_names = self.session.get_eeg_ch_names()
+        self.ui.LabelCh0.setText(self.channel_names[0])
+        self.ui.LabelCh1.setText(self.channel_names[1])
+        self.ui.LabelCh2.setText(self.channel_names[2])
+        self.ui.LabelCh3.setText(self.channel_names[3])
 
     def closeEvent(self, event):
         # Release all BB resources
