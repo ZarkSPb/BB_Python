@@ -13,6 +13,7 @@ RESISTANCE_CHANNELS = BoardShim.get_resistance_channels(BOARD_ID)
 TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
 PACKAGE_NUM_CHANNEL = BoardShim.get_package_num_channel(BOARD_ID)
 BATTERY_CHANNEL = BoardShim.get_battery_channel(BOARD_ID)
+BOARD_TIMEOUT = 5
 
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
@@ -23,7 +24,7 @@ UPDATE_IMPEDANCE_SPEED_MS = 500
 UPDATE_BUFFER_SPEED_MS = 10
 LONG_TIMER_INTERVAL_MS = 5000
 
-REG_KERNEL = '[а-яёa-z()-]+'
+REG_KERNEL = '[0-9а-яёa-z()-]+'
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
