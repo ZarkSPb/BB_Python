@@ -130,3 +130,6 @@ class Session():
 
     def get_battery_value(self):
         return self.battery_value
+
+    def get_eeg_ch_names(self):
+        return self.eeg_channel_names
