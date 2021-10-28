@@ -92,7 +92,7 @@ class Session():
             self.time_start = QDateTime.currentDateTime()
             self.board = board
             self.worker_buff_main = Worker(self.update_buff)
-            self.worker_buff_main.start(priority=QThread.HighPriority)
+            self.worker_buff_main.start()
             self.status = True
 
     def session_stop(self):
