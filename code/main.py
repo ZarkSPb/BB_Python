@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         axis_t = QCategoryAxis()
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        # axis_t.setTruncateLabels(True)
+        axis_t.setTruncateLabels(False)
         axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_c
