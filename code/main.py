@@ -523,7 +523,12 @@ class MainWindow(QMainWindow):
                                    first_name=first_name,
                                    last_name=last_name,
                                    eeg_channel_names=of_eeg_channel_names)
-            self.session.add(table)
+            
+            if filtered_flag:
+                self.session.buffer_filtered.add(table)
+            else:
+                self.session.add(table)
+            
             del table
 
             self.ui.CheckBoxFilterChart.setChecked(True)
