@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         axis_t = QCategoryAxis()
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        axis_t.setTruncateLabels(False)
+        # axis_t.setTruncateLabels(True)
         axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_c
@@ -514,17 +514,21 @@ class MainWindow(QMainWindow):
                     delimiter)
 
             filtered_flag = True if filtered_flag == 'filtered' else False
-            self.ui.CheckBoxFilterChart.setChecked(filtered_flag)
-            self.ui.CheckBoxFilterChart.setEnabled(False)
-
-            of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
             table = np.loadtxt(file_name, delimiter=delimiter).T
+
+            of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
             self.session = Session(buffer_size=table.shape[1],
                                    first_name=first_name,
                                    last_name=last_name,
                                    eeg_channel_names=of_eeg_channel_names)
+            self.session.add(table)
+            del table
+
+            self.ui.CheckBoxFilterChart.setChecked(True)
+            self.ui.CheckBoxFilterChart.setEnabled(not filtered_flag)
+
             self.set_eeg_ch_names()
 
             file_name = file_name.replace('/', '\\')
@@ -536,9 +540,6 @@ class MainWindow(QMainWindow):
             self.ui.LinePatientLastName.setText(last_name)
             self.ui.CheckBoxAutosave.setEnabled(False)
             self.ui.CheckBoxSaveFiltered.setEnabled(False)
-
-            self.session.add(table)
-            del table
 
             self.slider_chart_prepare()
             self._chart_redraw_request()
