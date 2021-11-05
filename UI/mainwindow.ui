@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>877</width>
-    <height>887</height>
+    <width>1058</width>
+    <height>866</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
      <widget class="QWidget" name="WidgetControl" native="true">
       <property name="minimumSize">
        <size>
-        <width>180</width>
+        <width>0</width>
         <height>0</height>
        </size>
       </property>
@@ -46,7 +46,7 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
-        <number>4</number>
+        <number>2</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -416,6 +416,9 @@
           </item>
           <item>
            <widget class="QSlider" name="SliderDuration">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
             <property name="minimum">
              <number>1</number>
             </property>
@@ -671,7 +674,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>877</width>
+     <width>1058</width>
      <height>22</height>
     </rect>
    </property>
@@ -683,7 +686,29 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionControl_panel"/>
+    <addaction name="separator"/>
+    <addaction name="actionRhytm_window"/>
+   </widget>
+   <widget class="QMenu" name="menuDevice">
+    <property name="title">
+     <string>Device</string>
+    </property>
+    <addaction name="actionConnect"/>
+    <addaction name="actionStart"/>
+    <addaction name="actionStop"/>
+    <addaction name="actionDisconnect"/>
+    <addaction name="separator"/>
+    <addaction name="actionStart_impedance"/>
+    <addaction name="actionStop_impedance"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuDevice"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
    <property name="sizeGripEnabled">
@@ -701,14 +726,94 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="action">
-   <property name="text">
-    <string>-</string>
-   </property>
-  </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionRhytm_window">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Rhytm window</string>
+   </property>
+  </action>
+  <action name="actionControl_panel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Control panel</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+P</string>
+   </property>
+  </action>
+  <action name="actionStart">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Start</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionConnect">
+   <property name="text">
+    <string>Connect</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionDisconnect">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionStart_impedance">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Start impedance</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionStop_impedance">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Stop impedance</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
    </property>
   </action>
  </widget>
@@ -725,8 +830,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>432</y>
+     <x>125</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
      <x>348</x>
@@ -741,8 +846,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>483</y>
+     <x>125</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>252</x>
@@ -757,12 +862,12 @@
    <slot>_connect()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>124</x>
-     <y>66</y>
+     <x>131</x>
+     <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>70</y>
+     <x>236</x>
+     <y>54</y>
     </hint>
    </hints>
   </connection>
@@ -773,8 +878,8 @@
    <slot>_start_capture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>90</x>
-     <y>96</y>
+     <x>97</x>
+     <y>92</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -789,8 +894,8 @@
    <slot>_stop_capture()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>127</y>
+     <x>156</x>
+     <y>120</y>
     </hint>
     <hint type="destinationlabel">
      <x>249</x>
@@ -837,8 +942,8 @@
    <slot>_stop_impedance()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>228</y>
+     <x>98</x>
+     <y>224</y>
     </hint>
     <hint type="destinationlabel">
      <x>252</x>
@@ -853,12 +958,12 @@
    <slot>_save_data()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>178</x>
-     <y>743</y>
+     <x>180</x>
+     <y>726</y>
     </hint>
     <hint type="destinationlabel">
-     <x>238</x>
-     <y>731</y>
+     <x>239</x>
+     <y>718</y>
     </hint>
    </hints>
   </connection>
@@ -869,8 +974,8 @@
    <slot>_checkBoxFilteredChart()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>497</y>
+     <x>105</x>
+     <y>494</y>
     </hint>
     <hint type="destinationlabel">
      <x>258</x>
@@ -885,12 +990,12 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>110</x>
-     <y>715</y>
+     <x>117</x>
+     <y>698</y>
     </hint>
     <hint type="destinationlabel">
-     <x>356</x>
-     <y>707</y>
+     <x>361</x>
+     <y>686</y>
     </hint>
    </hints>
   </connection>
@@ -901,8 +1006,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>691</y>
+     <x>114</x>
+     <y>674</y>
     </hint>
     <hint type="destinationlabel">
      <x>244</x>
@@ -917,12 +1022,12 @@
    <slot>_slider_value_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>514</x>
-     <y>784</y>
+     <x>518</x>
+     <y>842</y>
     </hint>
     <hint type="destinationlabel">
-     <x>163</x>
-     <y>758</y>
+     <x>630</x>
+     <y>772</y>
     </hint>
    </hints>
   </connection>
@@ -933,8 +1038,8 @@
    <slot>_firstName_edit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>599</y>
+     <x>167</x>
+     <y>584</y>
     </hint>
     <hint type="destinationlabel">
      <x>266</x>
@@ -949,8 +1054,8 @@
    <slot>_lastName_edit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>133</x>
-     <y>645</y>
+     <x>140</x>
+     <y>630</y>
     </hint>
     <hint type="destinationlabel">
      <x>243</x>
@@ -965,8 +1070,8 @@
    <slot>_checkBoxDetrendChart()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>104</x>
-     <y>528</y>
+     <x>111</x>
+     <y>518</y>
     </hint>
     <hint type="destinationlabel">
      <x>329</x>
@@ -1006,6 +1111,118 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionControl_panel</sender>
+   <signal>changed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_control_panel()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConnect</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_connect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDisconnect</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_disconnect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStart</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_start_capture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStop</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_stop_capture()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStop_impedance</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_stop_impedance()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStart_impedance</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_start_impedance()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>update_ui()</slot>
@@ -1024,5 +1241,6 @@
   <slot>_checkBoxDetrendChart()</slot>
   <slot>closeEvent()</slot>
   <slot>_open_file()</slot>
+  <slot>_control_panel()</slot>
  </slots>
 </ui>

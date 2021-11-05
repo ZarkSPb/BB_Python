@@ -96,8 +96,6 @@ class MainWindow(QMainWindow):
         self.ui.statusbar.addPermanentWidget(self.progressBar_battery)
         self.ui.statusbar.addWidget(self.statusBar_main)
 
-        # //////////////////////////////////////////////////////////// MAIN MENU
-
         self.update_ui()
 
     # //////////////////////////////////////////////////////////////// UPDATE UI
@@ -277,22 +275,31 @@ class MainWindow(QMainWindow):
                 self.statusBar_main.setText(
                     f'Do not connect. Exception: {exception}.')
                 self.ui.ButtonConnect.setEnabled(True)
+                self.ui.actionConnect.setEnabled(True)
                 exception = True
             else:
                 exception = False
 
         if not exception:
             self.statusBar_main.setText('Connected.')
+
             self.ui.ButtonStart.setEnabled(True)
             self.ui.ButtonDisconnect.setEnabled(True)
             self.ui.ButtonImpedanceStart.setEnabled(True)
             self.ui.ButtonSave.setEnabled(False)
 
+            self.ui.actionStart.setEnabled(True)
+            self.ui.actionDisconnect.setEnabled(True)
+            self.ui.actionStart_impedance.setEnabled(True)
+
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
         self.ui.ButtonConnect.setEnabled(False)
+        self.ui.actionConnect.setEnabled(False)
+
         self.ui.actionOpen_File.setEnabled(False)
+
         self.worker_connect = Worker(self.connect_toBB)
         self.worker_connect.start()
 
@@ -354,6 +361,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(False)
         self.ui.ButtonStop.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
+
+        self.ui.actionStart.setEnabled(False)
+        self.ui.actionDisconnect.setEnabled(False)
+        self.ui.actionStop.setEnabled(True)
+        self.ui.actionStart_impedance.setEnabled(False)
+
         self.ui.CheckBoxAutosave.setEnabled(False)
         self.ui.CheckBoxSaveFiltered.setEnabled(False)
         self.ui.LinePatientFirstName.setEnabled(False)
@@ -377,6 +390,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonDisconnect.setEnabled(True)
         self.ui.ButtonStop.setEnabled(False)
         self.ui.ButtonImpedanceStart.setEnabled(True)
+
+        self.ui.actionStart.setEnabled(True)
+        self.ui.actionDisconnect.setEnabled(True)
+        self.ui.actionStop.setEnabled(False)
+        self.ui.actionStart_impedance.setEnabled(True)
+
         self.ui.CheckBoxAutosave.setEnabled(True)
         self.ui.CheckBoxSaveFiltered.setEnabled(True)
         self.ui.LinePatientFirstName.setEnabled(True)
@@ -394,6 +413,12 @@ class MainWindow(QMainWindow):
         self.ui.ButtonConnect.setEnabled(True)
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonStart.setEnabled(False)
+
+        self.ui.actionDisconnect.setEnabled(False)
+        self.ui.actionConnect.setEnabled(True)
+        self.ui.actionStart_impedance.setEnabled(False)
+        self.ui.actionStart.setEnabled(False)
+
         self.ui.actionOpen_File.setEnabled(True)
 
     def _start_impedance(self):
@@ -405,10 +430,18 @@ class MainWindow(QMainWindow):
         self.impedance_update_timer.timeout.connect(self.timer_impedance)
         self.impedance_update_timer.start(UPDATE_IMPEDANCE_SPEED_MS)
 
+        self.ui.actionControl_panel.setChecked(True)
+
         self.ui.ButtonImpedanceStart.setEnabled(False)
         self.ui.ButtonImpedanceStop.setEnabled(True)
         self.ui.ButtonStart.setEnabled(False)
         self.ui.ButtonDisconnect.setEnabled(False)
+
+        self.ui.actionStart_impedance.setEnabled(False)
+        self.ui.actionStop_impedance.setEnabled(True)
+        self.ui.actionStart.setEnabled(False)
+        self.ui.actionDisconnect.setEnabled(False)
+
         self.ui.ButtonSave.setEnabled(False)
 
     def _stop_impedance(self):
@@ -420,6 +453,11 @@ class MainWindow(QMainWindow):
         self.ui.ButtonImpedanceStop.setEnabled(False)
         self.ui.ButtonStart.setEnabled(True)
         self.ui.ButtonDisconnect.setEnabled(True)
+
+        self.ui.actionStart_impedance.setEnabled(True)
+        self.ui.actionStop_impedance.setEnabled(False)
+        self.ui.actionStart.setEnabled(True)
+        self.ui.actionDisconnect.setEnabled(True)
 
     def _save_data(self):
         fileName = '(f)' if self.save_filtered_flag else ''
@@ -523,12 +561,12 @@ class MainWindow(QMainWindow):
                                    first_name=first_name,
                                    last_name=last_name,
                                    eeg_channel_names=of_eeg_channel_names)
-            
+
             if filtered_flag:
                 self.session.buffer_filtered.add(table)
             else:
                 self.session.add(table)
-            
+
             del table
 
             self.ui.CheckBoxFilterChart.setChecked(True)
@@ -549,6 +587,12 @@ class MainWindow(QMainWindow):
             self.slider_chart_prepare()
             self._chart_redraw_request()
             self.ui.SliderChart.setEnabled(True)
+
+    def _control_panel(self):
+        if self.ui.actionControl_panel.isChecked():
+            self.ui.WidgetControl.setMaximumWidth(180)
+        else:
+            self.ui.WidgetControl.setMaximumWidth(0)
 
     def set_eeg_ch_names(self):
         self.channel_names = self.session.get_eeg_ch_names()
