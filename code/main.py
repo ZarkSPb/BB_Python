@@ -12,12 +12,13 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from board import Board
+from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from rhytmwindow import RhytmWindow
+from uiinteraction import *
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -25,7 +26,6 @@ np.set_printoptions(precision=1, suppress=True)
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
@@ -277,45 +277,24 @@ class MainWindow(QMainWindow):
             except BaseException as exception:
                 self.statusBar_main.setText(
                     f'Do not connect. Exception: {exception}.')
-                self.ui.ButtonConnect.setEnabled(True)
-                self.ui.actionConnect.setEnabled(True)
+                connect_1(self.ui)
                 exception = True
             else:
                 exception = False
 
         if not exception:
             self.statusBar_main.setText('Connected.')
-
-            self.ui.ButtonStart.setEnabled(True)
-            self.ui.ButtonDisconnect.setEnabled(True)
-            self.ui.ButtonImpedanceStart.setEnabled(True)
-            self.ui.ButtonSave.setEnabled(False)
-
-            self.ui.actionStart.setEnabled(True)
-            self.ui.actionDisconnect.setEnabled(True)
-            self.ui.actionStart_impedance.setEnabled(True)
+            connect_2(self.ui)
 
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
-        self.ui.ButtonConnect.setEnabled(False)
-        self.ui.actionConnect.setEnabled(False)
-
-        self.ui.actionOpen_File.setEnabled(False)
+        connect_0(self.ui)
 
         self.worker_connect = Worker(self.connect_toBB)
         self.worker_connect.start()
 
         # self.board = Board()
-
-        self.ui.LinePatientFirstName.setEnabled(True)
-        self.ui.LinePatientLastName.setEnabled(True)
-        self.ui.LinePatientFirstName.setText('')
-        self.ui.LinePatientLastName.setText('')
-        self.ui.CheckBoxFilterChart.setChecked(True)
-        self.ui.CheckBoxAutosave.setEnabled(True)
-        self.ui.CheckBoxSaveFiltered.setEnabled(True)
-        self.ui.CheckBoxFilterChart.setEnabled(True)
 
         self.session = Session(self.save_filtered_flag,
                                first_name=self.ui.LinePatientFirstName.text(),
@@ -360,22 +339,7 @@ class MainWindow(QMainWindow):
         self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
         self.chart_redraw_timer.start(UPDATE_CHART_SPEED_MS)
 
-        self.ui.ButtonStart.setEnabled(False)
-        self.ui.ButtonDisconnect.setEnabled(False)
-        self.ui.ButtonStop.setEnabled(True)
-        self.ui.ButtonImpedanceStart.setEnabled(False)
-
-        self.ui.actionStart.setEnabled(False)
-        self.ui.actionDisconnect.setEnabled(False)
-        self.ui.actionStop.setEnabled(True)
-        self.ui.actionStart_impedance.setEnabled(False)
-
-        self.ui.CheckBoxAutosave.setEnabled(False)
-        self.ui.CheckBoxSaveFiltered.setEnabled(False)
-        self.ui.LinePatientFirstName.setEnabled(False)
-        self.ui.LinePatientLastName.setEnabled(False)
-        self.ui.ButtonSave.setEnabled(False)
-        self.ui.SliderChart.setEnabled(False)
+        start(self.ui)
 
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
@@ -389,22 +353,7 @@ class MainWindow(QMainWindow):
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
 
-        self.ui.ButtonStart.setEnabled(True)
-        self.ui.ButtonDisconnect.setEnabled(True)
-        self.ui.ButtonStop.setEnabled(False)
-        self.ui.ButtonImpedanceStart.setEnabled(True)
-
-        self.ui.actionStart.setEnabled(True)
-        self.ui.actionDisconnect.setEnabled(True)
-        self.ui.actionStop.setEnabled(False)
-        self.ui.actionStart_impedance.setEnabled(True)
-
-        self.ui.CheckBoxAutosave.setEnabled(True)
-        self.ui.CheckBoxSaveFiltered.setEnabled(True)
-        self.ui.LinePatientFirstName.setEnabled(True)
-        self.ui.LinePatientLastName.setEnabled(True)
-        self.ui.ButtonSave.setEnabled(True)
-        self.ui.SliderChart.setEnabled(True)
+        stop(self.ui)
 
     def _disconnect(self):
         # Release all BB resources
@@ -412,17 +361,7 @@ class MainWindow(QMainWindow):
             self.board.release_session()
 
         self.statusBar_main.setText('Disсonnected.')
-        self.ui.ButtonDisconnect.setEnabled(False)
-        self.ui.ButtonConnect.setEnabled(True)
-        self.ui.ButtonImpedanceStart.setEnabled(False)
-        self.ui.ButtonStart.setEnabled(False)
-
-        self.ui.actionDisconnect.setEnabled(False)
-        self.ui.actionConnect.setEnabled(True)
-        self.ui.actionStart_impedance.setEnabled(False)
-        self.ui.actionStart.setEnabled(False)
-
-        self.ui.actionOpen_File.setEnabled(True)
+        disconnect(self.ui)
 
     def _start_impedance(self):
         self.board.start_stream(100)
@@ -433,34 +372,14 @@ class MainWindow(QMainWindow):
         self.impedance_update_timer.timeout.connect(self.timer_impedance)
         self.impedance_update_timer.start(UPDATE_IMPEDANCE_SPEED_MS)
 
-        self.ui.actionControl_panel.setChecked(True)
-
-        self.ui.ButtonImpedanceStart.setEnabled(False)
-        self.ui.ButtonImpedanceStop.setEnabled(True)
-        self.ui.ButtonStart.setEnabled(False)
-        self.ui.ButtonDisconnect.setEnabled(False)
-
-        self.ui.actionStart_impedance.setEnabled(False)
-        self.ui.actionStop_impedance.setEnabled(True)
-        self.ui.actionStart.setEnabled(False)
-        self.ui.actionDisconnect.setEnabled(False)
-
-        self.ui.ButtonSave.setEnabled(False)
+        start_impedance(self.ui)
 
     def _stop_impedance(self):
         self.impedance_update_timer.stop()
         self.board.config_board('CommandStopResist')
         self.board.stop_stream()
 
-        self.ui.ButtonImpedanceStart.setEnabled(True)
-        self.ui.ButtonImpedanceStop.setEnabled(False)
-        self.ui.ButtonStart.setEnabled(True)
-        self.ui.ButtonDisconnect.setEnabled(True)
-
-        self.ui.actionStart_impedance.setEnabled(True)
-        self.ui.actionStop_impedance.setEnabled(False)
-        self.ui.actionStart.setEnabled(True)
-        self.ui.actionDisconnect.setEnabled(True)
+        stop_impedance(self.ui)
 
     def _save_data(self):
         fileName = '(f)' if self.save_filtered_flag else ''
@@ -572,7 +491,6 @@ class MainWindow(QMainWindow):
 
             del table
 
-            self.ui.CheckBoxFilterChart.setChecked(True)
             self.ui.CheckBoxFilterChart.setEnabled(not filtered_flag)
 
             self.set_eeg_ch_names()
@@ -580,16 +498,13 @@ class MainWindow(QMainWindow):
             file_name = file_name.replace('/', '\\')
             self.statusBar_main.setText(f'Open file: {file_name}')
 
-            self.ui.LinePatientFirstName.setEnabled(False)
-            self.ui.LinePatientLastName.setEnabled(False)
             self.ui.LinePatientFirstName.setText(first_name)
             self.ui.LinePatientLastName.setText(last_name)
-            self.ui.CheckBoxAutosave.setEnabled(False)
-            self.ui.CheckBoxSaveFiltered.setEnabled(False)
 
             self.slider_chart_prepare()
             self._chart_redraw_request()
-            self.ui.SliderChart.setEnabled(True)
+
+            open_file(self.ui)
 
     def _control_panel(self):
         if self.ui.actionControl_panel.isChecked():
