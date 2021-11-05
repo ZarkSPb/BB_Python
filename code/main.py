@@ -17,6 +17,7 @@ from settings import *
 from ui_mainwindow import Ui_MainWindow
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
+from rhytmwindow import RhytmWindow
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -38,6 +39,8 @@ class MainWindow(QMainWindow):
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.charts = []
+
+        self.rhytm_Window = None
 
         self.session = Session(buffer_size=10)
         self.set_eeg_ch_names()
@@ -593,6 +596,14 @@ class MainWindow(QMainWindow):
             self.ui.WidgetControl.setMaximumWidth(180)
         else:
             self.ui.WidgetControl.setMaximumWidth(0)
+
+    def _rhytms_window(self):
+        if self.ui.actionRhytm_window.isChecked():
+            if self.rhytm_Window is None:
+                self.rhytm_Window = RhytmWindow(self.ui)
+            self.rhytm_Window.show()
+        else:
+            self.rhytm_Window.hide()
 
     def set_eeg_ch_names(self):
         self.channel_names = self.session.get_eeg_ch_names()

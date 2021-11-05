@@ -1,34 +1,39 @@
-from brainflow.board_shim import BoardIds, BoardShim, BrainFlowInputParams
-from time import sleep
-import time
+from PySide6.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+import sys
 
-TIMESTAMP_CHANNEL = BoardShim.get_timestamp_channel(BOARD_ID)
+from random import randint
 
-BoardShim.enable_dev_board_logger()
-params = BrainFlowInputParams()
-board = BoardShim(BOARD_ID, params)
-board.prepare_session()
 
-board.start_stream(450000)
-start_time = time.time_ns()
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.label = QLabel("Another Window % d" % randint(0,100))
+        layout.addWidget(self.label)
+        self.setLayout(layout)
 
-sleep(100)
-num_samples = board.get_board_data_count()
-end_time = time.time_ns()
 
-data = board.get_current_board_data(450000)
-board.stop_stream()
+class MainWindow(QMainWindow):
 
-if board.is_prepared():
-    board.release_session()
+    def __init__(self):
+        super().__init__()
+        self.w = None  # No external window yet.
+        self.button = QPushButton("Push for Window")
+        self.button.clicked.connect(self.show_new_window)
+        self.setCentralWidget(self.button)
 
-num = data.shape[1]
+    def show_new_window(self, checked):
+        if self.w is None:
+            self.w = AnotherWindow()
+        self.w.show()
 
-print(f'\nnum: {num}')
-print(f'system time: {(end_time - start_time) / 10**9}')
-print(f'board time: {(data[TIMESTAMP_CHANNEL, -1] - data[TIMESTAMP_CHANNEL, 0])}')
-print(f'frequency by system time: {num / ((end_time - start_time) / 10**9)}')
-print(f'frequency by board time: {num / (data[TIMESTAMP_CHANNEL, -1] - data[TIMESTAMP_CHANNEL, 0])}\n')
+
+app = QApplication(sys.argv)
+w = MainWindow()
+w.show()
+app.exec()

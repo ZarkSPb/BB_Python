@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>RhytmWindow</class>
+ <widget class="QWidget" name="RhytmWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Rhytms view</string>
   </property>
   <layout class="QFormLayout" name="formLayout">
    <property name="horizontalSpacing">
@@ -78,7 +78,7 @@
           <number>2</number>
          </property>
          <property name="spacing">
-          <number>4</number>
+          <number>2</number>
          </property>
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBox">
@@ -89,6 +89,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QSpinBox" name="spinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
             <number>50</number>
            </property>
@@ -181,7 +184,7 @@
          <item row="4" column="2">
           <widget class="QSpinBox" name="spinBox_10">
            <property name="maximum">
-            <number>50</number>
+            <number>48</number>
            </property>
           </widget>
          </item>
@@ -195,7 +198,7 @@
         </property>
         <layout class="QVBoxLayout" name="LayoutChartSettings">
          <property name="spacing">
-          <number>4</number>
+          <number>2</number>
          </property>
          <property name="leftMargin">
           <number>2</number>

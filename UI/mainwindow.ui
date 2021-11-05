@@ -67,7 +67,7 @@
          </property>
          <layout class="QVBoxLayout" name="LayoutControl">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>2</number>
@@ -128,7 +128,7 @@
          </property>
          <layout class="QVBoxLayout" name="LayoutImpedance">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>2</number>
@@ -393,7 +393,7 @@
          </property>
          <layout class="QVBoxLayout" name="LayoutChartSettings">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>2</number>
@@ -516,7 +516,7 @@
          </property>
          <layout class="QVBoxLayout" name="LayoutPatient">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>2</number>
@@ -564,7 +564,7 @@
          </property>
          <layout class="QVBoxLayout" name="LayoutSave">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="leftMargin">
            <number>2</number>
@@ -730,6 +730,9 @@
    <property name="text">
     <string>Exit</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+X</string>
+   </property>
   </action>
   <action name="actionRhytm_window">
    <property name="checkable">
@@ -737,6 +740,9 @@
    </property>
    <property name="text">
     <string>Rhytm window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionControl_panel">
@@ -831,7 +837,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>125</x>
-     <y>419</y>
+     <y>401</y>
     </hint>
     <hint type="destinationlabel">
      <x>348</x>
@@ -847,7 +853,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>125</x>
-     <y>470</y>
+     <y>448</y>
     </hint>
     <hint type="destinationlabel">
      <x>252</x>
@@ -879,7 +885,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>97</x>
-     <y>92</y>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>274</x>
@@ -895,7 +901,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>156</x>
-     <y>120</y>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>249</x>
@@ -911,7 +917,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>96</x>
-     <y>145</y>
+     <y>139</y>
     </hint>
     <hint type="destinationlabel">
      <x>275</x>
@@ -927,7 +933,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>75</x>
-     <y>193</y>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>263</x>
@@ -943,7 +949,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>98</x>
-     <y>224</y>
+     <y>216</y>
     </hint>
     <hint type="destinationlabel">
      <x>252</x>
@@ -959,7 +965,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>180</x>
-     <y>726</y>
+     <y>690</y>
     </hint>
     <hint type="destinationlabel">
      <x>239</x>
@@ -975,7 +981,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>105</x>
-     <y>494</y>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>258</x>
@@ -991,7 +997,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>117</x>
-     <y>698</y>
+     <y>664</y>
     </hint>
     <hint type="destinationlabel">
      <x>361</x>
@@ -1007,7 +1013,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>114</x>
-     <y>674</y>
+     <y>642</y>
     </hint>
     <hint type="destinationlabel">
      <x>244</x>
@@ -1039,7 +1045,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>167</x>
-     <y>584</y>
+     <y>556</y>
     </hint>
     <hint type="destinationlabel">
      <x>266</x>
@@ -1055,7 +1061,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>140</x>
-     <y>630</y>
+     <y>598</y>
     </hint>
     <hint type="destinationlabel">
      <x>243</x>
@@ -1071,7 +1077,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>518</y>
+     <y>492</y>
     </hint>
     <hint type="destinationlabel">
      <x>329</x>
@@ -1223,6 +1229,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionRhytm_window</sender>
+   <signal>changed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_rhytms_window()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>528</x>
+     <y>432</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>update_ui()</slot>
@@ -1242,5 +1264,6 @@
   <slot>closeEvent()</slot>
   <slot>_open_file()</slot>
   <slot>_control_panel()</slot>
+  <slot>_rhytms_window()</slot>
  </slots>
 </ui>
