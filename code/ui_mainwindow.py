@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1045, 836)
+        MainWindow.resize(1219, 836)
         self.actionOpen_File = QAction(MainWindow)
         self.actionOpen_File.setObjectName(u"actionOpen_File")
         self.action = QAction(MainWindow)
@@ -36,7 +36,9 @@ class Ui_MainWindow(object):
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(4, 0, 2, 2)
         self.WidgetControl = QWidget(self.centralwidget)
         self.WidgetControl.setObjectName(u"WidgetControl")
         self.WidgetControl.setMinimumSize(QSize(180, 0))
@@ -327,23 +329,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.WidgetControl, 0, 0, 1, 1)
 
-        self.widget_7 = QWidget(self.centralwidget)
-        self.widget_7.setObjectName(u"widget_7")
-        self.verticalLayout_2 = QVBoxLayout(self.widget_7)
-        self.verticalLayout_2.setSpacing(0)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.WidgetCharts = QWidget(self.widget_7)
-        self.WidgetCharts.setObjectName(u"WidgetCharts")
-        self.WidgetCharts.setToolTipDuration(-1)
-        self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
-        self.LayoutCharts.setSpacing(0)
-        self.LayoutCharts.setObjectName(u"LayoutCharts")
-        self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
-
-        self.verticalLayout_2.addWidget(self.WidgetCharts)
-
-        self.SliderChart = QSlider(self.widget_7)
+        self.SliderChart = QSlider(self.centralwidget)
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setEnabled(False)
         self.SliderChart.setMaximum(200)
@@ -351,15 +337,21 @@ class Ui_MainWindow(object):
         self.SliderChart.setOrientation(Qt.Horizontal)
         self.SliderChart.setTickPosition(QSlider.NoTicks)
 
-        self.verticalLayout_2.addWidget(self.SliderChart)
+        self.gridLayout.addWidget(self.SliderChart, 1, 0, 1, 2)
 
+        self.WidgetCharts = QWidget(self.centralwidget)
+        self.WidgetCharts.setObjectName(u"WidgetCharts")
+        self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
+        self.LayoutCharts.setSpacing(0)
+        self.LayoutCharts.setObjectName(u"LayoutCharts")
+        self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
 
-        self.gridLayout.addWidget(self.widget_7, 0, 1, 1, 1)
+        self.gridLayout.addWidget(self.WidgetCharts, 0, 1, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1045, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1219, 22))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         MainWindow.setMenuBar(self.menubar)

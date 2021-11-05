@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
-        # //////////////////////////////////////////////////// Chart viev create
+        # //////////////////////////////////////////////////// Chart view create
         self.chart_view = QChartView(chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
