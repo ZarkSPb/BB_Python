@@ -93,14 +93,20 @@
             <number>1</number>
            </property>
            <property name="maximum">
-            <number>50</number>
+            <number>48</number>
            </property>
           </widget>
          </item>
          <item row="0" column="2">
           <widget class="QSpinBox" name="spinBox_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>4</number>
            </property>
           </widget>
          </item>
@@ -113,15 +119,27 @@
          </item>
          <item row="1" column="1">
           <widget class="QSpinBox" name="spinBox_3">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>4</number>
            </property>
           </widget>
          </item>
          <item row="1" column="2">
           <widget class="QSpinBox" name="spinBox_4">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>8</number>
            </property>
           </widget>
          </item>
@@ -134,15 +152,27 @@
          </item>
          <item row="2" column="1">
           <widget class="QSpinBox" name="spinBox_5">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>8</number>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
           <widget class="QSpinBox" name="spinBox_6">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>13</number>
            </property>
           </widget>
          </item>
@@ -155,15 +185,27 @@
          </item>
          <item row="3" column="1">
           <widget class="QSpinBox" name="spinBox_7">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>14</number>
            </property>
           </widget>
          </item>
          <item row="3" column="2">
           <widget class="QSpinBox" name="spinBox_8">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>40</number>
            </property>
           </widget>
          </item>
@@ -176,14 +218,26 @@
          </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="spinBox_9">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
-            <number>50</number>
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>40</number>
            </property>
           </widget>
          </item>
          <item row="4" column="2">
           <widget class="QSpinBox" name="spinBox_10">
+           <property name="minimum">
+            <number>1</number>
+           </property>
            <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
             <number>48</number>
            </property>
           </widget>

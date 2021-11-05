@@ -16,9 +16,9 @@ from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
+from uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from uiinteraction import *
 
 np.set_printoptions(precision=1, suppress=True)
 

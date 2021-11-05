@@ -38,15 +38,17 @@ def save_file(data, session, file_name='eeg.csv', save_first=True):
 
 def signal_filtering(data, filtering=True):
     DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
+
     if filtering:
         DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
         DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
-                                    FilterTypes.BUTTERWORTH.value, 0)
+
+    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
+    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+                                FilterTypes.BUTTERWORTH.value, 0)
 
 
 def file_name_constructor(session):

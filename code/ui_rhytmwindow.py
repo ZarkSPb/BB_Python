@@ -50,13 +50,15 @@ class Ui_RhytmWindow(object):
         self.spinBox = QSpinBox(self.groupBox)
         self.spinBox.setObjectName(u"spinBox")
         self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(50)
+        self.spinBox.setMaximum(48)
 
         self.gridLayout.addWidget(self.spinBox, 0, 1, 1, 1)
 
         self.spinBox_2 = QSpinBox(self.groupBox)
         self.spinBox_2.setObjectName(u"spinBox_2")
-        self.spinBox_2.setMaximum(50)
+        self.spinBox_2.setMinimum(1)
+        self.spinBox_2.setMaximum(100)
+        self.spinBox_2.setValue(4)
 
         self.gridLayout.addWidget(self.spinBox_2, 0, 2, 1, 1)
 
@@ -67,13 +69,17 @@ class Ui_RhytmWindow(object):
 
         self.spinBox_3 = QSpinBox(self.groupBox)
         self.spinBox_3.setObjectName(u"spinBox_3")
-        self.spinBox_3.setMaximum(50)
+        self.spinBox_3.setMinimum(1)
+        self.spinBox_3.setMaximum(100)
+        self.spinBox_3.setValue(4)
 
         self.gridLayout.addWidget(self.spinBox_3, 1, 1, 1, 1)
 
         self.spinBox_4 = QSpinBox(self.groupBox)
         self.spinBox_4.setObjectName(u"spinBox_4")
-        self.spinBox_4.setMaximum(50)
+        self.spinBox_4.setMinimum(1)
+        self.spinBox_4.setMaximum(100)
+        self.spinBox_4.setValue(8)
 
         self.gridLayout.addWidget(self.spinBox_4, 1, 2, 1, 1)
 
@@ -84,13 +90,17 @@ class Ui_RhytmWindow(object):
 
         self.spinBox_5 = QSpinBox(self.groupBox)
         self.spinBox_5.setObjectName(u"spinBox_5")
-        self.spinBox_5.setMaximum(50)
+        self.spinBox_5.setMinimum(1)
+        self.spinBox_5.setMaximum(100)
+        self.spinBox_5.setValue(8)
 
         self.gridLayout.addWidget(self.spinBox_5, 2, 1, 1, 1)
 
         self.spinBox_6 = QSpinBox(self.groupBox)
         self.spinBox_6.setObjectName(u"spinBox_6")
-        self.spinBox_6.setMaximum(50)
+        self.spinBox_6.setMinimum(1)
+        self.spinBox_6.setMaximum(100)
+        self.spinBox_6.setValue(13)
 
         self.gridLayout.addWidget(self.spinBox_6, 2, 2, 1, 1)
 
@@ -101,13 +111,17 @@ class Ui_RhytmWindow(object):
 
         self.spinBox_7 = QSpinBox(self.groupBox)
         self.spinBox_7.setObjectName(u"spinBox_7")
-        self.spinBox_7.setMaximum(50)
+        self.spinBox_7.setMinimum(1)
+        self.spinBox_7.setMaximum(100)
+        self.spinBox_7.setValue(14)
 
         self.gridLayout.addWidget(self.spinBox_7, 3, 1, 1, 1)
 
         self.spinBox_8 = QSpinBox(self.groupBox)
         self.spinBox_8.setObjectName(u"spinBox_8")
-        self.spinBox_8.setMaximum(50)
+        self.spinBox_8.setMinimum(1)
+        self.spinBox_8.setMaximum(100)
+        self.spinBox_8.setValue(40)
 
         self.gridLayout.addWidget(self.spinBox_8, 3, 2, 1, 1)
 
@@ -118,13 +132,17 @@ class Ui_RhytmWindow(object):
 
         self.spinBox_9 = QSpinBox(self.groupBox)
         self.spinBox_9.setObjectName(u"spinBox_9")
-        self.spinBox_9.setMaximum(50)
+        self.spinBox_9.setMinimum(1)
+        self.spinBox_9.setMaximum(100)
+        self.spinBox_9.setValue(40)
 
         self.gridLayout.addWidget(self.spinBox_9, 4, 1, 1, 1)
 
         self.spinBox_10 = QSpinBox(self.groupBox)
         self.spinBox_10.setObjectName(u"spinBox_10")
-        self.spinBox_10.setMaximum(48)
+        self.spinBox_10.setMinimum(1)
+        self.spinBox_10.setMaximum(100)
+        self.spinBox_10.setValue(48)
 
         self.gridLayout.addWidget(self.spinBox_10, 4, 2, 1, 1)
 
