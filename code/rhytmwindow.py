@@ -25,6 +25,7 @@ class RhytmWindow(QWidget):
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_charts_request = False
+        self.redraw_pause = False
 
         self.rhytms = RHYTMS.copy()
 
@@ -123,7 +124,7 @@ class RhytmWindow(QWidget):
             ])
 
     def _chart_redraw_request(self):
-        if self.parent.session.get_status():
+        if self.parent.session.get_status() and not self.redraw_pause:
             self.redraw_charts_request = True
         else:
             self.request_realisation()
@@ -228,6 +229,16 @@ class RhytmWindow(QWidget):
 
         self._rhytms_param_cnd()
 
+    def _pause(self):
+        self.redraw_pause = True
+        self.ui.ButtonPause.setEnabled(not self.redraw_pause)
+        self.ui.ButtonStart.setEnabled(self.redraw_pause)
+
+    def _start(self):
+        self.redraw_pause = False
+        self.ui.ButtonPause.setEnabled(not self.redraw_pause)
+        self.ui.ButtonStart.setEnabled(self.redraw_pause)
+
     def slider_chart_prepare(self):
         buff_size = self.parent.session.buffer_filtered.get_last_num()
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
@@ -258,16 +269,17 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
-        data = self.parent.session.buffer_main.get_buff_last(
-            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+        if not self.redraw_pause:
+            data = self.parent.session.buffer_main.get_buff_last(
+                (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-        for channel in range(NUM_CHANNELS):
-            signal_filtering(data[channel], filtering=False)
-            data[channel] = rhytm_constructor(data[channel], self.rhytms)
+            for channel in range(NUM_CHANNELS):
+                signal_filtering(data[channel], filtering=False)
+                data[channel] = rhytm_constructor(data[channel], self.rhytms)
 
-        data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-        if data.shape[1] > 0:
-            self.redraw_charts(data)
+            data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+            if data.shape[1] > 0:
+                self.redraw_charts(data)
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

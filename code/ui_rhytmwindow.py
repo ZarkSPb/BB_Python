@@ -38,6 +38,26 @@ class Ui_RhytmWindow(object):
         self.verticalLayout.setSpacing(2)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.groupBox_3 = QGroupBox(self.WidgetControl)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_2.setSpacing(2)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.ButtonPause = QPushButton(self.groupBox_3)
+        self.ButtonPause.setObjectName(u"ButtonPause")
+
+        self.verticalLayout_2.addWidget(self.ButtonPause)
+
+        self.ButtonStart = QPushButton(self.groupBox_3)
+        self.ButtonStart.setObjectName(u"ButtonStart")
+        self.ButtonStart.setEnabled(False)
+
+        self.verticalLayout_2.addWidget(self.ButtonStart)
+
+
+        self.verticalLayout.addWidget(self.groupBox_3)
+
         self.groupBox = QGroupBox(self.WidgetControl)
         self.groupBox.setObjectName(u"groupBox")
         self.gridLayout = QGridLayout(self.groupBox)
@@ -52,33 +72,27 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.SpinBox2_2, 1, 2, 1, 1)
 
-        self.CheckBox4 = QCheckBox(self.groupBox)
-        self.CheckBox4.setObjectName(u"CheckBox4")
-        self.CheckBox4.setChecked(True)
+        self.SpinBox3_2 = QSpinBox(self.groupBox)
+        self.SpinBox3_2.setObjectName(u"SpinBox3_2")
+        self.SpinBox3_2.setMinimum(1)
+        self.SpinBox3_2.setMaximum(100)
+        self.SpinBox3_2.setValue(13)
 
-        self.gridLayout.addWidget(self.CheckBox4, 3, 0, 1, 1)
+        self.gridLayout.addWidget(self.SpinBox3_2, 2, 2, 1, 1)
 
-        self.SpinBox5_1 = QSpinBox(self.groupBox)
-        self.SpinBox5_1.setObjectName(u"SpinBox5_1")
-        self.SpinBox5_1.setMinimum(1)
-        self.SpinBox5_1.setMaximum(100)
-        self.SpinBox5_1.setValue(40)
+        self.SpinBox4_1 = QSpinBox(self.groupBox)
+        self.SpinBox4_1.setObjectName(u"SpinBox4_1")
+        self.SpinBox4_1.setMinimum(1)
+        self.SpinBox4_1.setMaximum(100)
+        self.SpinBox4_1.setValue(13)
 
-        self.gridLayout.addWidget(self.SpinBox5_1, 4, 1, 1, 1)
+        self.gridLayout.addWidget(self.SpinBox4_1, 3, 1, 1, 1)
 
-        self.SpinBox2_1 = QSpinBox(self.groupBox)
-        self.SpinBox2_1.setObjectName(u"SpinBox2_1")
-        self.SpinBox2_1.setMinimum(1)
-        self.SpinBox2_1.setMaximum(100)
-        self.SpinBox2_1.setValue(4)
+        self.CheckBox5 = QCheckBox(self.groupBox)
+        self.CheckBox5.setObjectName(u"CheckBox5")
+        self.CheckBox5.setChecked(True)
 
-        self.gridLayout.addWidget(self.SpinBox2_1, 1, 1, 1, 1)
-
-        self.CheckBox3 = QCheckBox(self.groupBox)
-        self.CheckBox3.setObjectName(u"CheckBox3")
-        self.CheckBox3.setChecked(True)
-
-        self.gridLayout.addWidget(self.CheckBox3, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBox5, 4, 0, 1, 1)
 
         self.SpinBox1_2 = QSpinBox(self.groupBox)
         self.SpinBox1_2.setObjectName(u"SpinBox1_2")
@@ -88,19 +102,31 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.SpinBox1_2, 0, 2, 1, 1)
 
-        self.CheckBox5 = QCheckBox(self.groupBox)
-        self.CheckBox5.setObjectName(u"CheckBox5")
-        self.CheckBox5.setChecked(True)
+        self.CheckBox2 = QCheckBox(self.groupBox)
+        self.CheckBox2.setObjectName(u"CheckBox2")
+        self.CheckBox2.setChecked(True)
 
-        self.gridLayout.addWidget(self.CheckBox5, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBox2, 1, 0, 1, 1)
 
-        self.SpinBox3_2 = QSpinBox(self.groupBox)
-        self.SpinBox3_2.setObjectName(u"SpinBox3_2")
-        self.SpinBox3_2.setMinimum(1)
-        self.SpinBox3_2.setMaximum(100)
-        self.SpinBox3_2.setValue(13)
+        self.CheckBox4 = QCheckBox(self.groupBox)
+        self.CheckBox4.setObjectName(u"CheckBox4")
+        self.CheckBox4.setChecked(True)
 
-        self.gridLayout.addWidget(self.SpinBox3_2, 2, 2, 1, 1)
+        self.gridLayout.addWidget(self.CheckBox4, 3, 0, 1, 1)
+
+        self.CheckBox3 = QCheckBox(self.groupBox)
+        self.CheckBox3.setObjectName(u"CheckBox3")
+        self.CheckBox3.setChecked(True)
+
+        self.gridLayout.addWidget(self.CheckBox3, 2, 0, 1, 1)
+
+        self.SpinBox5_1 = QSpinBox(self.groupBox)
+        self.SpinBox5_1.setObjectName(u"SpinBox5_1")
+        self.SpinBox5_1.setMinimum(1)
+        self.SpinBox5_1.setMaximum(100)
+        self.SpinBox5_1.setValue(40)
+
+        self.gridLayout.addWidget(self.SpinBox5_1, 4, 1, 1, 1)
 
         self.SpinBox5_2 = QSpinBox(self.groupBox)
         self.SpinBox5_2.setObjectName(u"SpinBox5_2")
@@ -109,41 +135,6 @@ class Ui_RhytmWindow(object):
         self.SpinBox5_2.setValue(48)
 
         self.gridLayout.addWidget(self.SpinBox5_2, 4, 2, 1, 1)
-
-        self.SpinBox4_2 = QSpinBox(self.groupBox)
-        self.SpinBox4_2.setObjectName(u"SpinBox4_2")
-        self.SpinBox4_2.setMinimum(1)
-        self.SpinBox4_2.setMaximum(100)
-        self.SpinBox4_2.setValue(40)
-
-        self.gridLayout.addWidget(self.SpinBox4_2, 3, 2, 1, 1)
-
-        self.CheckBox2 = QCheckBox(self.groupBox)
-        self.CheckBox2.setObjectName(u"CheckBox2")
-        self.CheckBox2.setChecked(True)
-
-        self.gridLayout.addWidget(self.CheckBox2, 1, 0, 1, 1)
-
-        self.SpinBox1_1 = QSpinBox(self.groupBox)
-        self.SpinBox1_1.setObjectName(u"SpinBox1_1")
-        self.SpinBox1_1.setMinimum(1)
-        self.SpinBox1_1.setMaximum(48)
-
-        self.gridLayout.addWidget(self.SpinBox1_1, 0, 1, 1, 1)
-
-        self.CheckBox1 = QCheckBox(self.groupBox)
-        self.CheckBox1.setObjectName(u"CheckBox1")
-        self.CheckBox1.setChecked(True)
-
-        self.gridLayout.addWidget(self.CheckBox1, 0, 0, 1, 1)
-
-        self.SpinBox4_1 = QSpinBox(self.groupBox)
-        self.SpinBox4_1.setObjectName(u"SpinBox4_1")
-        self.SpinBox4_1.setMinimum(1)
-        self.SpinBox4_1.setMaximum(100)
-        self.SpinBox4_1.setValue(13)
-
-        self.gridLayout.addWidget(self.SpinBox4_1, 3, 1, 1, 1)
 
         self.SpinBox3_1 = QSpinBox(self.groupBox)
         self.SpinBox3_1.setObjectName(u"SpinBox3_1")
@@ -157,6 +148,35 @@ class Ui_RhytmWindow(object):
         self.ButtonReset.setObjectName(u"ButtonReset")
 
         self.gridLayout.addWidget(self.ButtonReset, 5, 0, 1, 3)
+
+        self.SpinBox4_2 = QSpinBox(self.groupBox)
+        self.SpinBox4_2.setObjectName(u"SpinBox4_2")
+        self.SpinBox4_2.setMinimum(1)
+        self.SpinBox4_2.setMaximum(100)
+        self.SpinBox4_2.setValue(40)
+
+        self.gridLayout.addWidget(self.SpinBox4_2, 3, 2, 1, 1)
+
+        self.SpinBox2_1 = QSpinBox(self.groupBox)
+        self.SpinBox2_1.setObjectName(u"SpinBox2_1")
+        self.SpinBox2_1.setMinimum(1)
+        self.SpinBox2_1.setMaximum(100)
+        self.SpinBox2_1.setValue(4)
+
+        self.gridLayout.addWidget(self.SpinBox2_1, 1, 1, 1, 1)
+
+        self.SpinBox1_1 = QSpinBox(self.groupBox)
+        self.SpinBox1_1.setObjectName(u"SpinBox1_1")
+        self.SpinBox1_1.setMinimum(1)
+        self.SpinBox1_1.setMaximum(48)
+
+        self.gridLayout.addWidget(self.SpinBox1_1, 0, 1, 1, 1)
+
+        self.CheckBox1 = QCheckBox(self.groupBox)
+        self.CheckBox1.setObjectName(u"CheckBox1")
+        self.CheckBox1.setChecked(True)
+
+        self.gridLayout.addWidget(self.CheckBox1, 0, 0, 1, 1)
 
 
         self.verticalLayout.addWidget(self.groupBox)
@@ -250,19 +270,24 @@ class Ui_RhytmWindow(object):
         self.SpinBox5_1.valueChanged.connect(RhytmWindow._rhytms_param_cnd)
         self.SpinBox5_2.valueChanged.connect(RhytmWindow._rhytms_param_cnd)
         self.ButtonReset.clicked.connect(RhytmWindow._reset)
+        self.ButtonPause.clicked.connect(RhytmWindow._pause)
+        self.ButtonStart.clicked.connect(RhytmWindow._start)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi
 
     def retranslateUi(self, RhytmWindow):
         RhytmWindow.setWindowTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms view", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart control", None))
+        self.ButtonPause.setText(QCoreApplication.translate("RhytmWindow", u"Pause", None))
+        self.ButtonStart.setText(QCoreApplication.translate("RhytmWindow", u"Start", None))
         self.groupBox.setTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms settings", None))
-        self.CheckBox4.setText(QCoreApplication.translate("RhytmWindow", u"betha", None))
-        self.CheckBox3.setText(QCoreApplication.translate("RhytmWindow", u"alpha", None))
         self.CheckBox5.setText(QCoreApplication.translate("RhytmWindow", u"gamma", None))
         self.CheckBox2.setText(QCoreApplication.translate("RhytmWindow", u"theta", None))
-        self.CheckBox1.setText(QCoreApplication.translate("RhytmWindow", u"delta", None))
+        self.CheckBox4.setText(QCoreApplication.translate("RhytmWindow", u"betha", None))
+        self.CheckBox3.setText(QCoreApplication.translate("RhytmWindow", u"alpha", None))
         self.ButtonReset.setText(QCoreApplication.translate("RhytmWindow", u"Reset", None))
+        self.CheckBox1.setText(QCoreApplication.translate("RhytmWindow", u"delta", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("RhytmWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("RhytmWindow", u"Amplitude (uV): 20", None))

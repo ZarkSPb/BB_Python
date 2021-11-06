@@ -63,6 +63,47 @@
        <number>0</number>
       </property>
       <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="title">
+         <string>Chart control</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>2</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QPushButton" name="ButtonPause">
+           <property name="text">
+            <string>Pause</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ButtonStart">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
          <string>Rhytms settings</string>
@@ -96,6 +137,65 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="2">
+          <widget class="QSpinBox" name="SpinBox3_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>13</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="SpinBox4_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>13</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="CheckBox5">
+           <property name="text">
+            <string>gamma</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="SpinBox1_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="CheckBox2">
+           <property name="text">
+            <string>theta</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="3" column="0">
           <widget class="QCheckBox" name="CheckBox4">
            <property name="text">
@@ -106,8 +206,64 @@
            </property>
           </widget>
          </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="CheckBox3">
+           <property name="text">
+            <string>alpha</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="1">
           <widget class="QSpinBox" name="SpinBox5_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>40</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
+          <widget class="QSpinBox" name="SpinBox5_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>48</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="SpinBox3_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>8</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="QPushButton" name="ButtonReset">
+           <property name="text">
+            <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QSpinBox" name="SpinBox4_2">
            <property name="minimum">
             <number>1</number>
            </property>
@@ -132,88 +288,6 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="CheckBox3">
-           <property name="text">
-            <string>alpha</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QSpinBox" name="SpinBox1_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>4</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QCheckBox" name="CheckBox5">
-           <property name="text">
-            <string>gamma</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QSpinBox" name="SpinBox3_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>13</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QSpinBox" name="SpinBox5_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>48</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QSpinBox" name="SpinBox4_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>40</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="CheckBox2">
-           <property name="text">
-            <string>theta</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1">
           <widget class="QSpinBox" name="SpinBox1_1">
            <property name="minimum">
@@ -231,39 +305,6 @@
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="SpinBox4_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>13</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="SpinBox3_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>8</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="3">
-          <widget class="QPushButton" name="ButtonReset">
-           <property name="text">
-            <string>Reset</string>
            </property>
           </widget>
          </item>
@@ -425,8 +466,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>125</x>
-     <y>227</y>
+     <x>132</x>
+     <y>309</y>
     </hint>
     <hint type="destinationlabel">
      <x>170</x>
@@ -441,8 +482,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>275</y>
+     <x>125</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>164</x>
@@ -457,8 +498,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>30</x>
-     <y>29</y>
+     <x>37</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>246</x>
@@ -473,8 +514,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>57</y>
+     <x>44</x>
+     <y>141</y>
     </hint>
     <hint type="destinationlabel">
      <x>245</x>
@@ -489,8 +530,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>81</y>
+     <x>44</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
      <x>232</x>
@@ -505,8 +546,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>105</y>
+     <x>44</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
      <x>230</x>
@@ -521,8 +562,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>129</y>
+     <x>44</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>235</x>
@@ -537,8 +578,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>40</y>
+     <x>109</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>400</x>
@@ -553,8 +594,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>129</x>
-     <y>39</y>
+     <x>150</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel">
      <x>528</x>
@@ -569,8 +610,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>56</y>
+     <x>109</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -585,8 +626,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>144</x>
-     <y>64</y>
+     <x>150</x>
+     <y>142</y>
     </hint>
     <hint type="destinationlabel">
      <x>522</x>
@@ -601,8 +642,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>78</y>
+     <x>109</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -617,8 +658,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>87</y>
+     <x>150</x>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>517</x>
@@ -633,8 +674,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>95</x>
-     <y>107</y>
+     <x>109</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>373</x>
@@ -649,8 +690,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>131</x>
-     <y>105</y>
+     <x>150</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -665,8 +706,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>139</y>
+     <x>109</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -681,8 +722,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>124</x>
-     <y>136</y>
+     <x>150</x>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -697,12 +738,44 @@
    <slot>_reset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>71</x>
-     <y>153</y>
+     <x>78</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
      <x>271</x>
      <y>153</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonPause</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_pause()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>123</x>
+     <y>27</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>-15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonStart</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>63</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>289</x>
+     <y>-7</y>
     </hint>
    </hints>
   </connection>
@@ -711,5 +784,7 @@
   <slot>_chart_redraw_request()</slot>
   <slot>_rhytms_param_cnd()</slot>
   <slot>_reset()</slot>
+  <slot>_pause()</slot>
+  <slot>_start()</slot>
  </slots>
 </ui>
