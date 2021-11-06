@@ -5,7 +5,8 @@ from PySide6.QtCore import QDateTime, QPointF
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
-from settings import MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, SAMPLE_RATE, RHYTMS
+from settings import (MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, RHYTMS,
+                      SAMPLE_RATE, SIGNAL_CLIPPING_SEC)
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
 
@@ -258,13 +259,15 @@ class RhytmWindow(QWidget):
 
     def event_redraw_charts(self):
         data = self.parent.session.buffer_main.get_buff_last(
-            self.chart_duration * SAMPLE_RATE)
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         for channel in range(NUM_CHANNELS):
             signal_filtering(data[channel], filtering=False)
             data[channel] = rhytm_constructor(data[channel], self.rhytms)
 
-        self.redraw_charts(data)
+        data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+        if data.shape[1] > 0:
+            self.redraw_charts(data)
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
