@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1011</width>
-    <height>701</height>
+    <width>1092</width>
+    <height>586</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,6 +47,9 @@
       </size>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>2</number>
+      </property>
       <property name="leftMargin">
        <number>0</number>
       </property>
@@ -80,62 +83,6 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QCheckBox" name="CheckBoxDelta">
-           <property name="text">
-            <string>delta</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QSpinBox" name="SpinBox1_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>48</number>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QSpinBox" name="SpinBox1_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>4</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QCheckBox" name="CheckBoxTheta">
-           <property name="text">
-            <string>theta</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="SpinBox2_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>4</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="2">
           <widget class="QSpinBox" name="SpinBox2_2">
            <property name="minimum">
@@ -149,82 +96,10 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QCheckBox" name="CheckBoxAlpha">
-           <property name="text">
-            <string>alpha</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="SpinBox3_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>8</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QSpinBox" name="SpinBox3_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>13</number>
-           </property>
-          </widget>
-         </item>
          <item row="3" column="0">
-          <widget class="QCheckBox" name="CheckBoxBetha">
+          <widget class="QCheckBox" name="CheckBox4">
            <property name="text">
             <string>betha</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="SpinBox4_1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>13</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QSpinBox" name="SpinBox4_2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="value">
-            <number>40</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QCheckBox" name="CheckBoxGamma">
-           <property name="text">
-            <string>gamma</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -244,6 +119,65 @@
            </property>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="SpinBox2_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="CheckBox3">
+           <property name="text">
+            <string>alpha</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QSpinBox" name="SpinBox1_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="CheckBox5">
+           <property name="text">
+            <string>gamma</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QSpinBox" name="SpinBox3_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>13</number>
+           </property>
+          </widget>
+         </item>
          <item row="4" column="2">
           <widget class="QSpinBox" name="SpinBox5_2">
            <property name="minimum">
@@ -254,6 +188,82 @@
            </property>
            <property name="value">
             <number>48</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QSpinBox" name="SpinBox4_2">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>40</number>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="CheckBox2">
+           <property name="text">
+            <string>theta</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="SpinBox1_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>48</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="CheckBox1">
+           <property name="text">
+            <string>delta</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="SpinBox4_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>13</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="SpinBox3_1">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>8</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="QPushButton" name="ButtonReset">
+           <property name="text">
+            <string>Reset</string>
            </property>
           </widget>
          </item>
@@ -416,7 +426,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>125</x>
-     <y>205</y>
+     <y>227</y>
     </hint>
     <hint type="destinationlabel">
      <x>170</x>
@@ -432,7 +442,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
-     <y>253</y>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>164</x>
@@ -441,7 +451,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>CheckBoxDelta</sender>
+   <sender>CheckBox1</sender>
    <signal>stateChanged(int)</signal>
    <receiver>RhytmWindow</receiver>
    <slot>_rhytms_param_cnd()</slot>
@@ -457,7 +467,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>CheckBoxTheta</sender>
+   <sender>CheckBox2</sender>
    <signal>stateChanged(int)</signal>
    <receiver>RhytmWindow</receiver>
    <slot>_rhytms_param_cnd()</slot>
@@ -473,7 +483,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>CheckBoxAlpha</sender>
+   <sender>CheckBox3</sender>
    <signal>stateChanged(int)</signal>
    <receiver>RhytmWindow</receiver>
    <slot>_rhytms_param_cnd()</slot>
@@ -489,7 +499,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>CheckBoxBetha</sender>
+   <sender>CheckBox4</sender>
    <signal>stateChanged(int)</signal>
    <receiver>RhytmWindow</receiver>
    <slot>_rhytms_param_cnd()</slot>
@@ -505,7 +515,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>CheckBoxGamma</sender>
+   <sender>CheckBox5</sender>
    <signal>stateChanged(int)</signal>
    <receiver>RhytmWindow</receiver>
    <slot>_rhytms_param_cnd()</slot>
@@ -680,9 +690,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>ButtonReset</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_reset()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>153</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>271</x>
+     <y>153</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>_chart_redraw_request()</slot>
   <slot>_rhytms_param_cnd()</slot>
+  <slot>_reset()</slot>
  </slots>
 </ui>

@@ -5,7 +5,7 @@ from PySide6.QtCore import QDateTime, QPointF
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
-from settings import MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, SAMPLE_RATE
+from settings import MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, SAMPLE_RATE, RHYTMS
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
 
@@ -25,13 +25,7 @@ class RhytmWindow(QWidget):
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_charts_request = False
 
-        self.rhytms = {
-            'delta': [1, 4, True],
-            'theta': [4, 8, True],
-            'alpha': [8, 13, True],
-            'betha': [13, 40, True],
-            'gamma': [40, 48, True],
-        }
+        self.rhytms = RHYTMS.copy()
 
         self.channel_names = self.parent.session.get_eeg_ch_names()
 
@@ -166,11 +160,72 @@ class RhytmWindow(QWidget):
         self.redraw_charts(data)
 
     def _rhytms_param_cnd(self):
-        self.rhytms['delta'][-1] = self.ui.CheckBoxDelta.isChecked()
-        self.rhytms['theta'][-1] = self.ui.CheckBoxTheta.isChecked()
-        self.rhytms['alpha'][-1] = self.ui.CheckBoxAlpha.isChecked()
-        self.rhytms['betha'][-1] = self.ui.CheckBoxBetha.isChecked()
-        self.rhytms['gamma'][-1] = self.ui.CheckBoxGamma.isChecked()
+
+        self.ui.SpinBox1_1.setMinimum(1)
+        self.ui.SpinBox1_1.setMaximum(self.ui.SpinBox1_2.value() - 1)
+        self.ui.SpinBox1_2.setMinimum(self.ui.SpinBox1_1.value() + 1)
+        self.ui.SpinBox1_2.setMaximum(self.ui.SpinBox2_1.value())
+
+        self.ui.SpinBox2_1.setMinimum(self.ui.SpinBox1_2.value())
+        self.ui.SpinBox2_1.setMaximum(self.ui.SpinBox2_2.value() - 1)
+        self.ui.SpinBox2_2.setMinimum(self.ui.SpinBox2_1.value() + 1)
+        self.ui.SpinBox2_2.setMaximum(self.ui.SpinBox3_1.value())
+
+        self.ui.SpinBox3_1.setMinimum(self.ui.SpinBox2_2.value())
+        self.ui.SpinBox3_1.setMaximum(self.ui.SpinBox3_2.value() - 1)
+        self.ui.SpinBox3_2.setMinimum(self.ui.SpinBox3_1.value() + 1)
+        self.ui.SpinBox3_2.setMaximum(self.ui.SpinBox4_1.value())
+
+        self.ui.SpinBox4_1.setMinimum(self.ui.SpinBox3_2.value())
+        self.ui.SpinBox4_1.setMaximum(self.ui.SpinBox4_2.value() - 1)
+        self.ui.SpinBox4_2.setMinimum(self.ui.SpinBox4_1.value() + 1)
+        self.ui.SpinBox4_2.setMaximum(self.ui.SpinBox5_1.value())
+
+        self.ui.SpinBox5_1.setMinimum(self.ui.SpinBox4_2.value())
+        self.ui.SpinBox5_1.setMaximum(self.ui.SpinBox5_2.value() - 1)
+        self.ui.SpinBox5_2.setMinimum(self.ui.SpinBox5_1.value() + 1)
+        self.ui.SpinBox5_2.setMaximum(100)
+
+        self.rhytms['delta'] = [
+            self.ui.SpinBox1_1.value(),
+            self.ui.SpinBox1_2.value(),
+            self.ui.CheckBox1.isChecked()
+        ]
+        self.rhytms['theta'] = [
+            self.ui.SpinBox2_1.value(),
+            self.ui.SpinBox2_2.value(),
+            self.ui.CheckBox2.isChecked()
+        ]
+        self.rhytms['alpha'] = [
+            self.ui.SpinBox3_1.value(),
+            self.ui.SpinBox3_2.value(),
+            self.ui.CheckBox3.isChecked()
+        ]
+        self.rhytms['betha'] = [
+            self.ui.SpinBox4_1.value(),
+            self.ui.SpinBox4_2.value(),
+            self.ui.CheckBox4.isChecked()
+        ]
+        self.rhytms['gamma'] = [
+            self.ui.SpinBox5_1.value(),
+            self.ui.SpinBox5_2.value(),
+            self.ui.CheckBox5.isChecked()
+        ]
+
+    def _reset(self):
+        self.ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
+        self.ui.SpinBox2_1.setValue(RHYTMS['theta'][0])
+        self.ui.SpinBox3_1.setValue(RHYTMS['alpha'][0])
+        self.ui.SpinBox4_1.setValue(RHYTMS['betha'][0])
+        self.ui.SpinBox5_1.setValue(RHYTMS['gamma'][0])
+
+        self.ui.SpinBox1_2.setValue(RHYTMS['delta'][1])
+        self.ui.SpinBox2_2.setValue(RHYTMS['theta'][1])
+        self.ui.SpinBox3_2.setValue(RHYTMS['alpha'][1])
+        self.ui.SpinBox4_2.setValue(RHYTMS['betha'][1])
+        self.ui.SpinBox5_2.setValue(RHYTMS['gamma'][1])
+
+        self._rhytms_param_cnd()
 
     def slider_chart_prepare(self):
         buff_size = self.parent.session.buffer_filtered.get_last_num()
