@@ -81,7 +81,7 @@
           <number>2</number>
          </property>
          <item row="0" column="0">
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="CheckBoxDelta">
            <property name="text">
             <string>delta</string>
            </property>
@@ -111,7 +111,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QCheckBox" name="checkBox_2">
+          <widget class="QCheckBox" name="CheckBoxTheta">
            <property name="text">
             <string>theta</string>
            </property>
@@ -144,7 +144,7 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QCheckBox" name="checkBox_3">
+          <widget class="QCheckBox" name="CheckBoxAlpha">
            <property name="text">
             <string>alpha</string>
            </property>
@@ -177,7 +177,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QCheckBox" name="checkBox_4">
+          <widget class="QCheckBox" name="CheckBoxBetha">
            <property name="text">
             <string>betha</string>
            </property>
@@ -210,7 +210,7 @@
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QCheckBox" name="checkBox_5">
+          <widget class="QCheckBox" name="CheckBoxGamma">
            <property name="text">
             <string>gamma</string>
            </property>
@@ -381,6 +381,9 @@
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QSlider" name="SliderChart">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

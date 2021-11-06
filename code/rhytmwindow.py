@@ -150,16 +150,11 @@ class RhytmWindow(QWidget):
 
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
-
-        # if self.chart_filtering_flag:
-        #     data = self.session.buffer_filtered.get_buff_from(
-        #         start_index, end_index)
-        # else:
-        #     data = self.session.buffer_main.get_buff_from(
-        #         start_index, end_index)
+        data = self.parent.session.buffer_main.get_buff_from(
+            start_index, end_index)
 
         self.chart_buffers_update()
-        # self.redraw_charts(data)
+        self.redraw_charts(data)
 
     def slider_chart_prepare(self):
         buff_size = self.parent.session.buffer_filtered.get_last_num()
@@ -188,7 +183,15 @@ class RhytmWindow(QWidget):
         if self.redraw_charts_request:
             self.redraw_charts_request = False
             self.request_realisation()
-            self.timer_redraw_charts()
+            self.event_redraw_charts()
+
+    def event_redraw_charts(self):
+        data = self.parent.session.buffer_main.get_buff_last(
+            self.chart_duration * SAMPLE_RATE)
+
+        
+        
+        self.redraw_charts(data)
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

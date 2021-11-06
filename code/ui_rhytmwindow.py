@@ -42,10 +42,10 @@ class Ui_RhytmWindow(object):
         self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setContentsMargins(2, 2, 2, 2)
-        self.checkBox = QCheckBox(self.groupBox)
-        self.checkBox.setObjectName(u"checkBox")
+        self.CheckBoxDelta = QCheckBox(self.groupBox)
+        self.CheckBoxDelta.setObjectName(u"CheckBoxDelta")
 
-        self.gridLayout.addWidget(self.checkBox, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBoxDelta, 0, 0, 1, 1)
 
         self.spinBox = QSpinBox(self.groupBox)
         self.spinBox.setObjectName(u"spinBox")
@@ -62,10 +62,10 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.spinBox_2, 0, 2, 1, 1)
 
-        self.checkBox_2 = QCheckBox(self.groupBox)
-        self.checkBox_2.setObjectName(u"checkBox_2")
+        self.CheckBoxTheta = QCheckBox(self.groupBox)
+        self.CheckBoxTheta.setObjectName(u"CheckBoxTheta")
 
-        self.gridLayout.addWidget(self.checkBox_2, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBoxTheta, 1, 0, 1, 1)
 
         self.spinBox_3 = QSpinBox(self.groupBox)
         self.spinBox_3.setObjectName(u"spinBox_3")
@@ -83,10 +83,10 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.spinBox_4, 1, 2, 1, 1)
 
-        self.checkBox_3 = QCheckBox(self.groupBox)
-        self.checkBox_3.setObjectName(u"checkBox_3")
+        self.CheckBoxAlpha = QCheckBox(self.groupBox)
+        self.CheckBoxAlpha.setObjectName(u"CheckBoxAlpha")
 
-        self.gridLayout.addWidget(self.checkBox_3, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBoxAlpha, 2, 0, 1, 1)
 
         self.spinBox_5 = QSpinBox(self.groupBox)
         self.spinBox_5.setObjectName(u"spinBox_5")
@@ -104,10 +104,10 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.spinBox_6, 2, 2, 1, 1)
 
-        self.checkBox_4 = QCheckBox(self.groupBox)
-        self.checkBox_4.setObjectName(u"checkBox_4")
+        self.CheckBoxBetha = QCheckBox(self.groupBox)
+        self.CheckBoxBetha.setObjectName(u"CheckBoxBetha")
 
-        self.gridLayout.addWidget(self.checkBox_4, 3, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBoxBetha, 3, 0, 1, 1)
 
         self.spinBox_7 = QSpinBox(self.groupBox)
         self.spinBox_7.setObjectName(u"spinBox_7")
@@ -125,10 +125,10 @@ class Ui_RhytmWindow(object):
 
         self.gridLayout.addWidget(self.spinBox_8, 3, 2, 1, 1)
 
-        self.checkBox_5 = QCheckBox(self.groupBox)
-        self.checkBox_5.setObjectName(u"checkBox_5")
+        self.CheckBoxGamma = QCheckBox(self.groupBox)
+        self.CheckBoxGamma.setObjectName(u"CheckBoxGamma")
 
-        self.gridLayout.addWidget(self.checkBox_5, 4, 0, 1, 1)
+        self.gridLayout.addWidget(self.CheckBoxGamma, 4, 0, 1, 1)
 
         self.spinBox_9 = QSpinBox(self.groupBox)
         self.spinBox_9.setObjectName(u"spinBox_9")
@@ -213,6 +213,7 @@ class Ui_RhytmWindow(object):
 
         self.SliderChart = QSlider(RhytmWindow)
         self.SliderChart.setObjectName(u"SliderChart")
+        self.SliderChart.setEnabled(False)
         self.SliderChart.setOrientation(Qt.Horizontal)
 
         self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.SliderChart)
@@ -228,11 +229,11 @@ class Ui_RhytmWindow(object):
     def retranslateUi(self, RhytmWindow):
         RhytmWindow.setWindowTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms view", None))
         self.groupBox.setTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms settings", None))
-        self.checkBox.setText(QCoreApplication.translate("RhytmWindow", u"delta", None))
-        self.checkBox_2.setText(QCoreApplication.translate("RhytmWindow", u"theta", None))
-        self.checkBox_3.setText(QCoreApplication.translate("RhytmWindow", u"alpha", None))
-        self.checkBox_4.setText(QCoreApplication.translate("RhytmWindow", u"betha", None))
-        self.checkBox_5.setText(QCoreApplication.translate("RhytmWindow", u"gamma", None))
+        self.CheckBoxDelta.setText(QCoreApplication.translate("RhytmWindow", u"delta", None))
+        self.CheckBoxTheta.setText(QCoreApplication.translate("RhytmWindow", u"theta", None))
+        self.CheckBoxAlpha.setText(QCoreApplication.translate("RhytmWindow", u"alpha", None))
+        self.CheckBoxBetha.setText(QCoreApplication.translate("RhytmWindow", u"betha", None))
+        self.CheckBoxGamma.setText(QCoreApplication.translate("RhytmWindow", u"gamma", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("RhytmWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("RhytmWindow", u"Amplitude (uV): 20", None))

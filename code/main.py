@@ -167,8 +167,10 @@ class MainWindow(QMainWindow):
                 for channel in range(NUM_CHANNELS):
                     signal_filtering(data[channel], filtering=False)
 
-        if np.any(data):
-            self.redraw_charts(data)
+        self.redraw_charts(data)
+
+        if self.rhytm_Window and not self.rhytm_Window.isHidden():
+            self.rhytm_Window.event_redraw_charts()
 
     def request_realisation(self):
         # Slider AMPLITUDE
@@ -533,6 +535,8 @@ class MainWindow(QMainWindow):
                 self.board.release_session()
         except:
             pass
+
+        self.rhytm_Window.hide()
 
 
 def main():
