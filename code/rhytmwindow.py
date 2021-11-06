@@ -9,6 +9,8 @@ from settings import (MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, RHYTMS,
                       SAMPLE_RATE, SIGNAL_CLIPPING_SEC)
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
+from session import Buffer
+from rhytmwindow_uiinteraction import *
 
 
 class RhytmWindow(QWidget):
@@ -26,6 +28,7 @@ class RhytmWindow(QWidget):
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_charts_request = False
         self.redraw_pause = False
+        self.buffer = None
 
         self.rhytms = RHYTMS.copy()
 
@@ -155,6 +158,7 @@ class RhytmWindow(QWidget):
 
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
+
         data = self.parent.session.buffer_main.get_buff_from(
             start_index, end_index)
 
@@ -162,31 +166,7 @@ class RhytmWindow(QWidget):
         self.redraw_charts(data)
 
     def _rhytms_param_cnd(self):
-
-        self.ui.SpinBox1_1.setMinimum(1)
-        self.ui.SpinBox1_1.setMaximum(self.ui.SpinBox1_2.value() - 1)
-        self.ui.SpinBox1_2.setMinimum(self.ui.SpinBox1_1.value() + 1)
-        self.ui.SpinBox1_2.setMaximum(self.ui.SpinBox2_1.value())
-
-        self.ui.SpinBox2_1.setMinimum(self.ui.SpinBox1_2.value())
-        self.ui.SpinBox2_1.setMaximum(self.ui.SpinBox2_2.value() - 1)
-        self.ui.SpinBox2_2.setMinimum(self.ui.SpinBox2_1.value() + 1)
-        self.ui.SpinBox2_2.setMaximum(self.ui.SpinBox3_1.value())
-
-        self.ui.SpinBox3_1.setMinimum(self.ui.SpinBox2_2.value())
-        self.ui.SpinBox3_1.setMaximum(self.ui.SpinBox3_2.value() - 1)
-        self.ui.SpinBox3_2.setMinimum(self.ui.SpinBox3_1.value() + 1)
-        self.ui.SpinBox3_2.setMaximum(self.ui.SpinBox4_1.value())
-
-        self.ui.SpinBox4_1.setMinimum(self.ui.SpinBox3_2.value())
-        self.ui.SpinBox4_1.setMaximum(self.ui.SpinBox4_2.value() - 1)
-        self.ui.SpinBox4_2.setMinimum(self.ui.SpinBox4_1.value() + 1)
-        self.ui.SpinBox4_2.setMaximum(self.ui.SpinBox5_1.value())
-
-        self.ui.SpinBox5_1.setMinimum(self.ui.SpinBox4_2.value())
-        self.ui.SpinBox5_1.setMaximum(self.ui.SpinBox5_2.value() - 1)
-        self.ui.SpinBox5_2.setMinimum(self.ui.SpinBox5_1.value() + 1)
-        self.ui.SpinBox5_2.setMaximum(100)
+        rhytms_param_cnd(self.ui)
 
         self.rhytms['delta'] = [
             self.ui.SpinBox1_1.value(),
@@ -231,16 +211,27 @@ class RhytmWindow(QWidget):
 
     def _pause(self):
         self.redraw_pause = True
-        self.ui.ButtonPause.setEnabled(not self.redraw_pause)
-        self.ui.ButtonStart.setEnabled(self.redraw_pause)
 
-    def _start(self):
+        # make local BUFFER for work with it when pause
+        data = self.parent.session.buffer_main.get_buff_last()
+        self.buffer = Buffer(data.shape[1], data.shape[0])
+        self.buffer.add(data)
+
+        self.slider_chart_prepare()
+        self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
+
+        pause(self.ui)
+
+    def _resume(self):
         self.redraw_pause = False
-        self.ui.ButtonPause.setEnabled(not self.redraw_pause)
-        self.ui.ButtonStart.setEnabled(self.redraw_pause)
+
+        self.buffer = None
+
+        resume(self.ui)
 
     def slider_chart_prepare(self):
-        buff_size = self.parent.session.buffer_filtered.get_last_num()
+        buff_size = self.buffer.get_last_num()
+
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
         if slider_maximum < 0:
             slider_maximum = 0
@@ -269,17 +260,16 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
-        if not self.redraw_pause:
-            data = self.parent.session.buffer_main.get_buff_last(
-                (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+        data = self.parent.session.buffer_main.get_buff_last(
+            (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
-            for channel in range(NUM_CHANNELS):
-                signal_filtering(data[channel], filtering=False)
-                data[channel] = rhytm_constructor(data[channel], self.rhytms)
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel], filtering=False)
+            data[channel] = rhytm_constructor(data[channel], self.rhytms)
 
-            data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-            if data.shape[1] > 0:
-                self.redraw_charts(data)
+        data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
+        if data.shape[1] > 0:
+            self.redraw_charts(data)
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

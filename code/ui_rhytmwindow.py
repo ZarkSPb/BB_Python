@@ -49,11 +49,11 @@ class Ui_RhytmWindow(object):
 
         self.verticalLayout_2.addWidget(self.ButtonPause)
 
-        self.ButtonStart = QPushButton(self.groupBox_3)
-        self.ButtonStart.setObjectName(u"ButtonStart")
-        self.ButtonStart.setEnabled(False)
+        self.ButtonResume = QPushButton(self.groupBox_3)
+        self.ButtonResume.setObjectName(u"ButtonResume")
+        self.ButtonResume.setEnabled(False)
 
-        self.verticalLayout_2.addWidget(self.ButtonStart)
+        self.verticalLayout_2.addWidget(self.ButtonResume)
 
 
         self.verticalLayout.addWidget(self.groupBox_3)
@@ -271,7 +271,7 @@ class Ui_RhytmWindow(object):
         self.SpinBox5_2.valueChanged.connect(RhytmWindow._rhytms_param_cnd)
         self.ButtonReset.clicked.connect(RhytmWindow._reset)
         self.ButtonPause.clicked.connect(RhytmWindow._pause)
-        self.ButtonStart.clicked.connect(RhytmWindow._start)
+        self.ButtonResume.clicked.connect(RhytmWindow._resume)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi
@@ -280,7 +280,7 @@ class Ui_RhytmWindow(object):
         RhytmWindow.setWindowTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms view", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart control", None))
         self.ButtonPause.setText(QCoreApplication.translate("RhytmWindow", u"Pause", None))
-        self.ButtonStart.setText(QCoreApplication.translate("RhytmWindow", u"Start", None))
+        self.ButtonResume.setText(QCoreApplication.translate("RhytmWindow", u"Resume", None))
         self.groupBox.setTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms settings", None))
         self.CheckBox5.setText(QCoreApplication.translate("RhytmWindow", u"gamma", None))
         self.CheckBox2.setText(QCoreApplication.translate("RhytmWindow", u"theta", None))

@@ -16,7 +16,7 @@ from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from uiinteraction import *
+from main_uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
 
@@ -170,7 +170,8 @@ class MainWindow(QMainWindow):
 
             self.redraw_charts(data)
 
-        if self.rhytm_Window and not self.rhytm_Window.isHidden():
+        if (self.rhytm_Window and not self.rhytm_Window.isHidden()
+                and not self.rhytm_Window.redraw_pause):
             self.rhytm_Window.event_redraw_charts()
 
     def request_realisation(self):

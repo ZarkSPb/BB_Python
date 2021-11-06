@@ -91,12 +91,12 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="ButtonStart">
+          <widget class="QPushButton" name="ButtonResume">
            <property name="enabled">
             <bool>false</bool>
            </property>
            <property name="text">
-            <string>Start</string>
+            <string>Resume</string>
            </property>
           </widget>
          </item>
@@ -764,10 +764,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>ButtonStart</sender>
+   <sender>ButtonResume</sender>
    <signal>clicked()</signal>
    <receiver>RhytmWindow</receiver>
-   <slot>_start()</slot>
+   <slot>_resume()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>74</x>
@@ -785,6 +785,6 @@
   <slot>_rhytms_param_cnd()</slot>
   <slot>_reset()</slot>
   <slot>_pause()</slot>
-  <slot>_start()</slot>
+  <slot>_resume()</slot>
  </slots>
 </ui>
