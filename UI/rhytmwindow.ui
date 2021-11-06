@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>980</width>
-    <height>649</height>
+    <width>1012</width>
+    <height>633</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -380,7 +380,7 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QSlider" name="horizontalSlider">
+    <widget class="QSlider" name="SliderChart">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -389,5 +389,41 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>SliderDuration</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_chart_redraw_request()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>125</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderAmplitude</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_chart_redraw_request()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>118</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>247</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>_chart_redraw_request()</slot>
+ </slots>
 </ui>

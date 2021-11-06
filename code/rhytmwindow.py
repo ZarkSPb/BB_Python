@@ -1,7 +1,7 @@
 from PySide6 import QtCore
 from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
                               QValueAxis)
-from PySide6.QtCore import QDateTime
+from PySide6.QtCore import QDateTime, QPointF
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
@@ -10,18 +10,21 @@ from ui_rhytmwindow import Ui_RhytmWindow
 
 
 class RhytmWindow(QWidget):
-    def __init__(self, parent_ui):
+    def __init__(self, parent):
         super(RhytmWindow, self).__init__()
         self.ui = Ui_RhytmWindow()
         self.ui.setupUi(self)
 
-        self.parent_ui = parent_ui
+        self.parent = parent
 
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
+        self.redraw_charts_request = False
+
+        self.channel_names = self.parent.session.get_eeg_ch_names()
 
         # /////////////////////////////////////////////////////////// CHART MAKE
         chart = QChart()
@@ -44,21 +47,21 @@ class RhytmWindow(QWidget):
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
-        # axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
+        axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setRange(0, 4)
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        # self.update_channels_axis(axis_c)
+        self.update_channels_axis(axis_c)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
-        # self.chart_buffers_update()
+        self.chart_buffers_update()
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
-            # series.append(self.chart_buffers[i])
+            series.append(self.chart_buffers[i])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
@@ -68,5 +71,124 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
+    # ///////////////////////////////////////////////////// Update CHANNELS axis
+    def update_channels_axis(self, axis_c):
+        labels = axis_c.categoriesLabels()
+        for i in range(len(labels)):
+            axis_c.remove(labels[i])
+
+        axis_c.append(f'{-self.chart_amp}', 0)
+        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
+            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
+            axis_c.append(f'--{ch_name}--', i + 0.5)
+            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
+            if i < NUM_CHANNELS - 1:
+                axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
+            else:
+                axis_c.append(f'{self.chart_amp}', i + 1)
+
+    # ///////////////////////////////////////////////////////// Update TIME axis
+    def update_time_axis(self, axis_t, start_time):
+        end_time = start_time.addSecs(self.chart_duration)
+        offset = 1000 - int(start_time.toString('zzz'))
+        labels = axis_t.categoriesLabels()
+        for label in labels:
+            axis_t.remove(label)
+
+        axis_t.append(start_time.toString('hh:mm:ss.zzz'), 0)
+        axis_t.append(' ', offset)
+
+        for i in range(1, self.chart_duration - 1):
+            shifted_time = start_time.addSecs(i + 1)
+            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+
+        axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
+        axis_t.append(end_time.toString('hh:mm:ss.zzz'),
+                      self.chart_duration * 1000)
+
+        return axis_t
+
+    def chart_buffers_update(self):
+        self.chart_buffers = []
+        for i in range(NUM_CHANNELS):
+            self.chart_buffers.append([
+                QPointF(
+                    x, self.chart_amp +
+                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
+                for x in range(self.chart_duration * SAMPLE_RATE)
+            ])
+
+    def _chart_redraw_request(self):
+        if self.parent.session.get_status():
+            self.redraw_charts_request = True
+        else:
+            self.request_realisation()
+            self._slider_value_cnd()
+
+    def request_realisation(self):
+        # Slider AMPLITUDE
+        self.chart_amp = self.ui.SliderAmplitude.value()
+        text = "Amplitude (uV): " + str(self.chart_amp)
+        self.ui.LabelAmplitude.setText(text)
+        self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
+        axis_c = self.chart_view.chart().axes()[3]
+        self.update_channels_axis(axis_c)
+
+        # Slider DURATION
+        self.chart_duration = self.ui.SliderDuration.value()
+        text = "Duration (sec): " + str(self.chart_duration)
+        self.ui.LabelDuration.setText(text)
+        axis_x = self.chart_view.chart().axisX()
+        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
+        axis_t = self.chart_view.chart().axes()[2]
+        axis_t.setRange(0, self.chart_duration * 1000)
+
+        self.chart_buffers_update()
+
+    def _slider_value_cnd(self):
+        self.slider_chart_prepare()
+
+        start_index = self.ui.SliderChart.value()
+        end_index = start_index + self.chart_duration * SAMPLE_RATE
+
+        # if self.chart_filtering_flag:
+        #     data = self.session.buffer_filtered.get_buff_from(
+        #         start_index, end_index)
+        # else:
+        #     data = self.session.buffer_main.get_buff_from(
+        #         start_index, end_index)
+
+        self.chart_buffers_update()
+        # self.redraw_charts(data)
+
+    def slider_chart_prepare(self):
+        buff_size = self.parent.session.buffer_filtered.get_last_num()
+        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        if slider_maximum < 0:
+            slider_maximum = 0
+        self.ui.SliderChart.setMaximum(slider_maximum)
+
+    def redraw_charts(self, data):
+        start_tick = data[-2, 0]
+        if start_tick != 0:
+            start_time = QDateTime.fromMSecsSinceEpoch(int(start_tick * 1000))
+        else:
+            start_time = QDateTime.currentDateTime()
+
+        axis_t = self.chart_view.chart().axes()[2]
+        self.update_time_axis(axis_t, start_time=start_time)
+        for channel in range(NUM_CHANNELS):
+            r_data = data[channel]
+            for i in range(r_data.shape[0]):
+                self.chart_buffers[channel][i].setY(
+                    r_data[i] + self.chart_amp +
+                    (NUM_CHANNELS - 1 - channel) * 2 * self.chart_amp)
+            self.serieses[channel].replace(self.chart_buffers[channel])
+
+        if self.redraw_charts_request:
+            self.redraw_charts_request = False
+            self.request_realisation()
+            self.timer_redraw_charts()
+
     def closeEvent(self, event):
-        self.parent_ui.actionRhytm_window.setChecked(False)
+        self.parent.ui.actionRhytm_window.setChecked(False)

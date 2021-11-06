@@ -23,7 +23,7 @@ class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(980, 649)
+        RhytmWindow.resize(1012, 633)
         self.formLayout = QFormLayout(RhytmWindow)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(4)
@@ -211,14 +211,16 @@ class Ui_RhytmWindow(object):
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.WidgetCharts)
 
-        self.horizontalSlider = QSlider(RhytmWindow)
-        self.horizontalSlider.setObjectName(u"horizontalSlider")
-        self.horizontalSlider.setOrientation(Qt.Horizontal)
+        self.SliderChart = QSlider(RhytmWindow)
+        self.SliderChart.setObjectName(u"SliderChart")
+        self.SliderChart.setOrientation(Qt.Horizontal)
 
-        self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.horizontalSlider)
+        self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.SliderChart)
 
 
         self.retranslateUi(RhytmWindow)
+        self.SliderDuration.valueChanged.connect(RhytmWindow._chart_redraw_request)
+        self.SliderAmplitude.valueChanged.connect(RhytmWindow._chart_redraw_request)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi

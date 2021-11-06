@@ -110,13 +110,7 @@ class MainWindow(QMainWindow):
 
     # ///////////////////////////////////////////////////////// Update TIME axis
     def update_time_axis(self, axis_t, start_time):
-        # start_time = QDateTime.currentDateTime()
         end_time = start_time.addSecs(self.chart_duration)
-
-        # print(start_time.toString('hh:mm:ss.zzz'),
-        #       end_time.toString('hh:mm:ss.zzz'))
-        # print()
-
         offset = 1000 - int(start_time.toString('zzz'))
         labels = axis_t.categoriesLabels()
         for label in labels:
@@ -202,10 +196,6 @@ class MainWindow(QMainWindow):
             start_time = QDateTime.fromMSecsSinceEpoch(int(start_tick * 1000))
         else:
             start_time = QDateTime.currentDateTime()
-
-        # end_time = QDateTime.fromMSecsSinceEpoch(int(data[-2, -1] * 1000))
-        # print(start_time.toString('hh:mm:ss.zzz'),
-        #       end_time.toString('hh:mm:ss.zzz'), ' - original time')
 
         axis_t = self.chart_view.chart().axes()[2]
         self.update_time_axis(axis_t, start_time=start_time)
@@ -408,8 +398,6 @@ class MainWindow(QMainWindow):
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
 
-        # print(start_index, end_index, end_index - start_index)
-
         if self.chart_filtering_flag:
             data = self.session.buffer_filtered.get_buff_from(
                 start_index, end_index)
@@ -515,7 +503,7 @@ class MainWindow(QMainWindow):
     def _rhytms_window(self):
         if self.ui.actionRhytm_window.isChecked():
             if self.rhytm_Window is None:
-                self.rhytm_Window = RhytmWindow(self.ui)
+                self.rhytm_Window = RhytmWindow(self)
             self.rhytm_Window.show()
         else:
             self.rhytm_Window.hide()
