@@ -1,6 +1,6 @@
 # import numpy as np
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
-from numpy import savetxt
+from numpy import savetxt, zeros
 
 from settings import *
 
@@ -49,6 +49,19 @@ def signal_filtering(data, filtering=True):
                                 FilterTypes.BUTTERWORTH.value, 0)
     DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
                                 FilterTypes.BUTTERWORTH.value, 0)
+
+
+def rhytm_constructor(data, rhytms):
+    data_res = zeros(data.shape)
+    for value in rhytms.values():
+        if value[-1]:
+            center = (value[0] + value[1]) / 2
+            width = float(value[1] - value[0])
+            data_c = data.copy()
+            DataFilter.perform_bandpass(data_c, SAMPLE_RATE, center, width, 4,
+                                        FilterTypes.BUTTERWORTH.value, 0)
+            data_res += data_c
+    return data_res
 
 
 def file_name_constructor(session):

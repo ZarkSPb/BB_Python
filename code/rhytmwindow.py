@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QWidget
 
 from settings import MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, SAMPLE_RATE
 from ui_rhytmwindow import Ui_RhytmWindow
+from utils import rhytm_constructor, signal_filtering
 
 
 class RhytmWindow(QWidget):
@@ -23,6 +24,14 @@ class RhytmWindow(QWidget):
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_charts_request = False
+
+        self.rhytms = {
+            'delta': [1, 4, True],
+            'theta': [4, 8, True],
+            'alpha': [8, 13, True],
+            'betha': [13, 40, True],
+            'gamma': [40, 48, True],
+        }
 
         self.channel_names = self.parent.session.get_eeg_ch_names()
 
@@ -156,6 +165,13 @@ class RhytmWindow(QWidget):
         self.chart_buffers_update()
         self.redraw_charts(data)
 
+    def _rhytms_param_cnd(self):
+        self.rhytms['delta'][-1] = self.ui.CheckBoxDelta.isChecked()
+        self.rhytms['theta'][-1] = self.ui.CheckBoxTheta.isChecked()
+        self.rhytms['alpha'][-1] = self.ui.CheckBoxAlpha.isChecked()
+        self.rhytms['betha'][-1] = self.ui.CheckBoxBetha.isChecked()
+        self.rhytms['gamma'][-1] = self.ui.CheckBoxGamma.isChecked()
+
     def slider_chart_prepare(self):
         buff_size = self.parent.session.buffer_filtered.get_last_num()
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
@@ -189,8 +205,10 @@ class RhytmWindow(QWidget):
         data = self.parent.session.buffer_main.get_buff_last(
             self.chart_duration * SAMPLE_RATE)
 
-        
-        
+        for channel in range(NUM_CHANNELS):
+            signal_filtering(data[channel], filtering=False)
+            data[channel] = rhytm_constructor(data[channel], self.rhytms)
+
         self.redraw_charts(data)
 
     def closeEvent(self, event):

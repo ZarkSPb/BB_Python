@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1058</width>
-    <height>866</height>
+    <width>1076</width>
+    <height>856</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -506,6 +506,16 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="CheckBoxRenew">
+            <property name="text">
+             <string>Renew</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -674,7 +684,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1058</width>
+     <width>1076</width>
      <height>22</height>
     </rect>
    </property>
@@ -968,8 +978,8 @@
      <y>690</y>
     </hint>
     <hint type="destinationlabel">
-     <x>239</x>
-     <y>718</y>
+     <x>249</x>
+     <y>704</y>
     </hint>
    </hints>
   </connection>
@@ -996,8 +1006,8 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>117</x>
-     <y>664</y>
+     <x>124</x>
+     <y>686</y>
     </hint>
     <hint type="destinationlabel">
      <x>361</x>
@@ -1012,12 +1022,12 @@
    <slot>update_ui()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>114</x>
-     <y>642</y>
+     <x>121</x>
+     <y>664</y>
     </hint>
     <hint type="destinationlabel">
-     <x>244</x>
-     <y>683</y>
+     <x>238</x>
+     <y>654</y>
     </hint>
    </hints>
   </connection>
@@ -1029,7 +1039,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>518</x>
-     <y>842</y>
+     <y>821</y>
     </hint>
     <hint type="destinationlabel">
      <x>630</x>
@@ -1044,12 +1054,12 @@
    <slot>_firstName_edit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>167</x>
-     <y>556</y>
+     <x>174</x>
+     <y>578</y>
     </hint>
     <hint type="destinationlabel">
-     <x>237</x>
-     <y>545</y>
+     <x>247</x>
+     <y>568</y>
     </hint>
    </hints>
   </connection>
@@ -1060,12 +1070,12 @@
    <slot>_lastName_edit()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>140</x>
-     <y>598</y>
+     <x>147</x>
+     <y>620</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>633</y>
+     <x>248</x>
+     <y>612</y>
     </hint>
    </hints>
   </connection>
@@ -1265,5 +1275,6 @@
   <slot>_open_file()</slot>
   <slot>_control_panel()</slot>
   <slot>_rhytms_window()</slot>
+  <slot>_renew_cnd()</slot>
  </slots>
 </ui>

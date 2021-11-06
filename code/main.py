@@ -156,18 +156,19 @@ class MainWindow(QMainWindow):
             ])
 
     def timer_redraw_charts(self):
-        if self.chart_filtering_flag:
-            data = self.session.buffer_filtered.get_buff_last(
-                self.chart_duration * SAMPLE_RATE)
-        else:
-            data = self.session.buffer_main.get_buff_last(self.chart_duration *
-                                                          SAMPLE_RATE)
+        if self.ui.CheckBoxRenew.isChecked():
+            if self.chart_filtering_flag:
+                data = self.session.buffer_filtered.get_buff_last(
+                    self.chart_duration * SAMPLE_RATE)
+            else:
+                data = self.session.buffer_main.get_buff_last(
+                    self.chart_duration * SAMPLE_RATE)
 
-            if self.chart_detrend_flag:
-                for channel in range(NUM_CHANNELS):
-                    signal_filtering(data[channel], filtering=False)
+                if self.chart_detrend_flag:
+                    for channel in range(NUM_CHANNELS):
+                        signal_filtering(data[channel], filtering=False)
 
-        self.redraw_charts(data)
+            self.redraw_charts(data)
 
         if self.rhytm_Window and not self.rhytm_Window.isHidden():
             self.rhytm_Window.event_redraw_charts()
@@ -388,7 +389,7 @@ class MainWindow(QMainWindow):
             save_file(data, file_name[0])
 
     def _chart_redraw_request(self):
-        if self.session.get_status():
+        if self.session.get_status() and self.ui.CheckBoxRenew.isChecked():
             self.redraw_charts_request = True
         else:
             self.request_realisation()
@@ -507,8 +508,10 @@ class MainWindow(QMainWindow):
             if self.rhytm_Window is None:
                 self.rhytm_Window = RhytmWindow(self)
             self.rhytm_Window.show()
+            self.ui.CheckBoxRenew.setChecked(False)
         else:
             self.rhytm_Window.hide()
+            self.ui.CheckBoxRenew.setChecked(True)
 
     def set_eeg_ch_names(self):
         self.channel_names = self.session.get_eeg_ch_names()
@@ -536,7 +539,8 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-        self.rhytm_Window.hide()
+        if self.rhytm_Window:
+            self.rhytm_Window.hide()
 
 
 def main():

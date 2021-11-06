@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1058, 866)
+        MainWindow.resize(1076, 856)
         self.actionOpen_File = QAction(MainWindow)
         self.actionOpen_File.setObjectName(u"actionOpen_File")
         self.actionExit = QAction(MainWindow)
@@ -286,6 +286,12 @@ class Ui_MainWindow(object):
 
         self.LayoutChartSettings.addWidget(self.CheckBoxDetrendChart)
 
+        self.CheckBoxRenew = QCheckBox(self.groupBox)
+        self.CheckBoxRenew.setObjectName(u"CheckBoxRenew")
+        self.CheckBoxRenew.setChecked(True)
+
+        self.LayoutChartSettings.addWidget(self.CheckBoxRenew)
+
 
         self.verticalLayout.addWidget(self.groupBox)
 
@@ -374,7 +380,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1058, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1076, 22))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuView = QMenu(self.menubar)
@@ -500,6 +506,7 @@ class Ui_MainWindow(object):
         self.LabelAmplitude.setText(QCoreApplication.translate("MainWindow", u"Amplitude (uV): 20", None))
         self.CheckBoxFilterChart.setText(QCoreApplication.translate("MainWindow", u"Signal filtering", None))
         self.CheckBoxDetrendChart.setText(QCoreApplication.translate("MainWindow", u"Signal detrend", None))
+        self.CheckBoxRenew.setText(QCoreApplication.translate("MainWindow", u"Renew", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Patient data", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"First name:", None))
         self.LinePatientFirstName.setText("")
