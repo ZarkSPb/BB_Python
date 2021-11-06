@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1092</width>
-    <height>586</height>
+    <width>1049</width>
+    <height>588</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -759,7 +759,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>228</x>
-     <y>-15</y>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -775,7 +775,23 @@
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
-     <y>-7</y>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SliderChart</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_slider_value_cnd()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>307</x>
+     <y>513</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>421</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -786,5 +802,6 @@
   <slot>_reset()</slot>
   <slot>_pause()</slot>
   <slot>_resume()</slot>
+  <slot>_slider_value_cnd()</slot>
  </slots>
 </ui>

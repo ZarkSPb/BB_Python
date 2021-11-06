@@ -24,7 +24,7 @@ class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(1092, 586)
+        RhytmWindow.resize(1092, 518)
         self.formLayout = QFormLayout(RhytmWindow)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(4)
@@ -272,6 +272,7 @@ class Ui_RhytmWindow(object):
         self.ButtonReset.clicked.connect(RhytmWindow._reset)
         self.ButtonPause.clicked.connect(RhytmWindow._pause)
         self.ButtonResume.clicked.connect(RhytmWindow._resume)
+        self.SliderChart.valueChanged.connect(RhytmWindow._slider_value_cnd)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi
