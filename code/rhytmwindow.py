@@ -34,6 +34,13 @@ class RhytmWindow(QWidget):
 
         self.channel_names = self.parent.session.get_eeg_ch_names()
 
+        if self.parent.session.get_status():
+            open_session_run(self.ui)
+        else:
+            open_session_norun(self.ui)
+            if not self.parent.session.get_connect_status():
+                self.ui.ButtonStart.setEnabled(False)
+
         # /////////////////////////////////////////////////////////// CHART MAKE
         chart = QChart()
         chart.legend().setVisible(False)
@@ -202,18 +209,28 @@ class RhytmWindow(QWidget):
 
     def _pause(self):
         self.redraw_pause = True
-
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
-
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
-
         pause(self.ui)
 
     def _resume(self):
         self.redraw_pause = False
-
         resume(self.ui)
+
+    def _start(self):
+        if not self.parent.session.get_status():
+            self.parent._start_capture()
+        if self.redraw_pause:
+            self._resume()
+        self.chart_buffers_update()
+        start(self.ui)
+
+    def _stop(self):
+        if self.parent.session.get_status():
+            self.parent._stop_capture()
+        self._pause()
+        stop(self.ui)
 
     def _slider_value_cnd(self):
         self.slider_chart_prepare()
@@ -222,10 +239,12 @@ class RhytmWindow(QWidget):
                        SIGNAL_CLIPPING_SEC * SAMPLE_RATE)
         if start_index < 0:
             start_index = 0
-            end_index = start_index + (self.chart_duration +
-                                       SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
-        else:
-            end_index = start_index + self.chart_duration * SAMPLE_RATE
+
+        end_index = start_index + (self.chart_duration +
+                                   SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
+
+        if end_index > self.buffer_index:
+            end_index = self.buffer_index
 
         data = self.parent.session.buffer_main.get_buff_from(
             start_index, end_index)
@@ -245,10 +264,15 @@ class RhytmWindow(QWidget):
     def slider_chart_prepare(self):
         buff_size = self.buffer_index
 
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
-        self.ui.SliderChart.setMaximum(slider_maximum)
+        slider_max = buff_size - (self.chart_duration +
+                                  SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
+        slider_max = 0 if slider_max == 0 else slider_max
+
+        slider_min = SIGNAL_CLIPPING_SEC * SAMPLE_RATE
+        slider_min = slider_max if slider_min > slider_max else slider_min
+
+        self.ui.SliderChart.setMinimum(slider_min)
+        self.ui.SliderChart.setMaximum(slider_max)
 
     def redraw_charts(self, data):
         start_tick = data[-2, 0]

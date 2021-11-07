@@ -84,7 +84,17 @@
           <number>2</number>
          </property>
          <item>
+          <widget class="QPushButton" name="ButtonStart">
+           <property name="text">
+            <string>Start</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QPushButton" name="ButtonPause">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string>Pause</string>
            </property>
@@ -97,6 +107,16 @@
            </property>
            <property name="text">
             <string>Resume</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ButtonStop">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Stop</string>
            </property>
           </widget>
          </item>
@@ -383,10 +403,10 @@
             <number>5</number>
            </property>
            <property name="pageStep">
-            <number>20</number>
+            <number>5</number>
            </property>
            <property name="value">
-            <number>20</number>
+            <number>200</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -450,6 +470,15 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="maximum">
+      <number>1000</number>
+     </property>
+     <property name="singleStep">
+      <number>10</number>
+     </property>
+     <property name="pageStep">
+      <number>125</number>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -466,8 +495,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>132</x>
-     <y>309</y>
+     <x>139</x>
+     <y>361</y>
     </hint>
     <hint type="destinationlabel">
      <x>170</x>
@@ -482,8 +511,8 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>125</x>
-     <y>356</y>
+     <x>132</x>
+     <y>408</y>
     </hint>
     <hint type="destinationlabel">
      <x>164</x>
@@ -498,8 +527,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>37</x>
-     <y>117</y>
+     <x>44</x>
+     <y>169</y>
     </hint>
     <hint type="destinationlabel">
      <x>246</x>
@@ -514,8 +543,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>141</y>
+     <x>51</x>
+     <y>193</y>
     </hint>
     <hint type="destinationlabel">
      <x>245</x>
@@ -530,8 +559,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>165</y>
+     <x>51</x>
+     <y>217</y>
     </hint>
     <hint type="destinationlabel">
      <x>232</x>
@@ -546,8 +575,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>189</y>
+     <x>51</x>
+     <y>241</y>
     </hint>
     <hint type="destinationlabel">
      <x>230</x>
@@ -562,8 +591,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>213</y>
+     <x>51</x>
+     <y>265</y>
     </hint>
     <hint type="destinationlabel">
      <x>235</x>
@@ -579,7 +608,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>118</y>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>400</x>
@@ -595,7 +624,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>118</y>
+     <y>170</y>
     </hint>
     <hint type="destinationlabel">
      <x>528</x>
@@ -611,7 +640,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>142</y>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -627,7 +656,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>142</y>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>522</x>
@@ -643,7 +672,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>166</y>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -659,7 +688,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>166</y>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>517</x>
@@ -675,7 +704,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>190</y>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>373</x>
@@ -691,7 +720,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>190</y>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -707,7 +736,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>214</y>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -723,7 +752,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>214</y>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -738,8 +767,8 @@
    <slot>_reset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>240</y>
+     <x>85</x>
+     <y>292</y>
     </hint>
     <hint type="destinationlabel">
      <x>271</x>
@@ -754,8 +783,8 @@
    <slot>_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>123</x>
-     <y>27</y>
+     <x>130</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
      <x>228</x>
@@ -770,8 +799,8 @@
    <slot>_resume()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>74</x>
-     <y>63</y>
+     <x>81</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
@@ -786,12 +815,44 @@
    <slot>_slider_value_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>307</x>
-     <y>513</y>
+     <x>311</x>
+     <y>583</y>
     </hint>
     <hint type="destinationlabel">
      <x>421</x>
      <y>394</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonStart</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_start()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>51</x>
+     <y>34</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>526</x>
+     <y>-16</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ButtonStop</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_stop()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>58</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>-30</y>
     </hint>
    </hints>
   </connection>
@@ -803,5 +864,7 @@
   <slot>_pause()</slot>
   <slot>_resume()</slot>
   <slot>_slider_value_cnd()</slot>
+  <slot>_start()</slot>
+  <slot>_stop()</slot>
  </slots>
 </ui>

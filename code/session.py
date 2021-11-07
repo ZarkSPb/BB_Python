@@ -76,6 +76,7 @@ class Session():
                  last_name='',
                  eeg_channel_names=EEG_CHANNEL_NAMES):
 
+        self.connected = False
         self.save_filtered = save_filtered
         self.status = False
         self.time_init = QDateTime.currentDateTime()
@@ -135,3 +136,12 @@ class Session():
 
     def get_eeg_ch_names(self):
         return self.eeg_channel_names
+
+    def connect(self):
+        self.connected = True
+    
+    def disconnect(self):
+        self.connected = False
+
+    def get_connect_status(self):
+        return self.connected

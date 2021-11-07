@@ -278,8 +278,12 @@ class MainWindow(QMainWindow):
                 exception = False
 
         if not exception:
+            self.session.connect()
             self.statusBar_main.setText('Connected.')
             connect_2(self.ui)
+
+            if self.rhytm_Window and not self.rhytm_Window.isHidden():
+                self.rhytm_Window.ui.ButtonStart.setEnabled(True)
 
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
@@ -336,6 +340,9 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
+        if self.rhytm_Window:
+            self.rhytm_Window._start()
+
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         self.chart_redraw_timer.stop()
@@ -350,13 +357,21 @@ class MainWindow(QMainWindow):
 
         stop(self.ui)
 
+        self.rhytm_Window._stop()
+
     def _disconnect(self):
         # Release all BB resources
         if self.board.is_prepared():
             self.board.release_session()
 
+        self.session.disconnect()
+
         self.statusBar_main.setText('Disсonnected.')
         disconnect(self.ui)
+
+        if self.rhytm_Window:
+            self.rhytm_Window._stop()
+            self.rhytm_Window.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
         self.board.start_stream(100)

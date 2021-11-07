@@ -461,10 +461,10 @@
              <number>5</number>
             </property>
             <property name="pageStep">
-             <number>20</number>
+             <number>5</number>
             </property>
             <property name="value">
-             <number>20</number>
+             <number>200</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -643,10 +643,13 @@
        <bool>false</bool>
       </property>
       <property name="maximum">
-       <number>200</number>
+       <number>1000</number>
       </property>
       <property name="singleStep">
-       <number>1</number>
+       <number>10</number>
+      </property>
+      <property name="pageStep">
+       <number>125</number>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>

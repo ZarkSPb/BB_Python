@@ -24,7 +24,7 @@ class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(1092, 518)
+        RhytmWindow.resize(1049, 588)
         self.formLayout = QFormLayout(RhytmWindow)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(4)
@@ -44,8 +44,14 @@ class Ui_RhytmWindow(object):
         self.verticalLayout_2.setSpacing(2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(2, 2, 2, 2)
+        self.ButtonStart = QPushButton(self.groupBox_3)
+        self.ButtonStart.setObjectName(u"ButtonStart")
+
+        self.verticalLayout_2.addWidget(self.ButtonStart)
+
         self.ButtonPause = QPushButton(self.groupBox_3)
         self.ButtonPause.setObjectName(u"ButtonPause")
+        self.ButtonPause.setEnabled(False)
 
         self.verticalLayout_2.addWidget(self.ButtonPause)
 
@@ -54,6 +60,12 @@ class Ui_RhytmWindow(object):
         self.ButtonResume.setEnabled(False)
 
         self.verticalLayout_2.addWidget(self.ButtonResume)
+
+        self.ButtonStop = QPushButton(self.groupBox_3)
+        self.ButtonStop.setObjectName(u"ButtonStop")
+        self.ButtonStop.setEnabled(False)
+
+        self.verticalLayout_2.addWidget(self.ButtonStop)
 
 
         self.verticalLayout.addWidget(self.groupBox_3)
@@ -214,8 +226,8 @@ class Ui_RhytmWindow(object):
         self.SliderAmplitude.setMinimum(20)
         self.SliderAmplitude.setMaximum(200)
         self.SliderAmplitude.setSingleStep(5)
-        self.SliderAmplitude.setPageStep(20)
-        self.SliderAmplitude.setValue(20)
+        self.SliderAmplitude.setPageStep(5)
+        self.SliderAmplitude.setValue(200)
         self.SliderAmplitude.setOrientation(Qt.Horizontal)
         self.SliderAmplitude.setInvertedAppearance(False)
         self.SliderAmplitude.setInvertedControls(False)
@@ -246,6 +258,9 @@ class Ui_RhytmWindow(object):
         self.SliderChart = QSlider(RhytmWindow)
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setEnabled(False)
+        self.SliderChart.setMaximum(1000)
+        self.SliderChart.setSingleStep(10)
+        self.SliderChart.setPageStep(125)
         self.SliderChart.setOrientation(Qt.Horizontal)
 
         self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.SliderChart)
@@ -273,6 +288,8 @@ class Ui_RhytmWindow(object):
         self.ButtonPause.clicked.connect(RhytmWindow._pause)
         self.ButtonResume.clicked.connect(RhytmWindow._resume)
         self.SliderChart.valueChanged.connect(RhytmWindow._slider_value_cnd)
+        self.ButtonStart.clicked.connect(RhytmWindow._start)
+        self.ButtonStop.clicked.connect(RhytmWindow._stop)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi
@@ -280,8 +297,10 @@ class Ui_RhytmWindow(object):
     def retranslateUi(self, RhytmWindow):
         RhytmWindow.setWindowTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms view", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart control", None))
+        self.ButtonStart.setText(QCoreApplication.translate("RhytmWindow", u"Start", None))
         self.ButtonPause.setText(QCoreApplication.translate("RhytmWindow", u"Pause", None))
         self.ButtonResume.setText(QCoreApplication.translate("RhytmWindow", u"Resume", None))
+        self.ButtonStop.setText(QCoreApplication.translate("RhytmWindow", u"Stop", None))
         self.groupBox.setTitle(QCoreApplication.translate("RhytmWindow", u"Rhytms settings", None))
         self.CheckBox5.setText(QCoreApplication.translate("RhytmWindow", u"gamma", None))
         self.CheckBox2.setText(QCoreApplication.translate("RhytmWindow", u"theta", None))
