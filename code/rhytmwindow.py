@@ -29,17 +29,8 @@ class RhytmWindow(QWidget):
         self.redraw_charts_request = False
         self.redraw_pause = False
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
-
         self.rhytms = RHYTMS.copy()
-
         self.channel_names = self.parent.session.get_eeg_ch_names()
-
-        if self.parent.session.get_status():
-            open_session_run(self.ui)
-        else:
-            open_session_norun(self.ui)
-            if not self.parent.session.get_connect_status():
-                self.ui.ButtonStart.setEnabled(False)
 
         # /////////////////////////////////////////////////////////// CHART MAKE
         chart = QChart()
@@ -88,6 +79,18 @@ class RhytmWindow(QWidget):
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
         self.event_redraw_charts()
+
+    def update_ui(self):
+        self.ui.ButtonStart.setEnabled(self.parent.ui.ButtonStart.isEnabled())
+        self.ui.ButtonStop.setEnabled(self.parent.ui.ButtonStop.isEnabled())
+
+        if self.parent.session.get_status():
+            if self.redraw_pause:
+                pause(self.ui)
+            else:
+                resume(self.ui)
+        else:
+            open_session_norun(self.ui)
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c):

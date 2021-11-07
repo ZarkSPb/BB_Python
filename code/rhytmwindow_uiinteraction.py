@@ -25,18 +25,14 @@ def rhytms_param_cnd(ui):
     ui.SpinBox5_2.setMaximum(100)
 
 
-def open_session_run(ui):
-    ui.ButtonStart.setEnabled(False)
-    ui.ButtonPause.setEnabled(True)
-    ui.ButtonResume.setEnabled(False)
-    ui.ButtonStop.setEnabled(True)
+# def open_session_run(ui):
+#     ui.ButtonPause.setEnabled(True)
+#     ui.ButtonResume.setEnabled(False)
 
 
 def open_session_norun(ui):
-    ui.ButtonStart.setEnabled(True)
     ui.ButtonPause.setEnabled(False)
     ui.ButtonResume.setEnabled(False)
-    ui.ButtonStop.setEnabled(False)
 
 
 def start(ui):

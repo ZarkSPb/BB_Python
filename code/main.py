@@ -524,6 +524,7 @@ class MainWindow(QMainWindow):
         if self.ui.actionRhytm_window.isChecked():
             if self.rhytm_Window is None:
                 self.rhytm_Window = RhytmWindow(self)
+            self.rhytm_Window.update_ui()
             self.rhytm_Window.show()
             self.ui.CheckBoxRenew.setChecked(False)
         else:
