@@ -195,6 +195,8 @@ class RhytmWindow(QWidget):
             self.ui.CheckBox5.isChecked()
         ]
 
+        self._slider_value_cnd()
+
     def _reset(self):
         self.ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
         self.ui.SpinBox2_1.setValue(RHYTMS['theta'][0])

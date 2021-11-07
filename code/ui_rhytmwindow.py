@@ -257,7 +257,7 @@ class Ui_RhytmWindow(object):
 
         self.SliderChart = QSlider(RhytmWindow)
         self.SliderChart.setObjectName(u"SliderChart")
-        self.SliderChart.setEnabled(False)
+        self.SliderChart.setEnabled(True)
         self.SliderChart.setMaximum(1000)
         self.SliderChart.setSingleStep(10)
         self.SliderChart.setPageStep(125)
