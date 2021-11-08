@@ -123,7 +123,11 @@ class MainWindow(QMainWindow):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i + 1)
-            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+            time_string = shifted_time.toString('ss')
+            if ((time_string == '00') or (time_string == '20')
+                    or (time_string == '40')):
+                time_string = shifted_time.toString('hh:mm:ss')
+            axis_t.append(time_string, offset + i * 1000)
 
         axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
         axis_t.append(end_time.toString('hh:mm:ss.zzz'),

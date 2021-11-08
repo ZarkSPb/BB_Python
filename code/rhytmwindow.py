@@ -119,7 +119,11 @@ class RhytmWindow(QWidget):
 
         for i in range(1, self.chart_duration - 1):
             shifted_time = start_time.addSecs(i + 1)
-            axis_t.append(shifted_time.toString('ss'), offset + i * 1000)
+            time_string = shifted_time.toString('ss')
+            if ((time_string == '00') or (time_string == '20')
+                    or (time_string == '40')):
+                time_string = shifted_time.toString('hh:mm:ss')
+            axis_t.append(time_string, offset + i * 1000)
 
         axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
         axis_t.append(end_time.toString('hh:mm:ss.zzz'),
@@ -299,11 +303,11 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
-        # data = self.parent.session.buffer_main.get_buff_last(
-        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
-
-        data = self.data.get_buff_last(
+        data = self.parent.session.buffer_main.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+
+        # data = self.data.get_buff_last(
+        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         if data.shape[1] > 0:
             for channel in range(NUM_CHANNELS):
