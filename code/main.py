@@ -19,6 +19,7 @@ from ui_mainwindow import Ui_MainWindow
 from main_uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
+from chart import update_time_axis
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -67,7 +68,8 @@ class MainWindow(QMainWindow):
         axis_t.setRange(0, self.chart_duration * 1000)
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
-        axis_t = self.update_time_axis(axis_t, QDateTime.currentDateTime())
+        axis_t = update_time_axis(self.chart_duration, axis_t,
+                                  QDateTime.currentDateTime())
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
@@ -109,31 +111,6 @@ class MainWindow(QMainWindow):
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
-
-    # ///////////////////////////////////////////////////////// Update TIME axis
-    def update_time_axis(self, axis_t, start_time):
-        end_time = start_time.addSecs(self.chart_duration)
-        offset = 1000 - int(start_time.toString('zzz'))
-        labels = axis_t.categoriesLabels()
-        for label in labels:
-            axis_t.remove(label)
-
-        axis_t.append(start_time.toString('hh:mm:ss.zzz'), 0)
-        axis_t.append(' ', offset)
-
-        for i in range(1, self.chart_duration - 1):
-            shifted_time = start_time.addSecs(i + 1)
-            time_string = shifted_time.toString('ss')
-            if ((time_string == '00') or (time_string == '20')
-                    or (time_string == '40')):
-                time_string = shifted_time.toString('hh:mm:ss')
-            axis_t.append(time_string, offset + i * 1000)
-
-        axis_t.append('  ', (self.chart_duration - 1) * 1000 + offset)
-        axis_t.append(end_time.toString('hh:mm:ss.zzz'),
-                      self.chart_duration * 1000)
-
-        return axis_t
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c):
@@ -208,7 +185,7 @@ class MainWindow(QMainWindow):
             start_time = QDateTime.currentDateTime()
 
         axis_t = self.chart_view.chart().axes()[2]
-        self.update_time_axis(axis_t, start_time=start_time)
+        update_time_axis(self.chart_duration, axis_t, start_time=start_time)
         for channel in range(NUM_CHANNELS):
             r_data = data[channel]
             for i in range(r_data.shape[0]):
