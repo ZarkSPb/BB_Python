@@ -1,6 +1,6 @@
 from PySide6.QtCharts import QCategoryAxis, QChart, QValueAxis
 from PySide6 import QtCore
-from PySide6.QtCore import QDateTime
+from PySide6.QtCore import QDateTime, QPointF
 from settings import MAX_CHART_SIGNAL_DURATION, SAMPLE_RATE
 
 
@@ -41,6 +41,18 @@ def chart_init(session, amp, num_ch):
     chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
 
     return chart, axis_x, axis_y
+
+
+def chart_buffers_update(amp, ch_name, chart_duration):
+    ch_buffers = []
+    num_ch = len(ch_name)
+    for i in range(num_ch):
+        ch_buffers.append([
+            QPointF(x, amp + (num_ch - 1 - i) * 2 * amp)
+            for x in range(chart_duration * SAMPLE_RATE)
+        ])
+
+    return ch_buffers
 
 
 # ///////////////////////////////////////////////////////////// Update TIME axis

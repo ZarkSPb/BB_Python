@@ -6,19 +6,19 @@ import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import QChartView, QLineSeries
-from PySide6.QtCore import QDateTime, QPointF, QTimer
+from PySide6.QtCore import QDateTime, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 from board import Board
+from chart import *
+from main_uiinteraction import *
 from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from main_uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from chart import update_time_axis, update_channels_axis, chart_init
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -46,11 +46,14 @@ class MainWindow(QMainWindow):
         self.session = Session(buffer_size=10)
         self.set_eeg_ch_names()
 
+        # //////////////////////////////////////////////////////////////// CHART
         chart, axis_x, axis_y = chart_init(self.session, self.chart_amp,
                                            NUM_CHANNELS)
-        # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.session.get_eeg_ch_names(),
+            self.chart_duration)
+
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -80,16 +83,6 @@ class MainWindow(QMainWindow):
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
-
-    def chart_buffers_update(self):
-        self.chart_buffers = []
-        for i in range(NUM_CHANNELS):
-            self.chart_buffers.append([
-                QPointF(
-                    x, self.chart_amp +
-                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                for x in range(self.chart_duration * SAMPLE_RATE)
-            ])
 
     def timer_redraw_charts(self):
         if self.ui.CheckBoxRenew.isChecked():
@@ -129,7 +122,9 @@ class MainWindow(QMainWindow):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.session.get_eeg_ch_names(),
+            self.chart_duration)
 
     def redraw_charts(self, data):
         start_tick = data[-2, 0]
@@ -249,7 +244,9 @@ class MainWindow(QMainWindow):
         self.save_first = True
 
         # CHART buffer renew
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.session.get_eeg_ch_names(),
+            self.chart_duration)
 
         self.session.session_start(self.board)
 
@@ -363,7 +360,9 @@ class MainWindow(QMainWindow):
             data = self.session.buffer_main.get_buff_from(
                 start_index, end_index)
 
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.session.get_eeg_ch_names(),
+            self.chart_duration)
         self.redraw_charts(data)
 
     def slider_chart_prepare(self):

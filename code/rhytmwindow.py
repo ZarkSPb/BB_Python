@@ -5,13 +5,12 @@ from PySide6.QtCore import QDateTime, QPointF
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
+from chart import *
+from rhytmwindow_uiinteraction import *
 from settings import (MAX_CHART_SIGNAL_DURATION, NUM_CHANNELS, RHYTMS,
                       SAMPLE_RATE, SIGNAL_CLIPPING_SEC)
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
-from session import Buffer
-from rhytmwindow_uiinteraction import *
-from chart import update_time_axis, update_channels_axis, chart_init
 
 
 class RhytmWindow(QWidget):
@@ -32,11 +31,13 @@ class RhytmWindow(QWidget):
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.rhytms = RHYTMS.copy()
 
+        # //////////////////////////////////////////////////////////////// CHART
         chart, axis_x, axis_y = chart_init(self.parent.session, self.chart_amp,
                                            NUM_CHANNELS)
-        # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.parent.session.get_eeg_ch_names(),
+            self.chart_duration)
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -60,16 +61,6 @@ class RhytmWindow(QWidget):
                 resume(self.ui)
         else:
             open_session_norun(self.ui)
-
-    def chart_buffers_update(self):
-        self.chart_buffers = []
-        for i in range(NUM_CHANNELS):
-            self.chart_buffers.append([
-                QPointF(
-                    x, self.chart_amp +
-                    (NUM_CHANNELS - 1 - i) * 2 * self.chart_amp)
-                for x in range(self.chart_duration * SAMPLE_RATE)
-            ])
 
     def _chart_redraw_request(self):
         if self.parent.session.get_status() and not self.redraw_pause:
@@ -97,7 +88,9 @@ class RhytmWindow(QWidget):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.parent.session.get_eeg_ch_names(),
+            self.chart_duration)
 
     def _rhytms_param_cnd(self):
         rhytms_param_cnd(self.ui)
@@ -161,7 +154,9 @@ class RhytmWindow(QWidget):
             self.parent._start_capture()
         if self.redraw_pause:
             self._resume()
-        self.chart_buffers_update()
+        self.chart_buffers = chart_buffers_update(
+            self.chart_amp, self.parent.session.get_eeg_ch_names(),
+            self.chart_duration)
         start(self.ui)
 
     def _stop(self):
