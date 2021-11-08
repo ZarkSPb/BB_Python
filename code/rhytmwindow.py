@@ -11,7 +11,7 @@ from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
 from session import Buffer
 from rhytmwindow_uiinteraction import *
-from chart import update_time_axis
+from chart import update_time_axis, update_channels_axis
 
 
 class RhytmWindow(QWidget):
@@ -31,7 +31,6 @@ class RhytmWindow(QWidget):
         self.redraw_pause = False
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.rhytms = RHYTMS.copy()
-        self.channel_names = self.parent.session.get_eeg_ch_names()
 
         # /////////////////////////////////////////////////////////// CHART MAKE
         chart = QChart()
@@ -63,7 +62,8 @@ class RhytmWindow(QWidget):
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_c.setTruncateLabels(False)
-        self.update_channels_axis(axis_c)
+        update_channels_axis(axis_c, self.parent.session, self.chart_amp,
+                             NUM_CHANNELS)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
@@ -92,22 +92,6 @@ class RhytmWindow(QWidget):
         else:
             open_session_norun(self.ui)
 
-    # ///////////////////////////////////////////////////// Update CHANNELS axis
-    def update_channels_axis(self, axis_c):
-        labels = axis_c.categoriesLabels()
-        for i in range(len(labels)):
-            axis_c.remove(labels[i])
-
-        axis_c.append(f'{-self.chart_amp}', 0)
-        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
-            axis_c.append(f'--{ch_name}--', i + 0.5)
-            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
-            if i < NUM_CHANNELS - 1:
-                axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
-            else:
-                axis_c.append(f'{self.chart_amp}', i + 1)
-
     def chart_buffers_update(self):
         self.chart_buffers = []
         for i in range(NUM_CHANNELS):
@@ -132,7 +116,8 @@ class RhytmWindow(QWidget):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
-        self.update_channels_axis(axis_c)
+        update_channels_axis(axis_c, self.parent.session, self.chart_amp,
+                             NUM_CHANNELS)
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()

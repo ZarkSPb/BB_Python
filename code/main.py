@@ -19,7 +19,7 @@ from ui_mainwindow import Ui_MainWindow
 from main_uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from chart import update_time_axis
+from chart import update_time_axis, update_channels_axis
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -77,7 +77,8 @@ class MainWindow(QMainWindow):
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_c.setTruncateLabels(False)
-        self.update_channels_axis(axis_c)
+        update_channels_axis(axis_c, self.session, self.chart_amp,
+                             NUM_CHANNELS)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
@@ -111,22 +112,6 @@ class MainWindow(QMainWindow):
         self.save_flag = self.ui.CheckBoxAutosave.isChecked()
         # Save fitered data flag
         self.save_filtered_flag = self.ui.CheckBoxSaveFiltered.isChecked()
-
-    # ///////////////////////////////////////////////////// Update CHANNELS axis
-    def update_channels_axis(self, axis_c):
-        labels = axis_c.categoriesLabels()
-        for i in range(len(labels)):
-            axis_c.remove(labels[i])
-
-        axis_c.append(f'{-self.chart_amp}', 0)
-        for i, ch_name in enumerate(self.channel_names[NUM_CHANNELS - 1::-1]):
-            axis_c.append(f'{-self.chart_amp // 2}' + i * ' ', i + 0.25)
-            axis_c.append(f'--{ch_name}--', i + 0.5)
-            axis_c.append(f'{self.chart_amp // 2}' + i * ' ', i + 0.75)
-            if i < NUM_CHANNELS - 1:
-                axis_c.append(f'({self.chart_amp})' + i * ' ', i + 1)
-            else:
-                axis_c.append(f'{self.chart_amp}', i + 1)
 
     def chart_buffers_update(self):
         self.chart_buffers = []
@@ -164,7 +149,8 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
-        self.update_channels_axis(axis_c)
+        update_channels_axis(axis_c, self.session, self.chart_amp,
+                             NUM_CHANNELS)
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()
@@ -499,6 +485,8 @@ class MainWindow(QMainWindow):
             self.slider_chart_prepare()
             self._chart_redraw_request()
 
+            self.rhytm_Window._chart_redraw_request()
+
             open_file(self.ui)
 
     def _control_panel(self):
@@ -526,11 +514,11 @@ class MainWindow(QMainWindow):
             self.ui.CheckBoxRenew.setChecked(True)
 
     def set_eeg_ch_names(self):
-        self.channel_names = self.session.get_eeg_ch_names()
-        self.ui.LabelCh0.setText(self.channel_names[0])
-        self.ui.LabelCh1.setText(self.channel_names[1])
-        self.ui.LabelCh2.setText(self.channel_names[2])
-        self.ui.LabelCh3.setText(self.channel_names[3])
+        channel_names = self.session.get_eeg_ch_names()
+        self.ui.LabelCh0.setText(channel_names[0])
+        self.ui.LabelCh1.setText(channel_names[1])
+        self.ui.LabelCh2.setText(channel_names[2])
+        self.ui.LabelCh3.setText(channel_names[3])
 
     def closeEvent(self, event):
         # Release all BB resources
