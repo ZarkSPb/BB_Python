@@ -1,3 +1,48 @@
+from PySide6.QtCharts import QCategoryAxis, QChart, QValueAxis
+from PySide6 import QtCore
+from PySide6.QtCore import QDateTime
+from settings import MAX_CHART_SIGNAL_DURATION, SAMPLE_RATE
+
+
+# /////////////////////////////////////////////////////////// CHART MAKE
+def chart_init(session, amp, num_ch):
+    chart_duration = MAX_CHART_SIGNAL_DURATION
+
+    chart = QChart()
+    chart.legend().setVisible(False)
+    # /////////////////////////////////////////////////////////////////// axis_x
+    axis_x = QValueAxis()
+    axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
+    axis_x.setVisible(False)
+    axis_x.setLabelFormat('%i')
+    chart.addAxis(axis_x, QtCore.Qt.AlignTop)
+    # /////////////////////////////////////////////////////////////////// axis_y
+    axis_y = QValueAxis()
+    axis_y.setRange(0, amp * num_ch * 2)
+    axis_y.setTickCount(9)
+    axis_y.setMinorTickCount(1)
+    axis_y.setLabelsVisible(False)
+    chart.addAxis(axis_y, QtCore.Qt.AlignRight)
+    # /////////////////////////////////////////////////////////////////// axis_t
+    axis_t = QCategoryAxis()
+    axis_t.setRange(0, chart_duration * 1000)
+    axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+    axis_t.setTruncateLabels(False)
+    axis_t = update_time_axis(chart_duration, axis_t,
+                              QDateTime.currentDateTime())
+    chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+    # /////////////////////////////////////////////////////////////////// axis_c
+    axis_c = QCategoryAxis()
+    axis_c.setRange(0, 4)
+    axis_c.setGridLineVisible(False)
+    axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+    axis_c.setTruncateLabels(False)
+    update_channels_axis(axis_c, session, amp, num_ch)
+    chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
+
+    return chart, axis_x, axis_y
+
+
 # ///////////////////////////////////////////////////////////// Update TIME axis
 def update_time_axis(chart_duration, axis_t, start_time):
     end_time = start_time.addSecs(chart_duration)
@@ -21,6 +66,7 @@ def update_time_axis(chart_duration, axis_t, start_time):
     axis_t.append(end_time.toString('hh:mm:ss.zzz'), chart_duration * 1000)
 
     return axis_t
+
 
 # ///////////////////////////////////////////////////////// Update CHANNELS axis
 def update_channels_axis(axis_c, session, chart_amp, num_ch):

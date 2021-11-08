@@ -5,8 +5,7 @@ from time import sleep
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCharts import (QCategoryAxis, QChart, QChartView, QLineSeries,
-                              QValueAxis)
+from PySide6.QtCharts import QChartView, QLineSeries
 from PySide6.QtCore import QDateTime, QPointF, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
@@ -19,7 +18,7 @@ from ui_mainwindow import Ui_MainWindow
 from main_uiinteraction import *
 from utils import file_name_constructor, save_file, signal_filtering
 from worker import Worker
-from chart import update_time_axis, update_channels_axis
+from chart import update_time_axis, update_channels_axis, chart_init
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -47,39 +46,42 @@ class MainWindow(QMainWindow):
         self.session = Session(buffer_size=10)
         self.set_eeg_ch_names()
 
-        # /////////////////////////////////////////////////////////// CHART MAKE
-        chart = QChart()
-        chart.legend().setVisible(False)
-        # /////////////////////////////////////////////////////////////// axis_x
-        axis_x = QValueAxis()
-        axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
-        axis_x.setVisible(False)
-        axis_x.setLabelFormat('%i')
-        chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-        # /////////////////////////////////////////////////////////////// axis_y
-        axis_y = QValueAxis()
-        axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
-        axis_y.setTickCount(9)
-        axis_y.setMinorTickCount(1)
-        axis_y.setLabelsVisible(False)
-        chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-        # /////////////////////////////////////////////////////////////// axis_t
-        axis_t = QCategoryAxis()
-        axis_t.setRange(0, self.chart_duration * 1000)
-        axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        axis_t.setTruncateLabels(False)
-        axis_t = update_time_axis(self.chart_duration, axis_t,
-                                  QDateTime.currentDateTime())
-        chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
-        # /////////////////////////////////////////////////////////////// axis_c
-        axis_c = QCategoryAxis()
-        axis_c.setRange(0, 4)
-        axis_c.setGridLineVisible(False)
-        axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        axis_c.setTruncateLabels(False)
-        update_channels_axis(axis_c, self.session, self.chart_amp,
-                             NUM_CHANNELS)
-        chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
+        # # /////////////////////////////////////////////////////////// CHART MAKE
+        # chart = QChart()
+        # chart.legend().setVisible(False)
+        # # /////////////////////////////////////////////////////////////// axis_x
+        # axis_x = QValueAxis()
+        # axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
+        # axis_x.setVisible(False)
+        # axis_x.setLabelFormat('%i')
+        # chart.addAxis(axis_x, QtCore.Qt.AlignTop)
+        # # /////////////////////////////////////////////////////////////// axis_y
+        # axis_y = QValueAxis()
+        # axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
+        # axis_y.setTickCount(9)
+        # axis_y.setMinorTickCount(1)
+        # axis_y.setLabelsVisible(False)
+        # chart.addAxis(axis_y, QtCore.Qt.AlignRight)
+        # # /////////////////////////////////////////////////////////////// axis_t
+        # axis_t = QCategoryAxis()
+        # axis_t.setRange(0, self.chart_duration * 1000)
+        # axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        # axis_t.setTruncateLabels(False)
+        # axis_t = update_time_axis(self.chart_duration, axis_t,
+        #                           QDateTime.currentDateTime())
+        # chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+        # # /////////////////////////////////////////////////////////////// axis_c
+        # axis_c = QCategoryAxis()
+        # axis_c.setRange(0, 4)
+        # axis_c.setGridLineVisible(False)
+        # axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        # axis_c.setTruncateLabels(False)
+        # update_channels_axis(axis_c, self.session, self.chart_amp,
+        #                      NUM_CHANNELS)
+        # chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
+
+        chart, axis_x, axis_y = chart_init(self.session, self.chart_amp, NUM_CHANNELS)
+
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
         self.chart_buffers_update()
