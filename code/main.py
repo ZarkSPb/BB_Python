@@ -293,7 +293,6 @@ class MainWindow(QMainWindow):
 
         stop(self.ui)
 
-
         if self.rhytm_Window and not self.rhytm_Window.isHidden():
             self.rhytm_Window._stop()
 
