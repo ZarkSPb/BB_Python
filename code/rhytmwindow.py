@@ -78,8 +78,6 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        self.event_redraw_charts()
-
     def update_ui(self):
         self.ui.ButtonStart.setEnabled(self.parent.ui.ButtonStart.isEnabled())
         self.ui.ButtonStop.setEnabled(self.parent.ui.ButtonStop.isEnabled())
@@ -251,8 +249,10 @@ class RhytmWindow(QWidget):
         if end_index > self.buffer_index:
             end_index = self.buffer_index
 
-        data = self.parent.session.buffer_main.get_buff_from(
-            start_index, end_index)
+        # data = self.parent.session.buffer_main.get_buff_from(
+        #     start_index, end_index)
+
+        data = self.data.get_buff_from(start_index, end_index)
 
         if data.shape[1] > 0:
             for channel in range(NUM_CHANNELS):
@@ -262,9 +262,6 @@ class RhytmWindow(QWidget):
             data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
             if data.shape[1] > 0:
                 self.redraw_charts(data)
-
-        # self.chart_buffers_update()
-        # self.redraw_charts(data)
 
     def slider_chart_prepare(self):
         buff_size = self.buffer_index
@@ -302,7 +299,10 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
-        data = self.parent.session.buffer_main.get_buff_last(
+        # data = self.parent.session.buffer_main.get_buff_last(
+        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
+
+        data = self.data.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         if data.shape[1] > 0:

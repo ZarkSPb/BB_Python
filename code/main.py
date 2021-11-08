@@ -38,6 +38,7 @@ class MainWindow(QMainWindow):
         self.chart_detrend_flag = False
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
+        self.filtered = False
         self.charts = []
 
         self.rhytm_Window = None
@@ -285,6 +286,8 @@ class MainWindow(QMainWindow):
             if self.rhytm_Window and not self.rhytm_Window.isHidden():
                 self.rhytm_Window.ui.ButtonStart.setEnabled(True)
 
+            self.filtered = False
+
     # ////////////////////////////////////////////////////////////// UI BEHAVIOR
     # ////////////////////////////////////////////////////////////////// CONNECT
     def _connect(self):
@@ -465,25 +468,24 @@ class MainWindow(QMainWindow):
 
     # ////////////////////////////////////////////////////////////// MENU ACTION
     def _open_file(self):
-        delimiter = ';'
+        delim = ';'
 
         file_name = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Open eeg data (*.csv)', filter="CSV file (*.csv)")
         file_name = file_name[0]
 
         if file_name != '':
-            with open(file_name) as file_object:
-                first_name = file_object.readline().rstrip().lstrip('#')
-                last_name = file_object.readline().rstrip().lstrip('#')
-                data = file_object.readline().rstrip().lstrip('#')
-                time = file_object.readline().rstrip().lstrip('#')
-                filtered_flag = file_object.readline().rstrip().lstrip('#')
-                header = file_object.readline().rstrip().lstrip('#').split(
-                    delimiter)
+            with open(file_name) as f_object:
+                first_name = f_object.readline().rstrip().lstrip('#')
+                last_name = f_object.readline().rstrip().lstrip('#')
+                data = f_object.readline().rstrip().lstrip('#')
+                time = f_object.readline().rstrip().lstrip('#')
+                filtered_flag = f_object.readline().rstrip().lstrip('#')
+                header = f_object.readline().rstrip().lstrip('#').split(delim)
 
-            filtered_flag = True if filtered_flag == 'filtered' else False
+            self.filtered = True if filtered_flag == 'filtered' else False
 
-            table = np.loadtxt(file_name, delimiter=delimiter).T
+            table = np.loadtxt(file_name, delimiter=delim).T
 
             of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
 
@@ -492,14 +494,14 @@ class MainWindow(QMainWindow):
                                    last_name=last_name,
                                    eeg_channel_names=of_eeg_channel_names)
 
-            if filtered_flag:
+            if self.filtered:
                 self.session.buffer_filtered.add(table)
             else:
                 self.session.add(table)
 
             del table
 
-            self.ui.CheckBoxFilterChart.setEnabled(not filtered_flag)
+            self.ui.CheckBoxFilterChart.setEnabled(not self.filtered)
 
             self.set_eeg_ch_names()
 
@@ -524,8 +526,15 @@ class MainWindow(QMainWindow):
         if self.ui.actionRhytm_window.isChecked():
             if self.rhytm_Window is None:
                 self.rhytm_Window = RhytmWindow(self)
+
+            if self.filtered:
+                self.rhytm_Window.data = self.session.buffer_filtered
+            else:
+                self.rhytm_Window.data = self.session.buffer_main
+
             self.rhytm_Window.update_ui()
             self.rhytm_Window.show()
+            self.rhytm_Window.event_redraw_charts()
             self.ui.CheckBoxRenew.setChecked(False)
         else:
             self.rhytm_Window.hide()
