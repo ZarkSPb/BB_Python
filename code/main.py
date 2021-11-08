@@ -471,7 +471,11 @@ class MainWindow(QMainWindow):
         delim = ';'
 
         file_name = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open eeg data (*.csv)', filter="CSV file (*.csv)")
+            self,
+            'Open eeg data (*.csv)',
+            dir=FOLDER,
+            filter="CSV file (*.csv)")
+
         file_name = file_name[0]
 
         if file_name != '':

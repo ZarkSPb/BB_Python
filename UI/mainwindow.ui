@@ -649,7 +649,7 @@
        <number>10</number>
       </property>
       <property name="pageStep">
-       <number>125</number>
+       <number>250</number>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>

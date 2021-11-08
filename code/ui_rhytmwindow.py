@@ -260,7 +260,7 @@ class Ui_RhytmWindow(object):
         self.SliderChart.setEnabled(True)
         self.SliderChart.setMaximum(1000)
         self.SliderChart.setSingleStep(10)
-        self.SliderChart.setPageStep(125)
+        self.SliderChart.setPageStep(250)
         self.SliderChart.setOrientation(Qt.Horizontal)
 
         self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.SliderChart)

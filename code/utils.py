@@ -1,13 +1,16 @@
 # import numpy as np
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from numpy import savetxt, zeros
+import os
+from settings import FOLDER
 
 from settings import *
 
 
 def save_file(data, session, file_name='eeg.csv', save_first=True):
-    with open(file_name, 'a') as file_object:
-
+    if not os.path.exists(FOLDER):
+        os.makedirs(FOLDER)
+    with open(f'{FOLDER}/{file_name}', 'a') as file_object:
         first_name = session.patient.get_first_name()
         last_name = session.patient.get_last_name()
 

@@ -42,3 +42,5 @@ RHYTMS = {
     'betha': [13, 40, True],
     'gamma': [40, 48, True],
 }
+
+FOLDER = 'CSV'
