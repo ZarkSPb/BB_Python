@@ -46,42 +46,8 @@ class MainWindow(QMainWindow):
         self.session = Session(buffer_size=10)
         self.set_eeg_ch_names()
 
-        # # /////////////////////////////////////////////////////////// CHART MAKE
-        # chart = QChart()
-        # chart.legend().setVisible(False)
-        # # /////////////////////////////////////////////////////////////// axis_x
-        # axis_x = QValueAxis()
-        # axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
-        # axis_x.setVisible(False)
-        # axis_x.setLabelFormat('%i')
-        # chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-        # # /////////////////////////////////////////////////////////////// axis_y
-        # axis_y = QValueAxis()
-        # axis_y.setRange(0, self.chart_amp * NUM_CHANNELS * 2)
-        # axis_y.setTickCount(9)
-        # axis_y.setMinorTickCount(1)
-        # axis_y.setLabelsVisible(False)
-        # chart.addAxis(axis_y, QtCore.Qt.AlignRight)
-        # # /////////////////////////////////////////////////////////////// axis_t
-        # axis_t = QCategoryAxis()
-        # axis_t.setRange(0, self.chart_duration * 1000)
-        # axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        # axis_t.setTruncateLabels(False)
-        # axis_t = update_time_axis(self.chart_duration, axis_t,
-        #                           QDateTime.currentDateTime())
-        # chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
-        # # /////////////////////////////////////////////////////////////// axis_c
-        # axis_c = QCategoryAxis()
-        # axis_c.setRange(0, 4)
-        # axis_c.setGridLineVisible(False)
-        # axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        # axis_c.setTruncateLabels(False)
-        # update_channels_axis(axis_c, self.session, self.chart_amp,
-        #                      NUM_CHANNELS)
-        # chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
-
-        chart, axis_x, axis_y = chart_init(self.session, self.chart_amp, NUM_CHANNELS)
-
+        chart, axis_x, axis_y = chart_init(self.session, self.chart_amp,
+                                           NUM_CHANNELS)
         # //////////////////////////////////////////////////////// serieses fill
         self.serieses = []
         self.chart_buffers_update()
