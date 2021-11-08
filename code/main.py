@@ -276,6 +276,7 @@ class MainWindow(QMainWindow):
         start(self.ui)
 
         if self.rhytm_Window:
+            self.rhytm_Window.data = self.session.buffer_main
             self.rhytm_Window._start()
 
     # ///////////////////////////////////////////////////////////////////// STOP
@@ -292,7 +293,9 @@ class MainWindow(QMainWindow):
 
         stop(self.ui)
 
-        self.rhytm_Window._stop()
+
+        if self.rhytm_Window and not self.rhytm_Window.isHidden():
+            self.rhytm_Window._stop()
 
     def _disconnect(self):
         # Release all BB resources
@@ -452,7 +455,8 @@ class MainWindow(QMainWindow):
             self.slider_chart_prepare()
             self._chart_redraw_request()
 
-            self.rhytm_Window._chart_redraw_request()
+            if self.rhytm_Window and not self.rhytm_Window.isHidden():
+                self.rhytm_Window._chart_redraw_request()
 
             open_file(self.ui)
 

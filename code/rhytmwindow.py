@@ -179,9 +179,6 @@ class RhytmWindow(QWidget):
         if end_index > self.buffer_index:
             end_index = self.buffer_index
 
-        # data = self.parent.session.buffer_main.get_buff_from(
-        #     start_index, end_index)
-
         data = self.data.get_buff_from(start_index, end_index)
 
         if data.shape[1] > 0:
@@ -229,11 +226,8 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
-        data = self.parent.session.buffer_main.get_buff_last(
+        data = self.data.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
-
-        # data = self.data.get_buff_last(
-        #     (self.chart_duration + SIGNAL_CLIPPING_SEC) * SAMPLE_RATE)
 
         if data.shape[1] > 0:
             for channel in range(NUM_CHANNELS):
