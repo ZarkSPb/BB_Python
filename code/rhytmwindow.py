@@ -123,8 +123,7 @@ class RhytmWindow(QWidget):
             self.ui.CheckBox5.isChecked()
         ]
 
-        if self.redraw_pause:
-            self._slider_value_cnd()
+        if self.redraw_pause: self._slider_value_cnd()
 
     def _reset(self):
         self.ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
@@ -153,18 +152,15 @@ class RhytmWindow(QWidget):
         resume(self.ui)
 
     def _start(self):
-        if not self.parent.session.get_status():
-            self.parent._start_capture()
-        if self.redraw_pause:
-            self._resume()
+        if not self.parent.session.get_status(): self.parent._start_capture()
+        if self.redraw_pause: self._resume()
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.parent.session.get_eeg_ch_names(),
             self.chart_duration)
         start(self.ui)
 
     def _stop(self):
-        if self.parent.session.get_status():
-            self.parent._stop_capture()
+        if self.parent.session.get_status(): self.parent._stop_capture()
         self._pause()
         stop(self.ui)
 
@@ -188,8 +184,7 @@ class RhytmWindow(QWidget):
                 data[channel] = rhytm_constructor(data[channel], self.rhytms)
             data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
 
-        if data.shape[1] > 0:
-            self.redraw_charts(data)
+        if data.shape[1] > 0: self.redraw_charts(data)
         else:
             start_time = QDateTime.currentDateTime()
             axis_t = self.chart_view.chart().axes()[2]
@@ -243,8 +238,7 @@ class RhytmWindow(QWidget):
                 data[channel] = rhytm_constructor(data[channel], self.rhytms)
 
             data = data[:, SIGNAL_CLIPPING_SEC * SAMPLE_RATE:]
-            if data.shape[1] > 0:
-                self.redraw_charts(data)
+            if data.shape[1] > 0: self.redraw_charts(data)
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
