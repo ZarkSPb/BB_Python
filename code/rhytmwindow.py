@@ -172,14 +172,11 @@ class RhytmWindow(QWidget):
 
         start_index = (self.ui.SliderChart.value() -
                        SIGNAL_CLIPPING_SEC * SAMPLE_RATE)
-        if start_index < 0:
-            start_index = 0
+        if start_index < 0: start_index = 0
 
         end_index = start_index + (self.chart_duration +
                                    SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
-
-        if end_index > self.buffer_index:
-            end_index = self.buffer_index
+        if end_index > self.buffer_index: end_index = self.buffer_index
 
         data = self.data.get_buff_from(start_index, end_index)
 
@@ -205,14 +202,14 @@ class RhytmWindow(QWidget):
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
     def slider_chart_prepare(self):
-        buff_size = self.buffer_index
-
-        slider_max = buff_size - (self.chart_duration +
-                                  SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
-        slider_max = 0 if slider_max == 0 else slider_max
+        slider_max = self.buffer_index - (self.chart_duration +
+                                          SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
+        if slider_max < 0: slider_max = 0
 
         slider_min = SIGNAL_CLIPPING_SEC * SAMPLE_RATE
         slider_min = slider_max if slider_min > slider_max else slider_min
+
+        print(self.buffer_index, slider_min, slider_max)
 
         self.ui.SliderChart.setMinimum(slider_min)
         self.ui.SliderChart.setMaximum(slider_max)

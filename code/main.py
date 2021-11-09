@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.filtered = False
         self.charts = []
 
-        self.rhytm_Window = None
+        self.r_window = None
 
         self.session = Session(buffer_size=10)
         self.set_eeg_ch_names()
@@ -97,11 +97,12 @@ class MainWindow(QMainWindow):
                     for channel in range(NUM_CHANNELS):
                         signal_filtering(data[channel], filtering=False)
 
-            self.redraw_charts(data)
+            if data.shape[1] > 0:
+                self.redraw_charts(data)
 
-        if (self.rhytm_Window and not self.rhytm_Window.isHidden()
-                and not self.rhytm_Window.redraw_pause):
-            self.rhytm_Window.event_redraw_charts()
+        if (self.r_window and not self.r_window.isHidden()
+                and not self.r_window.redraw_pause):
+            self.r_window.event_redraw_charts()
 
     def request_realisation(self):
         # Slider AMPLITUDE
@@ -213,8 +214,8 @@ class MainWindow(QMainWindow):
             self.statusBar_main.setText('Connected.')
             connect_2(self.ui)
 
-            if self.rhytm_Window and not self.rhytm_Window.isHidden():
-                self.rhytm_Window.ui.ButtonStart.setEnabled(True)
+            if self.r_window and not self.r_window.isHidden():
+                self.r_window.ui.ButtonStart.setEnabled(True)
 
             self.filtered = False
 
@@ -275,9 +276,9 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
-        if self.rhytm_Window:
-            self.rhytm_Window.data = self.session.buffer_main
-            self.rhytm_Window._start()
+        if self.r_window:
+            self.r_window.data = self.session.buffer_main
+            self.r_window._start()
 
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
@@ -293,8 +294,8 @@ class MainWindow(QMainWindow):
 
         stop(self.ui)
 
-        if self.rhytm_Window and not self.rhytm_Window.isHidden():
-            self.rhytm_Window._stop()
+        if self.r_window and not self.r_window.isHidden():
+            self.r_window._stop()
 
     def _disconnect(self):
         # Release all BB resources
@@ -306,9 +307,9 @@ class MainWindow(QMainWindow):
         self.statusBar_main.setText('Disсonnected.')
         disconnect(self.ui)
 
-        if self.rhytm_Window:
-            self.rhytm_Window._stop()
-            self.rhytm_Window.ui.ButtonStart.setEnabled(False)
+        if self.r_window:
+            self.r_window._stop()
+            self.r_window.ui.ButtonStart.setEnabled(False)
 
     def _start_impedance(self):
         self.board.start_stream(100)
@@ -454,8 +455,14 @@ class MainWindow(QMainWindow):
             self.slider_chart_prepare()
             self._chart_redraw_request()
 
-            if self.rhytm_Window and not self.rhytm_Window.isHidden():
-                self.rhytm_Window._chart_redraw_request()
+            if self.r_window and not self.r_window.isHidden():
+                if self.filtered:
+                    self.r_window.data = self.session.buffer_filtered
+                else:
+                    self.r_window.data = self.session.buffer_main
+                self.r_window.buffer_index = self.r_window.data.get_last_num()
+                self.r_window._chart_redraw_request()
+                self.r_window.event_redraw_charts()
 
             open_file(self.ui)
 
@@ -467,20 +474,20 @@ class MainWindow(QMainWindow):
 
     def _rhytms_window(self):
         if self.ui.actionRhytm_window.isChecked():
-            if self.rhytm_Window is None:
-                self.rhytm_Window = RhytmWindow(self)
+            if self.r_window is None:
+                self.r_window = RhytmWindow(self)
 
             if self.filtered:
-                self.rhytm_Window.data = self.session.buffer_filtered
+                self.r_window.data = self.session.buffer_filtered
             else:
-                self.rhytm_Window.data = self.session.buffer_main
+                self.r_window.data = self.session.buffer_main
 
-            self.rhytm_Window.update_ui()
-            self.rhytm_Window.show()
-            self.rhytm_Window.event_redraw_charts()
+            self.r_window.update_ui()
+            self.r_window.show()
+            self.r_window.event_redraw_charts()
             self.ui.CheckBoxRenew.setChecked(False)
         else:
-            self.rhytm_Window.hide()
+            self.r_window.hide()
             self.ui.CheckBoxRenew.setChecked(True)
 
     def set_eeg_ch_names(self):
@@ -509,8 +516,8 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-        if self.rhytm_Window:
-            self.rhytm_Window.hide()
+        if self.r_window:
+            self.r_window.hide()
 
 
 def main():
