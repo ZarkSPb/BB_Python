@@ -28,6 +28,7 @@ class RhytmWindow(QWidget):
         self.redraw_pause = False
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.rhytms = RHYTMS.copy()
+        self.ui.SliderChart.setMinimum(SIGNAL_CLIPPING_SEC * SAMPLE_RATE)
 
         # //////////////////////////////////////////////////////////////// CHART
         ch_num = len(self.parent.session.get_eeg_ch_names())
@@ -202,16 +203,9 @@ class RhytmWindow(QWidget):
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
     def slider_chart_prepare(self):
-        slider_max = self.buffer_index - (self.chart_duration +
-                                          SIGNAL_CLIPPING_SEC) * SAMPLE_RATE
-        if slider_max < 0: slider_max = 0
-
-        slider_min = SIGNAL_CLIPPING_SEC * SAMPLE_RATE
-        slider_min = slider_max if slider_min > slider_max else slider_min
-
-        print(self.buffer_index, slider_min, slider_max)
-
-        self.ui.SliderChart.setMinimum(slider_min)
+        slider_min = self.ui.SliderChart.minimum()
+        slider_max = self.buffer_index - (self.chart_duration) * SAMPLE_RATE
+        if slider_max < slider_min: slider_max = slider_min
         self.ui.SliderChart.setMaximum(slider_max)
 
     def redraw_charts(self, data):

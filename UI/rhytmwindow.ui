@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1049</width>
-    <height>588</height>
+    <width>787</width>
+    <height>444</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -367,6 +367,9 @@
            <property name="maximum">
             <number>20</number>
            </property>
+           <property name="pageStep">
+            <number>1</number>
+           </property>
            <property name="value">
             <number>20</number>
            </property>
@@ -400,10 +403,10 @@
             <number>200</number>
            </property>
            <property name="singleStep">
-            <number>5</number>
+            <number>1</number>
            </property>
            <property name="pageStep">
-            <number>5</number>
+            <number>1</number>
            </property>
            <property name="value">
             <number>200</number>
@@ -471,13 +474,16 @@
       <bool>true</bool>
      </property>
      <property name="maximum">
-      <number>1000</number>
+      <number>10000</number>
      </property>
      <property name="singleStep">
       <number>10</number>
      </property>
      <property name="pageStep">
       <number>250</number>
+     </property>
+     <property name="value">
+      <number>10000</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
