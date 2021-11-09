@@ -33,10 +33,10 @@ class MainWindow(QMainWindow):
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
+        self.redraw_charts_request = False
         self.battery_value = 0
         self.chart_filt_flag = True
         self.chart_detrend_flag = False
-        self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.filtered = False
         self.charts = []
@@ -53,7 +53,6 @@ class MainWindow(QMainWindow):
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.session.get_eeg_ch_names(),
             self.chart_duration)
-
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.append(self.chart_buffers[i])

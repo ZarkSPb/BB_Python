@@ -23,8 +23,8 @@ class RhytmWindow(QWidget):
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
-        self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_charts_request = False
+        self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_pause = False
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.rhytms = RHYTMS.copy()
@@ -123,7 +123,8 @@ class RhytmWindow(QWidget):
             self.ui.CheckBox5.isChecked()
         ]
 
-        if self.redraw_pause: self._slider_value_cnd()
+        # if self.redraw_pause: self._slider_value_cnd()
+        if self.redraw_pause: self.event_redraw_charts()
 
     def _reset(self):
         self.ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
