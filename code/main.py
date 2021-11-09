@@ -61,6 +61,7 @@ class MainWindow(QMainWindow):
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
+
         # //////////////////////////////////////////////////// Chart view create
         self.chart_view = QChartView(chart)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)

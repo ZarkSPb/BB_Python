@@ -4,7 +4,7 @@ from PySide6.QtCore import QDateTime, QPointF
 from settings import MAX_CHART_SIGNAL_DURATION, SAMPLE_RATE
 
 
-# /////////////////////////////////////////////////////////// CHART MAKE
+# /////////////////////////////////////////////////////////////////// CHART MAKE
 def chart_init(session, amp, num_ch):
     chart_duration = MAX_CHART_SIGNAL_DURATION
 
