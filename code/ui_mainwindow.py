@@ -363,7 +363,7 @@ class Ui_MainWindow(object):
         self.SliderChart.setObjectName(u"SliderChart")
         self.SliderChart.setEnabled(False)
         self.SliderChart.setMaximum(1000)
-        self.SliderChart.setSingleStep(10)
+        self.SliderChart.setSingleStep(25)
         self.SliderChart.setPageStep(250)
         self.SliderChart.setOrientation(Qt.Horizontal)
         self.SliderChart.setTickPosition(QSlider.NoTicks)

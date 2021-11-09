@@ -163,6 +163,7 @@ class RhytmWindow(QWidget):
         slider_min = self.ui.SliderChart.minimum()
         slider_max = self.buffer_index - (self.chart_duration) * SAMPLE_RATE
         if slider_max < slider_min: slider_max = slider_min
+
         self.ui.SliderChart.setMaximum(slider_max)
 
     def redraw_charts(self, data):
