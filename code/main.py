@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
         self.chart_duration = MAX_CHART_SIGNAL_DURATION
         self.battery_value = 0
-        self.chart_filtering_flag = True
+        self.chart_filt_flag = True
         self.chart_detrend_flag = False
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
 
     def timer_redraw_charts(self):
         if self.ui.CheckBoxRenew.isChecked():
-            if self.chart_filtering_flag:
+            if self.chart_filt_flag:
                 data = self.session.buffer_filtered.get_buff_last(
                     self.chart_duration * SAMPLE_RATE)
             else:
@@ -98,8 +98,7 @@ class MainWindow(QMainWindow):
                     for channel in range(NUM_CHANNELS):
                         signal_filtering(data[channel], filtering=False)
 
-            if data.shape[1] > 0:
-                self.redraw_charts(data)
+            if data.shape[1] > 0: self.redraw_charts(data)
 
         if (self.r_window and not self.r_window.isHidden()
                 and not self.r_window.redraw_pause):
@@ -176,8 +175,7 @@ class MainWindow(QMainWindow):
             self.last_save_index += data.shape[1]
             self.save_first = False
 
-        if self.save_flag:
-            sf(self)
+        if self.save_flag: sf(self)
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
@@ -287,8 +285,7 @@ class MainWindow(QMainWindow):
         self.session.session_stop()
         self.long_timer.stop()
         self.board.stop_stream()
-        if self.save_flag:
-            self.timer_long()
+        if self.save_flag: self.timer_long()
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
@@ -300,8 +297,7 @@ class MainWindow(QMainWindow):
 
     def _disconnect(self):
         # Release all BB resources
-        if self.board.is_prepared():
-            self.board.release_session()
+        if self.board.is_prepared(): self.board.release_session()
 
         self.session.disconnect()
 
@@ -341,8 +337,7 @@ class MainWindow(QMainWindow):
         else:
             data = self.session.buffer_main.get_buff_last()
 
-        if file_name[0]:
-            save_file(data, file_name[0])
+        if file_name[0]: save_file(data, file_name[0])
 
     def _chart_redraw_request(self):
         if self.session.get_status() and self.ui.CheckBoxRenew.isChecked():
@@ -357,7 +352,7 @@ class MainWindow(QMainWindow):
         start_index = self.ui.SliderChart.value()
         end_index = start_index + self.chart_duration * SAMPLE_RATE
 
-        if self.chart_filtering_flag:
+        if self.chart_filt_flag:
             data = self.session.buffer_filtered.get_buff_from(
                 start_index, end_index)
         else:
@@ -372,25 +367,21 @@ class MainWindow(QMainWindow):
     def slider_chart_prepare(self):
         buff_size = self.session.buffer_filtered.get_last_num()
         slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
-        if slider_maximum < 0:
-            slider_maximum = 0
+        if slider_maximum < 0: slider_maximum = 0
         self.ui.SliderChart.setMaximum(slider_maximum)
 
     def _checkBoxFilteredChart(self):
-        self.chart_filtering_flag = self.ui.CheckBoxFilterChart.isChecked()
-        self.ui.CheckBoxDetrendChart.setEnabled(not self.chart_filtering_flag)
+        self.chart_filt_flag = self.ui.CheckBoxFilterChart.isChecked()
+        self.ui.CheckBoxDetrendChart.setEnabled(not self.chart_filt_flag)
 
-        if self.chart_filtering_flag:
-            self.ui.CheckBoxDetrendChart.setChecked(False)
+        if self.chart_filt_flag: self.ui.CheckBoxDetrendChart.setChecked(False)
 
         self._chart_redraw_request()
 
     def _checkBoxDetrendChart(self):
         self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
-        if self.chart_detrend_flag:
-            self.ui.SliderAmplitude.setMaximum(400000)
-        else:
-            self.ui.SliderAmplitude.setMaximum(200)
+        self.ui.SliderAmplitude.setMaximum(
+            400000 if self.chart_detrend_flag else 200)
 
     def _firstName_edit(self):
         text = self.ui.LinePatientFirstName.text()
@@ -457,10 +448,7 @@ class MainWindow(QMainWindow):
             self._chart_redraw_request()
 
             if self.r_window and not self.r_window.isHidden():
-                if self.filtered:
-                    self.r_window.data = self.session.buffer_filtered
-                else:
-                    self.r_window.data = self.session.buffer_main
+                self.r_window.data = self.session.buffer_filtered if self.filtered else self.session.buffer_main
                 self.r_window.buffer_index = self.r_window.data.get_last_num()
                 self.r_window._chart_redraw_request()
                 self.r_window.event_redraw_charts()
@@ -468,21 +456,13 @@ class MainWindow(QMainWindow):
             open_file(self.ui)
 
     def _control_panel(self):
-        if self.ui.actionControl_panel.isChecked():
-            self.ui.WidgetControl.setMaximumWidth(180)
-        else:
-            self.ui.WidgetControl.setMaximumWidth(0)
+        self.ui.WidgetControl.setMaximumWidth(
+            180 if self.ui.actionControl_panel.isChecked() else 0)
 
     def _rhytms_window(self):
         if self.ui.actionRhytm_window.isChecked():
-            if self.r_window is None:
-                self.r_window = RhytmWindow(self)
-
-            if self.filtered:
-                self.r_window.data = self.session.buffer_filtered
-            else:
-                self.r_window.data = self.session.buffer_main
-
+            if self.r_window is None: self.r_window = RhytmWindow(self)
+            self.r_window.data = self.session.buffer_filtered if self.filtered else self.session.buffer_main
             self.r_window.update_ui()
             self.r_window.show()
             self.r_window.event_redraw_charts()
