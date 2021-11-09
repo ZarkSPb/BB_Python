@@ -24,7 +24,7 @@ class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(787, 444)
+        RhytmWindow.resize(1014, 444)
         self.formLayout = QFormLayout(RhytmWindow)
         self.formLayout.setObjectName(u"formLayout")
         self.formLayout.setHorizontalSpacing(4)

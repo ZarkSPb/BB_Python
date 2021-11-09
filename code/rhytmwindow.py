@@ -95,50 +95,11 @@ class RhytmWindow(QWidget):
             self.chart_duration)
 
     def _rhytms_param_cnd(self):
-        rhytms_param_cnd(self.ui)
-
-        self.rhytms['delta'] = [
-            self.ui.SpinBox1_1.value(),
-            self.ui.SpinBox1_2.value(),
-            self.ui.CheckBox1.isChecked()
-        ]
-        self.rhytms['theta'] = [
-            self.ui.SpinBox2_1.value(),
-            self.ui.SpinBox2_2.value(),
-            self.ui.CheckBox2.isChecked()
-        ]
-        self.rhytms['alpha'] = [
-            self.ui.SpinBox3_1.value(),
-            self.ui.SpinBox3_2.value(),
-            self.ui.CheckBox3.isChecked()
-        ]
-        self.rhytms['betha'] = [
-            self.ui.SpinBox4_1.value(),
-            self.ui.SpinBox4_2.value(),
-            self.ui.CheckBox4.isChecked()
-        ]
-        self.rhytms['gamma'] = [
-            self.ui.SpinBox5_1.value(),
-            self.ui.SpinBox5_2.value(),
-            self.ui.CheckBox5.isChecked()
-        ]
-
-        # if self.redraw_pause: self._slider_value_cnd()
+        self.rhytms = rhytms_param_cnd(self.ui)
         if self.redraw_pause: self.event_redraw_charts()
 
     def _reset(self):
-        self.ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
-        self.ui.SpinBox2_1.setValue(RHYTMS['theta'][0])
-        self.ui.SpinBox3_1.setValue(RHYTMS['alpha'][0])
-        self.ui.SpinBox4_1.setValue(RHYTMS['betha'][0])
-        self.ui.SpinBox5_1.setValue(RHYTMS['gamma'][0])
-
-        self.ui.SpinBox1_2.setValue(RHYTMS['delta'][1])
-        self.ui.SpinBox2_2.setValue(RHYTMS['theta'][1])
-        self.ui.SpinBox3_2.setValue(RHYTMS['alpha'][1])
-        self.ui.SpinBox4_2.setValue(RHYTMS['betha'][1])
-        self.ui.SpinBox5_2.setValue(RHYTMS['gamma'][1])
-
+        reset(self.ui, RHYTMS)
         self._rhytms_param_cnd()
 
     def _pause(self):
