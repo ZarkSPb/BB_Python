@@ -1,8 +1,8 @@
 from brainflow.board_shim import BoardIds, BoardShim
 
 # Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -18,13 +18,13 @@ BOARD_TIMEOUT = 5
 # Chart setting
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
-SIGNAL_CLIPPING_SEC = 2
+SIGNAL_CLIPPING_SEC = 4
 
 UPDATE_IMPEDANCE_SPEED_MS = 500
 UPDATE_BUFFER_SPEED_MS = 10
 LONG_TIMER_INTERVAL_MS = 5000
 
-REG_KERNEL = '[0-9а-яёa-z()-]+'
+REG_KERNEL = '[0-9а-яА-ЯёЁa-zA-Z()-]+'
 
 if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
     NUM_CHANNELS = 4
@@ -34,3 +34,13 @@ if BOARD_ID == BoardIds.SYNTHETIC_BOARD.value:
 SAVE_CHANNEL = EXG_CHANNELS.copy()
 SAVE_CHANNEL.append(TIMESTAMP_CHANNEL)
 SAVE_CHANNEL.append(PACKAGE_NUM_CHANNEL)
+
+RHYTMS = {
+    'delta': [1, 4, True],
+    'theta': [4, 8, True],
+    'alpha': [8, 13, True],
+    'betha': [13, 40, True],
+    'gamma': [40, 48, True],
+}
+
+FOLDER = 'CSV'

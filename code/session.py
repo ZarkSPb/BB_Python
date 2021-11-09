@@ -57,6 +57,8 @@ class Buffer:
             return self.buff[:, self.last - count:self.last].copy()
 
     def get_buff_from(self, start_index=0, end_index=0):
+        start_index = 0 if start_index < 0 else start_index
+        
         if end_index == 0:
             return self.buff[:, start_index:self.last].copy()
         else:
@@ -74,6 +76,7 @@ class Session():
                  last_name='',
                  eeg_channel_names=EEG_CHANNEL_NAMES):
 
+        self.connected = False
         self.save_filtered = save_filtered
         self.status = False
         self.time_init = QDateTime.currentDateTime()
@@ -133,3 +136,12 @@ class Session():
 
     def get_eeg_ch_names(self):
         return self.eeg_channel_names
+
+    def connect(self):
+        self.connected = True
+    
+    def disconnect(self):
+        self.connected = False
+
+    def get_connect_status(self):
+        return self.connected
