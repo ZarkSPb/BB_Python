@@ -2,41 +2,69 @@
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from numpy import savetxt, zeros
 import os
-from settings import FOLDER
 
 from settings import *
 
 
-def save_file(data, session, file_name='eeg.csv', save_first=True):
-    if not os.path.exists(FOLDER):
-        os.makedirs(FOLDER)
-    with open(f'{FOLDER}/{file_name}', 'a') as file_object:
-        first_name = session.patient.get_first_name()
-        last_name = session.patient.get_last_name()
+def save_file(session,
+              file_name='eeg.csv',
+              folder='',
+              save_first=True,
+              start_index=0):
+    def save(filtered=False):
+        h = header
+        h += 'filtered\n' if filtered else 'no filtered\n'
+        for channel_names in EEG_CHANNEL_NAMES:
+            h += f'{channel_names}, uV;'
+        h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
-        if save_first:
+        file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
+        with open(file_name_full, 'a') as file_object:
+            if save_first:
+                savetxt(file_object,
+                        data.T,
+                        fmt=format,
+                        delimiter=';',
+                        header=h,
+                        comments='#')
+            else:
+                savetxt(file_object, data.T, fmt=format, delimiter=';')
 
-            header = ''
-            header += first_name if first_name != '' else 'no_first_name'
-            header += '\n'
-            header += last_name if last_name != '' else 'no_last_name'
-            header += '\n'
-            header += session.time_init.toString('dd.MM.yyyy') + '\n'
-            header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
-            header += 'filtered\n' if session.get_filtered_status(
-            ) else 'no filtered\n'
+    # ////////////////////////////////////////////////////////////// MAKE HEADER
+    first_name = session.patient.get_first_name()
+    last_name = session.patient.get_last_name()
+    header = first_name if first_name != '' else 'no_first_name' + '\n'
+    header += last_name if last_name != '' else 'no_last_name' + '\n'
+    header += session.time_init.toString('dd.MM.yyyy') + '\n'
+    header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
 
-            for channel_names in EEG_CHANNEL_NAMES:
-                header += f'{channel_names}, uV;'
-            header += 'LinuxTime, sec.;BoardIndex, 0-255'
-            savetxt(file_object,
-                    data.T,
-                    fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
-                    delimiter=';',
-                    header=header,
-                    comments='#')
+    format = ['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f']
+
+    if (folder != '') and not os.path.exists(folder):
+        os.makedirs(folder)
+
+    end_index = session.buffer_main.get_last_num()
+    if start_index:
+        # data = session.buffer_main.get_buff_from(last_index)
+        data = session.buffer_main.get_buff_from(start_index, end_index)
+    else:
+        data = session.buffer_main.get_buff_last()
+    last_save_index = data.shape[1]
+    save()
+
+    if session.get_save_filtered_status():
+        data = session.buffer_filtered.get_buff_from(start_index, end_index)
+
+        end_f = file_name.rfind('\\')
+        if end_f == -1: end_f = file_name.rfind('/')
+        if end_f != -1:
+            file_name = file_name[:end_f+1]+'(f)'+file_name[end_f+1:]
         else:
-            savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+            file_name = '(f)' + file_name
+            
+        save(True)
+
+    return last_save_index
 
 
 def signal_filtering(data, filtering=True):
@@ -68,7 +96,6 @@ def rhytm_constructor(data, rhytms):
 
 
 def file_name_constructor(session):
-    # file_name = '(f)' if session.save_filtered else ''
     file_name = session.time_start.toString('yyyy-MM-dd__hh-mm-ss')
     patient_name = session.patient.get_full_name()
     if patient_name:

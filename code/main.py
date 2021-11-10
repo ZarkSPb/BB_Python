@@ -163,18 +163,15 @@ class MainWindow(QMainWindow):
                     int(data[3]) if data[3] <= 500 else 500)
 
     def timer_long(self):
-        def sf(self):
-            if self.session.save_filtered:
-                data = self.session.buffer_filtered.get_buff_from(
-                    self.last_save_index)
-            else:
-                data = self.session.buffer_main.get_buff_from(
-                    self.last_save_index)
-            save_file(data, self.session, self.file_name, self.save_first)
-            self.last_save_index += data.shape[1]
+        if self.save_flag:
+            self.last_save_index += save_file(
+                self.session,
+                self.file_name,
+                FOLDER,
+                self.save_first,
+                self.last_save_index,
+            )
             self.save_first = False
-
-        if self.save_flag: sf(self)
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
@@ -255,9 +252,7 @@ class MainWindow(QMainWindow):
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
         if self.save_flag:
-            self.file_name = '(f)' if self.session.get_filtered_status(
-            ) else ''
-            self.file_name += file_name_constructor(self.session)
+            self.file_name = file_name_constructor(self.session)
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             self.last_save_index = 0
         else:
@@ -326,17 +321,15 @@ class MainWindow(QMainWindow):
         stop_impedance(self.ui)
 
     def _save_data(self):
-        fileName = '(f)' if self.save_filtered_flag else ''
-        fileName += file_name_constructor(self.session)
+        self.file_name
+        fileName = file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save eeg data (*.csv)', f'{fileName}')
+            self,
+            caption='Save eeg data (*.csv)',
+            dir=f'{FOLDER}/{fileName}',
+            filter="CSV file (*.csv)")
 
-        if self.save_filtered_flag:
-            data = self.session.buffer_filtered.get_buff_last()
-        else:
-            data = self.session.buffer_main.get_buff_last()
-
-        if file_name[0]: save_file(data, file_name[0])
+        if file_name[0]: save_file(self.session, file_name[0])
 
     def _chart_redraw_request(self):
         if self.session.get_status() and self.ui.CheckBoxRenew.isChecked():
