@@ -1,9 +1,7 @@
-from settings import RHYTMS
+s = 'fgfdg/fdgfdg/dfgdfgdfg/авп'
 
-y = RHYTMS.copy()
+end_f = s.rfind('/')
 
-y['aplha'] = 100
-del y['betha']
+# print(s.rfind('/'))
 
-print(RHYTMS)
-print(y)
+print(s[:end_f+1]+'(f)'+s[end_f+1:])

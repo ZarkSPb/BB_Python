@@ -18,8 +18,8 @@ def save_file(session,
             h += f'{channel_names}, uV;'
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
-        folder_full = f'{folder}/{file_name}' if folder != '' else file_name
-        with open(folder_full, 'a') as file_object:
+        file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
+        with open(file_name_full, 'a') as file_object:
             if save_first:
                 savetxt(file_object,
                         data.T,
@@ -54,7 +54,14 @@ def save_file(session,
 
     if session.get_save_filtered_status():
         data = session.buffer_filtered.get_buff_from(start_index, end_index)
-        file_name = '(f)' + file_name
+
+        end_f = file_name.rfind('\\')
+        if end_f == -1: end_f = file_name.rfind('/')
+        if end_f != -1:
+            file_name = file_name[:end_f+1]+'(f)'+file_name[end_f+1:]
+        else:
+            file_name = '(f)' + file_name
+            
         save(True)
 
     return last_save_index
