@@ -163,18 +163,17 @@ class MainWindow(QMainWindow):
                     int(data[3]) if data[3] <= 500 else 500)
 
     def timer_long(self):
-        def sf(self):
-            if self.session.save_filtered:
-                data = self.session.buffer_filtered.get_buff_from(
-                    self.last_save_index)
-            else:
-                data = self.session.buffer_main.get_buff_from(
-                    self.last_save_index)
-            save_file(data, self.session, self.file_name, self.save_first)
-            self.last_save_index += data.shape[1]
+        # if self.session.save_filtered:
+        #     data = self.session.buffer_filtered.get_buff_from(
+        #         self.last_save_index)
+        # else:
+        #     data = self.session.buffer_main.get_buff_from(
+        #         self.last_save_index)
+        
+        if self.save_flag:
+            self.last_save_index += save_file(self.session, self.file_name,
+                                              self.save_first)
             self.save_first = False
-
-        if self.save_flag: sf(self)
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
 

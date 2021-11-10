@@ -7,28 +7,26 @@ from settings import FOLDER
 from settings import *
 
 
-def save_file(data, session, file_name='eeg.csv', save_first=True):
+def save_file(session, file_name='eeg.csv', save_first=True):
     if not os.path.exists(FOLDER):
         os.makedirs(FOLDER)
+
+    first_name = session.patient.get_first_name()
+    last_name = session.patient.get_last_name()
+    header = first_name if first_name != '' else 'no_first_name' + '\n'
+    header += last_name if last_name != '' else 'no_last_name' + '\n'
+    header += session.time_init.toString('dd.MM.yyyy') + '\n'
+    header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
+
+    header += 'filtered\n' if session.get_filtered_status(
+    ) else 'no filtered\n'
+
+    for channel_names in EEG_CHANNEL_NAMES:
+        header += f'{channel_names}, uV;'
+    header += 'LinuxTime, sec.;BoardIndex, 0-255'
+
     with open(f'{FOLDER}/{file_name}', 'a') as file_object:
-        first_name = session.patient.get_first_name()
-        last_name = session.patient.get_last_name()
-
         if save_first:
-
-            header = ''
-            header += first_name if first_name != '' else 'no_first_name'
-            header += '\n'
-            header += last_name if last_name != '' else 'no_last_name'
-            header += '\n'
-            header += session.time_init.toString('dd.MM.yyyy') + '\n'
-            header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
-            header += 'filtered\n' if session.get_filtered_status(
-            ) else 'no filtered\n'
-
-            for channel_names in EEG_CHANNEL_NAMES:
-                header += f'{channel_names}, uV;'
-            header += 'LinuxTime, sec.;BoardIndex, 0-255'
             savetxt(file_object,
                     data.T,
                     fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
@@ -37,6 +35,8 @@ def save_file(data, session, file_name='eeg.csv', save_first=True):
                     comments='#')
         else:
             savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+
+    return sdds
 
 
 def signal_filtering(data, filtering=True):
