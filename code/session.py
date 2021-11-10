@@ -57,12 +57,15 @@ class Buffer:
             return self.buff[:, self.last - count:self.last].copy()
 
     def get_buff_from(self, start_index=0, end_index=0):
-        start_index = 0 if start_index < 0 else start_index
-        
-        if end_index == 0:
-            return self.buff[:, start_index:self.last].copy()
-        else:
-            return self.buff[:, start_index:end_index].copy()
+        if start_index < 0: start_index = 0
+
+        # if end_index == 0:
+        #     return self.buff[:, start_index:self.last].copy()
+        # else:
+        #     return self.buff[:, start_index:end_index].copy()
+
+        return self.buff[:, start_index:self.last if end_index ==
+                         0 else end_index].copy()
 
     def get_last_num(self):
         return self.last
@@ -102,7 +105,7 @@ class Session():
         self.time_stop = QDateTime.currentDateTime()
         self.status = False
 
-    def get_filtered_status(self):
+    def get_save_filtered_status(self):
         return self.save_filtered
 
     def get_status(self):
@@ -139,7 +142,7 @@ class Session():
 
     def connect(self):
         self.connected = True
-    
+
     def disconnect(self):
         self.connected = False
 

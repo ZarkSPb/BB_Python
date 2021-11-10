@@ -7,36 +7,48 @@ from settings import FOLDER
 from settings import *
 
 
-def save_file(session, file_name='eeg.csv', save_first=True):
-    if not os.path.exists(FOLDER):
-        os.makedirs(FOLDER)
+def save_file(session, file_name='eeg.csv', save_first=True, save_index=None):
+    def save():
+        with open(f'{FOLDER}/{file_name}', 'a') as file_object:
+            if save_first:
+                savetxt(file_object,
+                        data.T,
+                        fmt=format,
+                        delimiter=';',
+                        header=header + 'no filtered\n',
+                        comments='#')
+            else:
+                savetxt(file_object, data.T, fmt=format, delimiter=';')
 
+    # ////////////////////////////////////////////////////////////// MAKE HEADER
     first_name = session.patient.get_first_name()
     last_name = session.patient.get_last_name()
     header = first_name if first_name != '' else 'no_first_name' + '\n'
     header += last_name if last_name != '' else 'no_last_name' + '\n'
     header += session.time_init.toString('dd.MM.yyyy') + '\n'
     header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
-
-    header += 'filtered\n' if session.get_filtered_status(
-    ) else 'no filtered\n'
-
     for channel_names in EEG_CHANNEL_NAMES:
         header += f'{channel_names}, uV;'
     header += 'LinuxTime, sec.;BoardIndex, 0-255'
 
-    with open(f'{FOLDER}/{file_name}', 'a') as file_object:
-        if save_first:
-            savetxt(file_object,
-                    data.T,
-                    fmt=['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f'],
-                    delimiter=';',
-                    header=header,
-                    comments='#')
-        else:
-            savetxt(file_object, data.T, fmt='%6.3f', delimiter=';')
+    format = ['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f']
 
-    return sdds
+    if not os.path.exists(FOLDER):
+        os.makedirs(FOLDER)
+
+    if save_index:
+        data = session.buffer_main.get_buff_from(save_index)
+    else:
+        data = session.buffer_main.get_buff_last()
+    save_index = data.shape[1]
+    save()
+
+    if session.get_save_filtered_status():
+        data = session.buffer_filtered.get_buff_from(save_index)
+        file_name = '(f)' + file_name
+        save()
+
+    return save_index
 
 
 def signal_filtering(data, filtering=True):

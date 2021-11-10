@@ -169,10 +169,14 @@ class MainWindow(QMainWindow):
         # else:
         #     data = self.session.buffer_main.get_buff_from(
         #         self.last_save_index)
-        
+
         if self.save_flag:
-            self.last_save_index += save_file(self.session, self.file_name,
-                                              self.save_first)
+            self.last_save_index += save_file(
+                self.session,
+                self.file_name,
+                self.save_first,
+                self.last_save_index,
+            )
             self.save_first = False
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
@@ -254,9 +258,7 @@ class MainWindow(QMainWindow):
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
         if self.save_flag:
-            self.file_name = '(f)' if self.session.get_filtered_status(
-            ) else ''
-            self.file_name += file_name_constructor(self.session)
+            self.file_name = file_name_constructor(self.session)
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             self.last_save_index = 0
         else:
@@ -330,12 +332,12 @@ class MainWindow(QMainWindow):
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
 
-        if self.save_filtered_flag:
-            data = self.session.buffer_filtered.get_buff_last()
-        else:
-            data = self.session.buffer_main.get_buff_last()
+        # if self.save_filtered_flag:
+        #     data = self.session.buffer_filtered.get_buff_last()
+        # else:
+        #     data = self.session.buffer_main.get_buff_last()
 
-        if file_name[0]: save_file(data, file_name[0])
+        if file_name[0]: save_file(self.session, file_name[0])
 
     def _chart_redraw_request(self):
         if self.session.get_status() and self.ui.CheckBoxRenew.isChecked():
