@@ -167,6 +167,7 @@ class MainWindow(QMainWindow):
             self.last_save_index += save_file(
                 self.session,
                 self.file_name,
+                FOLDER,
                 self.save_first,
                 self.last_save_index,
             )
@@ -323,7 +324,10 @@ class MainWindow(QMainWindow):
         self.file_name
         fileName = file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
-            self, caption='Save eeg data (*.csv)', dir=f'{FOLDER}/{fileName}')
+            self,
+            caption='Save eeg data (*.csv)',
+            dir=f'{FOLDER}/{fileName}',
+            filter="CSV file (*.csv)")
 
         if file_name[0]: save_file(self.session, file_name[0])
 

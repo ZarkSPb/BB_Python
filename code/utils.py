@@ -2,12 +2,15 @@
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from numpy import savetxt, zeros
 import os
-from settings import FOLDER
 
 from settings import *
 
 
-def save_file(session, file_name='eeg.csv', save_first=True, start_index=None):
+def save_file(session,
+              file_name='eeg.csv',
+              folder='',
+              save_first=True,
+              start_index=0):
     def save(filtered=False):
         h = header
         h += 'filtered\n' if filtered else 'no filtered\n'
@@ -15,7 +18,8 @@ def save_file(session, file_name='eeg.csv', save_first=True, start_index=None):
             h += f'{channel_names}, uV;'
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
-        with open(f'{FOLDER}/{file_name}', 'a') as file_object:
+        folder_full = f'{folder}/{file_name}' if folder != '' else file_name
+        with open(folder_full, 'a') as file_object:
             if save_first:
                 savetxt(file_object,
                         data.T,
@@ -36,8 +40,8 @@ def save_file(session, file_name='eeg.csv', save_first=True, start_index=None):
 
     format = ['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f']
 
-    if not os.path.exists(FOLDER):
-        os.makedirs(FOLDER)
+    if (folder != '') and not os.path.exists(folder):
+        os.makedirs(folder)
 
     end_index = session.buffer_main.get_last_num()
     if start_index:
