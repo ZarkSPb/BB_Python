@@ -26,9 +26,10 @@ class RhytmWindow(QWidget):
         self.redraw_charts_request = False
         self.chart_amp = self.ui.SliderAmplitude.value()
         self.redraw_pause = False
-        self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.rhytms = RHYTMS.copy()
         self.ui.SliderChart.setMinimum(SIGNAL_CLIPPING_SEC * SAMPLE_RATE)
+        self.data = None
+        self.buffer_index = 0
 
         # //////////////////////////////////////////////////////////////// CHART
         ch_num = len(self.parent.session.get_eeg_ch_names())
@@ -51,6 +52,8 @@ class RhytmWindow(QWidget):
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
     def update_ui(self):
+        self.buffer_index = self.data.get_last_num()
+
         self.ui.ButtonStart.setEnabled(self.parent.ui.ButtonStart.isEnabled())
         self.ui.ButtonStop.setEnabled(self.parent.ui.ButtonStop.isEnabled())
 
