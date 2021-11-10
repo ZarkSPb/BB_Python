@@ -320,10 +320,10 @@ class MainWindow(QMainWindow):
         stop_impedance(self.ui)
 
     def _save_data(self):
-        fileName = '(f)' if self.save_filtered_flag else ''
-        fileName += file_name_constructor(self.session)
+        self.file_name
+        fileName = file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save eeg data (*.csv)', f'{fileName}')
+            self, caption='Save eeg data (*.csv)', dir=f'{FOLDER}/{fileName}')
 
         if file_name[0]: save_file(self.session, file_name[0])
 
