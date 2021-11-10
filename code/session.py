@@ -59,11 +59,6 @@ class Buffer:
     def get_buff_from(self, start_index=0, end_index=0):
         if start_index < 0: start_index = 0
 
-        # if end_index == 0:
-        #     return self.buff[:, start_index:self.last].copy()
-        # else:
-        #     return self.buff[:, start_index:end_index].copy()
-
         return self.buff[:, start_index:self.last if end_index ==
                          0 else end_index].copy()
 

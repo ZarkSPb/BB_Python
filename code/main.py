@@ -163,13 +163,6 @@ class MainWindow(QMainWindow):
                     int(data[3]) if data[3] <= 500 else 500)
 
     def timer_long(self):
-        # if self.session.save_filtered:
-        #     data = self.session.buffer_filtered.get_buff_from(
-        #         self.last_save_index)
-        # else:
-        #     data = self.session.buffer_main.get_buff_from(
-        #         self.last_save_index)
-
         if self.save_flag:
             self.last_save_index += save_file(
                 self.session,
@@ -331,11 +324,6 @@ class MainWindow(QMainWindow):
         fileName += file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save eeg data (*.csv)', f'{fileName}')
-
-        # if self.save_filtered_flag:
-        #     data = self.session.buffer_filtered.get_buff_last()
-        # else:
-        #     data = self.session.buffer_main.get_buff_last()
 
         if file_name[0]: save_file(self.session, file_name[0])
 

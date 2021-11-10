@@ -7,15 +7,21 @@ from settings import FOLDER
 from settings import *
 
 
-def save_file(session, file_name='eeg.csv', save_first=True, save_index=None):
-    def save():
+def save_file(session, file_name='eeg.csv', save_first=True, start_index=None):
+    def save(filtered=False):
+        h = header
+        h += 'filtered\n' if filtered else 'no filtered\n'
+        for channel_names in EEG_CHANNEL_NAMES:
+            h += f'{channel_names}, uV;'
+        h += 'LinuxTime, sec.;BoardIndex, 0-255'
+
         with open(f'{FOLDER}/{file_name}', 'a') as file_object:
             if save_first:
                 savetxt(file_object,
                         data.T,
                         fmt=format,
                         delimiter=';',
-                        header=header + 'no filtered\n',
+                        header=h,
                         comments='#')
             else:
                 savetxt(file_object, data.T, fmt=format, delimiter=';')
@@ -27,28 +33,27 @@ def save_file(session, file_name='eeg.csv', save_first=True, save_index=None):
     header += last_name if last_name != '' else 'no_last_name' + '\n'
     header += session.time_init.toString('dd.MM.yyyy') + '\n'
     header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
-    for channel_names in EEG_CHANNEL_NAMES:
-        header += f'{channel_names}, uV;'
-    header += 'LinuxTime, sec.;BoardIndex, 0-255'
 
     format = ['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f']
 
     if not os.path.exists(FOLDER):
         os.makedirs(FOLDER)
 
-    if save_index:
-        data = session.buffer_main.get_buff_from(save_index)
+    end_index = session.buffer_main.get_last_num()
+    if start_index:
+        # data = session.buffer_main.get_buff_from(last_index)
+        data = session.buffer_main.get_buff_from(start_index, end_index)
     else:
         data = session.buffer_main.get_buff_last()
-    save_index = data.shape[1]
+    last_save_index = data.shape[1]
     save()
 
     if session.get_save_filtered_status():
-        data = session.buffer_filtered.get_buff_from(save_index)
+        data = session.buffer_filtered.get_buff_from(start_index, end_index)
         file_name = '(f)' + file_name
-        save()
+        save(True)
 
-    return save_index
+    return last_save_index
 
 
 def signal_filtering(data, filtering=True):
