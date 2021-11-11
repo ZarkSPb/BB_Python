@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
 
         stop_impedance(self.ui)
 
-    def _save_data(self):
+    def _save_file(self):
         self.file_name
         fileName = file_name_constructor(self.session)
         file_name = QtWidgets.QFileDialog.getSaveFileName(
