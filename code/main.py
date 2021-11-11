@@ -407,8 +407,10 @@ class MainWindow(QMainWindow):
         if file_name != '':
             end_f = file_name.rfind('.')
             if end_f != -1: extension = file_name[end_f + 1:]
-            if extension.upper():
+            if extension.upper() == 'CSV':
                 f_struct = fileio.read_CSV(file_name)
+            elif extension.upper() == 'EDF':
+                f_struct = fileio.read_EDF(file_name)
 
             table = f_struct['table']
             self.filtered = f_struct['filtered_flag']
@@ -422,10 +424,9 @@ class MainWindow(QMainWindow):
             else:
                 self.session.add(table)
 
-            del table
+            f_struct.clear()
 
             self.ui.CheckBoxFilterChart.setEnabled(not self.filtered)
-
             self.set_eeg_ch_names()
             file_name = file_name.replace('/', '\\')
             self.statusBar_main.setText(f'Open file: {file_name}')
@@ -433,7 +434,6 @@ class MainWindow(QMainWindow):
                 self.session.patient.get_first_name())
             self.ui.LinePatientLastName.setText(
                 self.session.patient.get_last_name())
-
             self.slider_chart_prepare()
             self._chart_redraw_request()
 
