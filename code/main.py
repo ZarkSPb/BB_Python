@@ -320,16 +320,21 @@ class MainWindow(QMainWindow):
 
         stop_impedance(self.ui)
 
-    def _save_data(self):
-        self.file_name
+    def _save_file(self):
         fileName = file_name_constructor(self.session)
+        if self.ui.CheckBoxSaveFiltered.isChecked():
+            fileName = '(f)' + fileName
+
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self,
             caption='Save eeg data (*.csv)',
             dir=f'{FOLDER}/{fileName}',
             filter="CSV file (*.csv)")
 
-        if file_name[0]: save_file(self.session, file_name[0])
+        if file_name[0]: save_file(self.session, file_name[0], auto=False)
+
+        file_name_str = file_name[0].replace('/', '\\')
+        self.statusBar_main.setText(f'Saved in: {file_name_str}')
 
     def _chart_redraw_request(self):
         if self.session.get_status() and self.ui.CheckBoxRenew.isChecked():

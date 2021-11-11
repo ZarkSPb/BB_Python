@@ -700,6 +700,8 @@
     </property>
     <addaction name="actionOpen_File"/>
     <addaction name="separator"/>
+    <addaction name="actionSave_File"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -758,7 +760,7 @@
     <string>Rhytm window</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>Alt+R</string>
    </property>
   </action>
   <action name="actionControl_panel">
@@ -836,6 +838,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actionSave_File">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save File...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>
@@ -977,7 +990,7 @@
    <sender>ButtonSave</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>_save_data()</slot>
+   <slot>_save_file()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>180</x>
@@ -1044,8 +1057,8 @@
    <slot>_slider_value_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>518</x>
-     <y>821</y>
+     <x>522</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
      <x>630</x>
@@ -1261,6 +1274,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionSave_File</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>_save_file()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>530</x>
+     <y>382</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>update_ui()</slot>
@@ -1270,7 +1299,7 @@
   <slot>_disconnect()</slot>
   <slot>_start_impedance()</slot>
   <slot>_stop_impedance()</slot>
-  <slot>_save_data()</slot>
+  <slot>_save_file()</slot>
   <slot>_slider_value_cnd()</slot>
   <slot>_chart_redraw_request()</slot>
   <slot>_firstName_edit()</slot>
