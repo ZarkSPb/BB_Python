@@ -2,6 +2,8 @@
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from numpy import savetxt, zeros
 import os
+import pyedflib
+from datetime import datetime, date
 
 from settings import *
 
@@ -24,6 +26,7 @@ def save_file(session,
 
         end_f = file_name.rfind('.')
         if end_f != -1: extension = file_name[end_f + 1:]
+
         if extension.upper() == 'CSV':
             open_regim = 'a' if auto else 'w'
             with open(file_name_full, open_regim) as file_object:
@@ -38,7 +41,9 @@ def save_file(session,
                     savetxt(file_object, data.T, fmt=format, delimiter=';')
 
         elif extension.upper() == 'EDF':
-            pass
+            f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDF)
+            f.setBirthdate(date(1951, 8, 2))
+            f.close()
 
     # ////////////////////////////////////////////////////////////// MAKE HEADER
     first_name = session.patient.get_first_name()
