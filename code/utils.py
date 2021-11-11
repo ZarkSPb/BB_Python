@@ -10,7 +10,8 @@ def save_file(session,
               file_name='eeg.csv',
               folder='',
               save_first=True,
-              start_index=0):
+              start_index=0,
+              auto=True):
     def save(filtered=False):
         h = header
         h += 'filtered\n' if filtered else 'no filtered\n'
@@ -19,7 +20,8 @@ def save_file(session,
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
         file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
-        with open(file_name_full, 'a') as file_object:
+        open_regim = 'a' if auto else 'w'
+        with open(file_name_full, open_regim) as file_object:
             if save_first:
                 savetxt(file_object,
                         data.T,
