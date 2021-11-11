@@ -20,17 +20,25 @@ def save_file(session,
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
         file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
-        open_regim = 'a' if auto else 'w'
-        with open(file_name_full, open_regim) as file_object:
-            if save_first:
-                savetxt(file_object,
-                        data.T,
-                        fmt=format,
-                        delimiter=';',
-                        header=h,
-                        comments='#')
-            else:
-                savetxt(file_object, data.T, fmt=format, delimiter=';')
+
+
+        end_f = file_name.rfind('.')
+        if end_f != -1: extension = file_name[end_f + 1:]
+        if extension.upper() == 'CSV':
+            open_regim = 'a' if auto else 'w'
+            with open(file_name_full, open_regim) as file_object:
+                if save_first:
+                    savetxt(file_object,
+                            data.T,
+                            fmt=format,
+                            delimiter=';',
+                            header=h,
+                            comments='#')
+                else:
+                    savetxt(file_object, data.T, fmt=format, delimiter=';')
+
+        elif extension.upper() == 'EDF':
+            pass
 
     # ////////////////////////////////////////////////////////////// MAKE HEADER
     first_name = session.patient.get_first_name()
