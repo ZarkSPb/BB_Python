@@ -52,6 +52,16 @@ def save_file(session,
     else:
         data = session.buffer_main.get_buff_last()
     last_save_index = data.shape[1]
+
+    end_f = file_name.rfind('\\')
+    if end_f == -1: end_f = file_name.rfind('/')
+
+    if end_f != -1:
+        f_name = file_name[end_f + 1:]
+        if f_name[:3] == '(f)':
+            f_name = f_name[3:]
+            file_name = file_name[:end_f + 1] + f_name
+
     save()
 
     if session.get_save_filtered_status():
@@ -60,10 +70,10 @@ def save_file(session,
         end_f = file_name.rfind('\\')
         if end_f == -1: end_f = file_name.rfind('/')
         if end_f != -1:
-            file_name = file_name[:end_f+1]+'(f)'+file_name[end_f+1:]
+            file_name = file_name[:end_f + 1] + '(f)' + file_name[end_f + 1:]
         else:
             file_name = '(f)' + file_name
-            
+
         save(True)
 
     return last_save_index
