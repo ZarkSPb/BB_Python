@@ -1,7 +1,19 @@
-s = 'fgfdg/fdgfdg/dfgdfgdfg/авп'
+import pyedflib
 
-end_f = s.rfind('/')
+file_name = 'EDF/testeeg.edf'
 
-# print(s.rfind('/'))
+f = pyedflib.EdfReader(file_name)
 
-print(s[:end_f+1]+'(f)'+s[end_f+1:])
+n = f.signals_in_file
+signal_labels = f.getSignalLabels()
+
+print(f.getPatientName())
+print(f.getPatientCode())
+print(f.getBirthdate())
+print(f.getStartdatetime())
+
+
+for s in signal_labels:
+    print(s)
+
+f.close()
