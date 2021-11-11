@@ -1,5 +1,5 @@
 import pyedflib
-from numpy import loadtxt
+from numpy import loadtxt, zeros, arange
 
 
 def read_CSV(file_name):
@@ -26,7 +26,6 @@ def read_EDF(file_name):
     file_structure = {}
     file_structure['first_name'] = f.getPatientName()
     file_structure['last_name'] = ''
-
     d_t = f.getStartdatetime()
     file_structure['data'] = d_t.date()
     file_structure['time'] = d_t.time()
@@ -34,5 +33,11 @@ def read_EDF(file_name):
     file_structure['filtered_flag'] = True
 
     file_structure['ch_names'] = f.getSignalLabels()
+
+    n = len(file_structure['ch_names'])
+    sigbufs = zeros((n, f.getNSamples()[0]))
+    for i in arange(n):
+        sigbufs[i, :] = f.readSignal(i)
+    file_structure['table'] = sigbufs
 
     return file_structure

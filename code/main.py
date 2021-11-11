@@ -400,7 +400,7 @@ class MainWindow(QMainWindow):
             self,
             'Open eeg data (*.csv)',
             dir=FOLDER,
-            filter="CSV file (*.csv);;EDF file (*.edf)")
+            filter="EEG file (*.csv *.edf)")
 
         file_name = file_name[0]
 
