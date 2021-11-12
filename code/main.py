@@ -3,7 +3,6 @@ from re import findall
 from time import sleep
 
 import numpy as np
-import pyedflib
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtCharts import QChartView, QLineSeries
@@ -19,7 +18,7 @@ from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from utils import file_name_constructor, save_file, signal_filtering
+from utils import file_name_constructor, save_CSV, save_EDF, signal_filtering
 from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
@@ -166,7 +165,7 @@ class MainWindow(QMainWindow):
 
     def timer_long(self):
         if self.save_flag:
-            self.last_save_index += save_file(
+            self.last_save_index += save_CSV(
                 self.session,
                 self.file_name,
                 FOLDER,
@@ -255,6 +254,7 @@ class MainWindow(QMainWindow):
 
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)
+            self.file_name += '.csv'
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             self.last_save_index = 0
         else:
@@ -329,13 +329,20 @@ class MainWindow(QMainWindow):
 
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self,
-            caption='Save eeg data (*.csv)',
+            caption='Save eeg data',
             dir=f'{FOLDER}/{fileName}',
-            filter="CSV file (*.csv)")
+            filter='EDF file (*.edf);;CSV file (*.csv)')[0]
 
-        if file_name[0]: save_file(self.session, file_name[0], auto=False)
+        if file_name:
+            end_f = file_name.rfind('.')
+            if end_f != -1: extension = file_name[end_f + 1:]
 
-        file_name_str = file_name[0].replace('/', '\\')
+            if extension.upper() == 'CSV':
+                save_CSV(self.session, file_name, auto=False)
+            elif extension.upper() == 'EDF':
+                save_EDF(self.session, file_name)
+
+        file_name_str = file_name.replace('/', '\\')
         self.statusBar_main.setText(f'Saved in: {file_name_str}')
 
     def _chart_redraw_request(self):

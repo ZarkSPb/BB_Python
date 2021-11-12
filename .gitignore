@@ -7,5 +7,5 @@ _eeg.py
 *.csv
 /Artifacts
 /main*
-/CSV
+/OUT_FILES
 /EDF

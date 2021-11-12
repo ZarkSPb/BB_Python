@@ -3,47 +3,37 @@ from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
 from numpy import savetxt, zeros
 import os
 import pyedflib
-from datetime import datetime, date
+from datetime import datetime
 
 from settings import *
 
 
-def save_file(session,
-              file_name='eeg.csv',
-              folder='',
-              save_first=True,
-              start_index=0,
-              auto=True):
+def save_CSV(session,
+             file_name='eeg.csv',
+             folder='',
+             save_first=True,
+             start_index=0,
+             auto=True):
     def save(filtered=False):
         h = header
         h += 'filtered\n' if filtered else 'no filtered\n'
-        for channel_names in EEG_CHANNEL_NAMES:
-            h += f'{channel_names}, uV;'
+        ch_names = session.get_eeg_ch_names()
+        for ch_name in ch_names:
+            h += f'{ch_name}, uV;'
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
         file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
-
-
-        end_f = file_name.rfind('.')
-        if end_f != -1: extension = file_name[end_f + 1:]
-
-        if extension.upper() == 'CSV':
-            open_regim = 'a' if auto else 'w'
-            with open(file_name_full, open_regim) as file_object:
-                if save_first:
-                    savetxt(file_object,
-                            data.T,
-                            fmt=format,
-                            delimiter=';',
-                            header=h,
-                            comments='#')
-                else:
-                    savetxt(file_object, data.T, fmt=format, delimiter=';')
-
-        elif extension.upper() == 'EDF':
-            f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDF)
-            f.setBirthdate(date(1951, 8, 2))
-            f.close()
+        open_regim = 'a' if auto else 'w'
+        with open(file_name_full, open_regim) as file_object:
+            if save_first:
+                savetxt(file_object,
+                        data.T,
+                        fmt=format,
+                        delimiter=';',
+                        header=h,
+                        comments='#')
+            else:
+                savetxt(file_object, data.T, fmt=format, delimiter=';')
 
     # ////////////////////////////////////////////////////////////// MAKE HEADER
     first_name = session.patient.get_first_name()
@@ -60,7 +50,6 @@ def save_file(session,
 
     end_index = session.buffer_main.get_last_num()
     if start_index:
-        # data = session.buffer_main.get_buff_from(last_index)
         data = session.buffer_main.get_buff_from(start_index, end_index)
     else:
         data = session.buffer_main.get_buff_last()
@@ -90,6 +79,30 @@ def save_file(session,
         save(True)
 
     return last_save_index
+
+
+def save_EDF(session, file_name='eeg.edf'):
+    f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDF)
+    f.setPatientName(session.patient.get_first_name() + '_' +
+                     session.patient.get_last_name())
+    f.setStartdatetime(session.time_start.toPython())
+
+    ch_names = session.get_eeg_ch_names()
+    signal_headers = []
+    for ch_name in ch_names:
+        signal_header = {
+            'label': ch_name,
+            'dimension': 'uV',
+            'samplerate': SAMPLE_RATE,
+        }
+
+        signal_headers.append(signal_header)
+    
+    print(signal_headers)
+
+    f.setSignalHeaders(signal_headers)
+
+    f.close()
 
 
 def signal_filtering(data, filtering=True):
@@ -125,6 +138,5 @@ def file_name_constructor(session):
     patient_name = session.patient.get_full_name()
     if patient_name:
         file_name += '__' + patient_name
-    file_name += '.csv'
 
     return file_name
