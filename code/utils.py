@@ -88,42 +88,45 @@ def save_EDF(session, file_name='eeg.edf'):
         f_name = file_name[end_f + 1:]
         if f_name[:3] == '(f)': filtered = True
 
-    f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDFPLUS)
+
+    ch_names = session.get_eeg_ch_names()
+    for i in range(len(ch_names)):
+        ch_names[i] = 'EEG ' + ch_names[i]
+
+    f = pyedflib.EdfWriter(file_name,
+                           len(ch_names),
+                           file_type=pyedflib.FILETYPE_EDFPLUS)
 
     patient_name = session.patient.get_first_name(
     ) + '_' + session.patient.get_last_name()
+
     header = {
         'technician': '',
         'recording_additional': '',
         'patientname': patient_name,
         'patient_additional': '',
-        'patientcode': '',
-        'equipment': '',
-        'admincode': '',
-        'gender': '',
+        'patientcode': '123',
+        'equipment': '123',
+        'admincode': '123',
+        'gender': 'Male',
         'startdate': session.time_start.toPython(),
-        'birthdate': '',
+        'birthdate': datetime.now().strftime('%d %b %Y')
     }
     f.setHeader(header)
 
-    ch_names = session.get_eeg_ch_names()
-    for i in range(len(ch_names)):
-        print(ch_names[i])
-        ch_names[i] = 'EEG ' + ch_names[i]
     signal_headers = []
     for ch_name in ch_names:
         signal_header = {
             'label': ch_name,
             'dimension': 'uV',
-            'sample_rate': float(SAMPLE_RATE),
+            'sample_rate': SAMPLE_RATE,
             'physical_max': 0.4 * 10**6,
             'physical_min': -0.4 * 10**6,
             'digital_max': 400000,
             'digital_min': -4000000,
             'transducer': 'AuCl',
-            'prefilter': str(filtered)
+            'prefilter': ' '
         }
-
         signal_headers.append(signal_header)
     f.setSignalHeaders(signal_headers)
 
