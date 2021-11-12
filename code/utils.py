@@ -57,7 +57,6 @@ def save_CSV(session,
 
     end_f = file_name.rfind('\\')
     if end_f == -1: end_f = file_name.rfind('/')
-
     if end_f != -1:
         f_name = file_name[end_f + 1:]
         if f_name[:3] == '(f)':
@@ -82,25 +81,56 @@ def save_CSV(session,
 
 
 def save_EDF(session, file_name='eeg.edf'):
-    f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDF)
-    f.setPatientName(session.patient.get_first_name() + '_' +
-                     session.patient.get_last_name())
-    f.setStartdatetime(session.time_start.toPython())
+    filtered = False
+    end_f = file_name.rfind('\\')
+    if end_f == -1: end_f = file_name.rfind('/')
+    if end_f != -1:
+        f_name = file_name[end_f + 1:]
+        if f_name[:3] == '(f)': filtered = True
+
+    f = pyedflib.EdfWriter(file_name, 1, file_type=pyedflib.FILETYPE_EDFPLUS)
+
+    patient_name = session.patient.get_first_name(
+    ) + '_' + session.patient.get_last_name()
+    header = {
+        'technician': '',
+        'recording_additional': '',
+        'patientname': patient_name,
+        'patient_additional': '',
+        'patientcode': '',
+        'equipment': '',
+        'admincode': '',
+        'gender': '',
+        'startdate': session.time_start.toPython(),
+        'birthdate': '',
+    }
+    f.setHeader(header)
 
     ch_names = session.get_eeg_ch_names()
+    for i in range(len(ch_names)):
+        print(ch_names[i])
+        ch_names[i] = 'EEG ' + ch_names[i]
     signal_headers = []
     for ch_name in ch_names:
         signal_header = {
             'label': ch_name,
             'dimension': 'uV',
-            'samplerate': SAMPLE_RATE,
+            'sample_rate': float(SAMPLE_RATE),
+            'physical_max': 0.4 * 10**6,
+            'physical_min': -0.4 * 10**6,
+            'digital_max': 400000,
+            'digital_min': -4000000,
+            'transducer': 'AuCl',
+            'prefilter': str(filtered)
         }
 
         signal_headers.append(signal_header)
-    
-    print(signal_headers)
-
     f.setSignalHeaders(signal_headers)
+
+    # print()
+    # for s in signal_headers:
+    #     print(s)
+    # print()
 
     f.close()
 
