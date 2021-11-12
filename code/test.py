@@ -1,7 +1,8 @@
 import pyedflib
 from datetime import datetime, date
+import numpy as np
 
-file_name = 'OUT_FILES/testeeg2.edf'
+file_name = 'OUT_FILES/testeeg1.edf'
 
 f = pyedflib.EdfReader(file_name)
 
@@ -10,8 +11,18 @@ f = pyedflib.EdfReader(file_name)
 
 
 
-# print(f.getSignalHeaders()[0])
-print(f.getHeader())
+print(f.getSignalHeaders()[0])
+print(f.readAnnotations())
+
+n = f.signals_in_file
+signal_labels = f.getSignalLabels()
+sigbufs = np.zeros((n, f.getNSamples()[0]))
+for i in np.arange(n):
+        sigbufs[i, :] = f.readSignal(i)
+
+print()
+print(np.min(sigbufs))
+print(sigbufs[:, 10])
 
 # print(f.getPatientName())
 # print(f.getPatientCode())

@@ -81,13 +81,13 @@ def save_CSV(session,
 
 
 def save_EDF(session, file_name='eeg.edf'):
+    print(file_name)
     filtered = False
     end_f = file_name.rfind('\\')
     if end_f == -1: end_f = file_name.rfind('/')
     if end_f != -1:
         f_name = file_name[end_f + 1:]
         if f_name[:3] == '(f)': filtered = True
-
 
     ch_names = session.get_eeg_ch_names()
     for i in range(len(ch_names)):
@@ -122,18 +122,22 @@ def save_EDF(session, file_name='eeg.edf'):
             'sample_rate': SAMPLE_RATE,
             'physical_max': 0.4 * 10**6,
             'physical_min': -0.4 * 10**6,
-            'digital_max': 400000,
-            'digital_min': -4000000,
+            'digital_max': 32767,
+            'digital_min': -32768,
             'transducer': 'AuCl',
-            'prefilter': ' '
+            'prefilter': str(filtered)
         }
         signal_headers.append(signal_header)
     f.setSignalHeaders(signal_headers)
 
-    # print()
-    # for s in signal_headers:
-    #     print(s)
-    # print()
+    print(filtered)
+
+    if filtered:
+        pass
+    else:
+        data = session.buffer_main.get_buff_last()[:len(ch_names)]
+        print(data.shape)
+        f.writeSamples(data)
 
     f.close()
 
