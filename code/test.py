@@ -2,7 +2,7 @@ import pyedflib
 from datetime import datetime, date
 import numpy as np
 
-file_name = 'EDF/210128_000014_EEG_edf+.edf'
+file_name = 'EDF/Zigmantovich.edf'
 
 f = pyedflib.EdfReader(file_name)
 
