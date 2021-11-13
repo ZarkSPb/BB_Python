@@ -387,7 +387,7 @@ class MainWindow(QMainWindow):
     def _checkBoxDetrendChart(self):
         self.chart_detrend_flag = self.ui.CheckBoxDetrendChart.isChecked()
         self.ui.SliderAmplitude.setMaximum(
-            400000 if self.chart_detrend_flag else 200)
+            20000 if self.chart_detrend_flag else 200)
 
     def _firstName_edit(self):
         text = self.ui.LinePatientFirstName.text()

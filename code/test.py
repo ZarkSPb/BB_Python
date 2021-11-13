@@ -2,17 +2,30 @@ import pyedflib
 from datetime import datetime, date
 import numpy as np
 
-file_name = 'OUT_FILES/testeeg1.edf'
+file_name = 'EDF/210128_000014_EEG_edf+.edf'
 
 f = pyedflib.EdfReader(file_name)
 
 # # n = f.signals_in_file
 # # signal_labels = f.getSignalLabels()
 
+header = f.getHeader()
+
+print()
+for i in header.items():
+    print(i)
+
+print()
+print()
+
+sh = f.getSignalHeaders()[0]
+print()
+for i in sh.items():
+    print(i)
+
+print()
 
 
-print(f.getSignalHeaders()[0])
-print(f.readAnnotations())
 
 # n = f.signals_in_file
 # signal_labels = f.getSignalLabels()
