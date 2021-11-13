@@ -1,22 +1,26 @@
 # import numpy as np
 from brainflow.data_filter import DataFilter, DetrendOperations, FilterTypes
-from numpy import savetxt, zeros
+from numpy import savetxt, zeros, min, max
 import os
+import pyedflib
+from datetime import datetime
+from math import floor, ceil
 
 from settings import *
 
 
-def save_file(session,
-              file_name='eeg.csv',
-              folder='',
-              save_first=True,
-              start_index=0,
-              auto=True):
+def save_CSV(session,
+             file_name='eeg.csv',
+             folder='',
+             save_first=True,
+             start_index=0,
+             auto=True):
     def save(filtered=False):
         h = header
         h += 'filtered\n' if filtered else 'no filtered\n'
-        for channel_names in EEG_CHANNEL_NAMES:
-            h += f'{channel_names}, uV;'
+        ch_names = session.get_eeg_ch_names()
+        for ch_name in ch_names:
+            h += f'{ch_name}, uV;'
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
         file_name_full = f'{folder}/{file_name}' if folder != '' else file_name
@@ -47,7 +51,6 @@ def save_file(session,
 
     end_index = session.buffer_main.get_last_num()
     if start_index:
-        # data = session.buffer_main.get_buff_from(last_index)
         data = session.buffer_main.get_buff_from(start_index, end_index)
     else:
         data = session.buffer_main.get_buff_last()
@@ -55,7 +58,6 @@ def save_file(session,
 
     end_f = file_name.rfind('\\')
     if end_f == -1: end_f = file_name.rfind('/')
-
     if end_f != -1:
         f_name = file_name[end_f + 1:]
         if f_name[:3] == '(f)':
@@ -77,6 +79,72 @@ def save_file(session,
         save(True)
 
     return last_save_index
+
+
+def save_EDF(session, file_name='eeg.edf'):
+    def save(filtered=False):
+        pref_ann = 'HP:100mHZ N:50000mHZ N:60000mHZ'
+        if filtered: pref_ann = pref_ann + ' HP:2000mHZ LP:30000mHZ'
+
+        signal_headers = []
+        for ch_name in ch_names:
+            signal_header = {
+                'label': ch_name,
+                'dimension': 'uV',
+                'sample_rate': SAMPLE_RATE,
+                'physical_max': ceil(max(data)),
+                'physical_min': floor(min(data)),
+                'digital_max': 32767,
+                'digital_min': -32768,
+                'transducer': 'AuCl',
+                'prefilter': pref_ann
+            }
+            signal_headers.append(signal_header)
+
+        f = pyedflib.EdfWriter(file_name,
+                               len(ch_names),
+                               file_type=pyedflib.FILETYPE_EDFPLUS)
+        f.setHeader(header)
+        f.setSignalHeaders(signal_headers)
+        f.writeSamples(data)
+        f.close()
+
+    patient_name = session.patient.get_first_name(
+    ) + '_' + session.patient.get_last_name()
+    header = {
+        'technician': '',
+        'recording_additional': '',
+        'patientname': patient_name,
+        'patient_additional': '',
+        'patientcode': '',
+        'equipment': '',
+        'admincode': '',
+        'gender': '',
+        'startdate': session.time_start.toPython(),
+        'birthdate': datetime.now().strftime('%d %b %Y')
+    }
+    ch_names = session.get_eeg_ch_names()
+    for i in range(len(ch_names)):
+        ch_names[i] = 'EEG ' + ch_names[i]
+
+    filtered = False
+    end_f = file_name.rfind('\\')
+    if end_f == -1: end_f = file_name.rfind('/')
+    if end_f != -1:
+        f_name = file_name[end_f + 1:]
+        if f_name[:3] == '(f)': filtered = True
+
+    if filtered:
+        data = session.buffer_filtered.get_buff_last()[:len(ch_names)]
+        save(True)
+        file_name = file_name[:end_f + 1] + f_name[3:]
+        data = session.buffer_main.get_buff_last()[:len(ch_names)]
+        save()
+    else:
+        data = session.buffer_main.get_buff_last()[:len(ch_names)]
+        save()
+        file_name = file_name[:end_f + 1] + '(f)' + f_name
+        save(True)
 
 
 def signal_filtering(data, filtering=True):
@@ -112,6 +180,5 @@ def file_name_constructor(session):
     patient_name = session.patient.get_full_name()
     if patient_name:
         file_name += '__' + patient_name
-    file_name += '.csv'
 
     return file_name

@@ -10,6 +10,7 @@ from PySide6.QtCore import QDateTime, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
+import fileio
 from board import Board
 from chart import *
 from main_uiinteraction import *
@@ -17,7 +18,7 @@ from rhytmwindow import RhytmWindow
 from session import Session
 from settings import *
 from ui_mainwindow import Ui_MainWindow
-from utils import file_name_constructor, save_file, signal_filtering
+from utils import file_name_constructor, save_CSV, save_EDF, signal_filtering
 from worker import Worker
 
 np.set_printoptions(precision=1, suppress=True)
@@ -164,7 +165,7 @@ class MainWindow(QMainWindow):
 
     def timer_long(self):
         if self.save_flag:
-            self.last_save_index += save_file(
+            self.last_save_index += save_CSV(
                 self.session,
                 self.file_name,
                 FOLDER,
@@ -253,6 +254,7 @@ class MainWindow(QMainWindow):
 
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)
+            self.file_name += '.csv'
             self.statusBar_main.setText(f'Saved in: {self.file_name}')
             self.last_save_index = 0
         else:
@@ -327,13 +329,20 @@ class MainWindow(QMainWindow):
 
         file_name = QtWidgets.QFileDialog.getSaveFileName(
             self,
-            caption='Save eeg data (*.csv)',
+            caption='Save eeg data',
             dir=f'{FOLDER}/{fileName}',
-            filter="CSV file (*.csv)")
+            filter='EDF file (*.edf);;CSV file (*.csv)')[0]
 
-        if file_name[0]: save_file(self.session, file_name[0], auto=False)
+        if file_name:
+            end_f = file_name.rfind('.')
+            if end_f != -1: extension = file_name[end_f + 1:]
 
-        file_name_str = file_name[0].replace('/', '\\')
+            if extension.upper() == 'CSV':
+                save_CSV(self.session, file_name, auto=False)
+            elif extension.upper() == 'EDF':
+                save_EDF(self.session, file_name)
+
+        file_name_str = file_name.replace('/', '\\')
         self.statusBar_main.setText(f'Saved in: {file_name_str}')
 
     def _chart_redraw_request(self):
@@ -394,53 +403,44 @@ class MainWindow(QMainWindow):
 
     # ////////////////////////////////////////////////////////////// MENU ACTION
     def _open_file(self):
-        delim = ';'
-
         file_name = QtWidgets.QFileDialog.getOpenFileName(
             self,
             'Open eeg data (*.csv)',
             dir=FOLDER,
-            filter="CSV file (*.csv)")
+            filter="EEG file (*.csv *.edf)")
 
         file_name = file_name[0]
 
         if file_name != '':
-            with open(file_name) as f_object:
-                first_name = f_object.readline().rstrip().lstrip('#')
-                last_name = f_object.readline().rstrip().lstrip('#')
-                data = f_object.readline().rstrip().lstrip('#')
-                time = f_object.readline().rstrip().lstrip('#')
-                filtered_flag = f_object.readline().rstrip().lstrip('#')
-                header = f_object.readline().rstrip().lstrip('#').split(delim)
+            end_f = file_name.rfind('.')
+            if end_f != -1: extension = file_name[end_f + 1:]
+            if extension.upper() == 'CSV':
+                f_struct = fileio.read_CSV(file_name)
+            elif extension.upper() == 'EDF':
+                f_struct = fileio.read_EDF(file_name)
 
-            self.filtered = True if filtered_flag == 'filtered' else False
-
-            table = np.loadtxt(file_name, delimiter=delim).T
-
-            of_eeg_channel_names = [i.split(',')[0] for i in header[:-2]]
-
+            table = f_struct['table']
+            self.filtered = f_struct['filtered_flag']
             self.session = Session(buffer_size=table.shape[1],
-                                   first_name=first_name,
-                                   last_name=last_name,
-                                   eeg_channel_names=of_eeg_channel_names)
+                                   first_name=f_struct['first_name'],
+                                   last_name=f_struct['last_name'],
+                                   eeg_channel_names=f_struct['ch_names'])
 
             if self.filtered:
                 self.session.buffer_filtered.add(table)
             else:
                 self.session.add(table)
 
-            del table
+            f_struct.clear()
 
             self.ui.CheckBoxFilterChart.setEnabled(not self.filtered)
-
             self.set_eeg_ch_names()
-
             file_name = file_name.replace('/', '\\')
             self.statusBar_main.setText(f'Open file: {file_name}')
-
-            self.ui.LinePatientFirstName.setText(first_name)
-            self.ui.LinePatientLastName.setText(last_name)
-
+            self.ui.LinePatientFirstName.setText(
+                self.session.patient.get_first_name())
+            self.ui.LinePatientLastName.setText(
+                self.session.patient.get_last_name())
             self.slider_chart_prepare()
             self._chart_redraw_request()
 

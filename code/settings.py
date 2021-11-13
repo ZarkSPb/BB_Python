@@ -43,4 +43,4 @@ RHYTMS = {
     'gamma': [40, 48, True],
 }
 
-FOLDER = 'CSV'
+FOLDER = 'OUT_FILES'

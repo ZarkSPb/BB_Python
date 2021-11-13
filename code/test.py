@@ -1,7 +1,48 @@
-s = 'fgfdg/fdgfdg/dfgdfgdfg/авп'
+import pyedflib
+from datetime import datetime, date
+import numpy as np
 
-end_f = s.rfind('/')
+file_name = 'OUT_FILES/testeeg1.edf'
 
-# print(s.rfind('/'))
+f = pyedflib.EdfReader(file_name)
 
-print(s[:end_f+1]+'(f)'+s[end_f+1:])
+# # n = f.signals_in_file
+# # signal_labels = f.getSignalLabels()
+
+
+
+print(f.getSignalHeaders()[0])
+print(f.readAnnotations())
+
+# n = f.signals_in_file
+# signal_labels = f.getSignalLabels()
+# sigbufs = np.zeros((n, f.getNSamples()[0]))
+# for i in np.arange(n):
+#         sigbufs[i, :] = f.readSignal(i)
+
+# print()
+# print(np.min(sigbufs))
+# print(sigbufs[:, 10])
+
+# # print(f.getPatientName())
+# # print(f.getPatientCode())
+# # print(f.getBirthdate())
+# # print(f.getStartdatetime())
+
+# # sample_freqs = f.getSampleFrequencies()
+
+# # for s in signal_labels:
+# #     print(s)
+
+# # for sample_freq in sample_freqs:
+# #     print(sample_freq)
+
+# f.close()
+
+# # f = pyedflib.EdfWriter('test.edf', 1, file_type=pyedflib.FILETYPE_EDF)
+# # f.setBirthdate(date(1951, 8, 2))
+# # f.close()
+
+# # f = pyedflib.EdfReader('test.edf')
+
+# # f.close()
