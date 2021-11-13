@@ -39,8 +39,10 @@ def save_CSV(session,
     # ////////////////////////////////////////////////////////////// MAKE HEADER
     first_name = session.patient.get_first_name()
     last_name = session.patient.get_last_name()
-    header = first_name if first_name != '' else 'no_first_name' + '\n'
+    header = first_name if first_name != '' else 'no_first_name'
+    header +='\n'
     header += last_name if last_name != '' else 'no_last_name' + '\n'
+    header +='\n'
     header += session.time_init.toString('dd.MM.yyyy') + '\n'
     header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
 
@@ -96,7 +98,7 @@ def save_EDF(session, file_name='eeg.edf'):
                 'physical_min': floor(min(data)),
                 'digital_max': 32767,
                 'digital_min': -32768,
-                'transducer': 'AuCl',
+                'transducer': 'AuCl electrode',
                 'prefilter': pref_ann
             }
             signal_headers.append(signal_header)
@@ -109,19 +111,17 @@ def save_EDF(session, file_name='eeg.edf'):
         f.writeSamples(data)
         f.close()
 
-    patient_name = session.patient.get_first_name(
-    ) + '_' + session.patient.get_last_name()
     header = {
         'technician': '',
-        'recording_additional': '',
-        'patientname': patient_name,
-        'patient_additional': '',
+        'recording_additional': 'BrainBit',
+        'patientname': session.patient.get_last_name(),
+        'patient_additional': session.patient.get_first_name(),
         'patientcode': '',
         'equipment': '',
         'admincode': '',
         'gender': '',
         'startdate': session.time_start.toPython(),
-        'birthdate': datetime.now().strftime('%d %b %Y')
+        'birthdate': '' # datetime.now().strftime('%d %b %Y')
     }
     ch_names = session.get_eeg_ch_names()
     for i in range(len(ch_names)):
