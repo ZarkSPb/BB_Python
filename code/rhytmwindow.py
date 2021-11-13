@@ -99,7 +99,7 @@ class RhytmWindow(QWidget):
 
     def _rhytms_param_cnd(self):
         self.rhytms = rhytms_param_cnd(self.ui)
-        if self.redraw_pause: self.event_redraw_charts()
+        self.event_redraw_charts()
 
     def _reset(self):
         reset(self.ui, RHYTMS)
