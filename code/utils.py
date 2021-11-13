@@ -143,7 +143,8 @@ def save_EDF(session, file_name='eeg.edf'):
     else:
         data = session.buffer_main.get_buff_last()[:len(ch_names)]
         save()
-        print(file_name[:end_f + 1] + '(f)' + f_name)
+        file_name = file_name[:end_f + 1] + '(f)' + f_name
+        save(True)
 
 
 def signal_filtering(data, filtering=True):
