@@ -1,5 +1,5 @@
 import pyedflib
-from numpy import loadtxt, zeros, arange
+import numpy as np
 
 
 def read_CSV(file_name):
@@ -15,7 +15,7 @@ def read_CSV(file_name):
 
     file_structure['filtered_flag'] = True if f_flag == 'filtered' else False
     file_structure['ch_names'] = [i.split(',')[0] for i in header[:-2]]
-    file_structure['table'] = loadtxt(file_name, delimiter=delim).T
+    file_structure['table'] = np.loadtxt(file_name, delimiter=delim).T
 
     return file_structure
 
@@ -34,12 +34,22 @@ def read_EDF(file_name):
         'ch_names': f.getSignalLabels()
     }
 
-    print(file_structure)
+    dimension = f.getPhysicalDimension(0)
+    if dimension == 'nV': dimension = 1000
 
     n = len(file_structure['ch_names'])
-    sigbufs = zeros((n, f.getNSamples()[0]))
-    for i in arange(n):
+    sigbufs = np.zeros((n, f.getNSamples()[0]))
+    for i in range(n):
         sigbufs[i, :] = f.readSignal(i)
-    file_structure['table'] = sigbufs
+    table = sigbufs / dimension
+
+    signal_len = table.shape[1]
+    sample_dist = 1 / f.getSampleFrequency(0)
+    d_t = d_t.timestamp()
+    temp_buff = np.vstack((np.array(
+        [np.linspace(d_t, d_t + signal_len * sample_dist,
+                     signal_len)]), np.empty((1, signal_len))))
+
+    file_structure['table'] = np.vstack((table, temp_buff))
 
     return file_structure
