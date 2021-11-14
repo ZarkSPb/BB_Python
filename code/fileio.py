@@ -22,17 +22,19 @@ def read_CSV(file_name):
 
 def read_EDF(file_name):
     f = pyedflib.EdfReader(file_name)
+    header = f.getHeader()
 
-    file_structure = {}
-    file_structure['first_name'] = f.getPatientName()
-    file_structure['last_name'] = ''
     d_t = f.getStartdatetime()
-    file_structure['data'] = d_t.date()
-    file_structure['time'] = d_t.time()
+    file_structure = {
+        'first_name': header['patientname'],
+        'last_name': header['patient_additional'],
+        'data': d_t.date(),
+        'time': d_t.time(),
+        'filtered_flag': False if f.getPrefilter(0) == '' else True,
+        'ch_names': f.getSignalLabels()
+    }
 
-    file_structure['filtered_flag'] = True
-
-    file_structure['ch_names'] = f.getSignalLabels()
+    print(file_structure)
 
     n = len(file_structure['ch_names'])
     sigbufs = zeros((n, f.getNSamples()[0]))
