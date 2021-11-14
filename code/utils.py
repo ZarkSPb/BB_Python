@@ -6,8 +6,6 @@ import pyedflib
 from datetime import datetime
 from math import floor, ceil
 
-from settings import *
-
 
 def save_CSV(session,
              file_name='eeg.csv',
@@ -40,9 +38,9 @@ def save_CSV(session,
     first_name = session.patient.get_first_name()
     last_name = session.patient.get_last_name()
     header = first_name if first_name != '' else 'no_first_name'
-    header +='\n'
+    header += '\n'
     header += last_name if last_name != '' else 'no_last_name' + '\n'
-    header +='\n'
+    header += '\n'
     header += session.time_init.toString('dd.MM.yyyy') + '\n'
     header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
 
@@ -93,7 +91,7 @@ def save_EDF(session, file_name='eeg.edf'):
             signal_header = {
                 'label': ch_name,
                 'dimension': 'uV',
-                'sample_rate': SAMPLE_RATE,
+                'sample_rate': session.get_sample_rate(),
                 'physical_max': ceil(max(data)),
                 'physical_min': floor(min(data)),
                 'digital_max': 32767,
@@ -121,7 +119,7 @@ def save_EDF(session, file_name='eeg.edf'):
         'admincode': '',
         'gender': '',
         'startdate': session.time_start.toPython(),
-        'birthdate': '' # datetime.now().strftime('%d %b %Y')
+        'birthdate': ''  # datetime.now().strftime('%d %b %Y')
     }
     ch_names = session.get_eeg_ch_names()
     for i in range(len(ch_names)):
@@ -147,29 +145,29 @@ def save_EDF(session, file_name='eeg.edf'):
         save(True)
 
 
-def signal_filtering(data, filtering=True):
+def signal_filtering(data, sample_rate, filtering=True):
     DataFilter.detrend(data, DetrendOperations.CONSTANT.value)
 
     if filtering:
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+        DataFilter.perform_bandpass(data, sample_rate, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
-        DataFilter.perform_bandpass(data, SAMPLE_RATE, 16.0, 28.0, 4,
+        DataFilter.perform_bandpass(data, sample_rate, 16.0, 28.0, 4,
                                     FilterTypes.BUTTERWORTH.value, 0)
 
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 50.0, 4.0, 4,
+    DataFilter.perform_bandstop(data, sample_rate, 50.0, 4.0, 4,
                                 FilterTypes.BUTTERWORTH.value, 0)
-    DataFilter.perform_bandstop(data, SAMPLE_RATE, 60.0, 4.0, 4,
+    DataFilter.perform_bandstop(data, sample_rate, 60.0, 4.0, 4,
                                 FilterTypes.BUTTERWORTH.value, 0)
 
 
-def rhytm_constructor(data, rhytms):
+def rhytm_constructor(data, rhytms, sample_rate):
     data_res = zeros(data.shape)
     for value in rhytms.values():
         if value[-1]:
             center = (value[0] + value[1]) / 2
             width = float(value[1] - value[0])
             data_c = data.copy()
-            DataFilter.perform_bandpass(data_c, SAMPLE_RATE, center, width, 4,
+            DataFilter.perform_bandpass(data_c, sample_rate, center, width, 4,
                                         FilterTypes.BUTTERWORTH.value, 0)
             data_res += data_c
     return data_res

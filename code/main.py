@@ -89,14 +89,16 @@ class MainWindow(QMainWindow):
         if self.ui.CheckBoxRenew.isChecked():
             if self.chart_filt_flag:
                 data = self.session.buffer_filtered.get_buff_last(
-                    self.chart_duration * SAMPLE_RATE)
+                    self.chart_duration * self.session.get_sample_rate())
             else:
                 data = self.session.buffer_main.get_buff_last(
-                    self.chart_duration * SAMPLE_RATE)
+                    self.chart_duration * self.session.get_sample_rate())
 
                 if self.chart_detrend_flag:
                     for channel in range(NUM_CHANNELS):
-                        signal_filtering(data[channel], filtering=False)
+                        signal_filtering(data[channel],
+                                         self.session.get_sample_rate(),
+                                         filtering=False)
 
             if data.shape[1] > 0: self.redraw_charts(data)
 
@@ -119,7 +121,8 @@ class MainWindow(QMainWindow):
         text = "Duration (sec): " + str(self.chart_duration)
         self.ui.LabelDuration.setText(text)
         axis_x = self.chart_view.chart().axisX()
-        axis_x.setRange(0, self.chart_duration * SAMPLE_RATE)
+        axis_x.setRange(0,
+                        self.chart_duration * self.session.get_sample_rate())
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
@@ -356,7 +359,8 @@ class MainWindow(QMainWindow):
         self.slider_chart_prepare()
 
         start_index = self.ui.SliderChart.value()
-        end_index = start_index + self.chart_duration * SAMPLE_RATE
+        end_index = start_index + self.chart_duration * self.session.get_sample_rate(
+        )
 
         if self.chart_filt_flag:
             data = self.session.buffer_filtered.get_buff_from(
@@ -372,7 +376,8 @@ class MainWindow(QMainWindow):
 
     def slider_chart_prepare(self):
         buff_size = self.session.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * SAMPLE_RATE
+        slider_maximum = buff_size - self.chart_duration * self.session.get_sample_rate(
+        )
         if slider_maximum < 0: slider_maximum = 0
         self.ui.SliderChart.setMaximum(slider_maximum)
 
@@ -424,7 +429,8 @@ class MainWindow(QMainWindow):
             self.session = Session(buffer_size=table.shape[1],
                                    first_name=f_struct['first_name'],
                                    last_name=f_struct['last_name'],
-                                   eeg_channel_names=f_struct['ch_names'])
+                                   eeg_channel_names=f_struct['ch_names'],
+                                   sample_rate=f_struct['s_rate'])
 
             if self.filtered:
                 self.session.buffer_filtered.add(table)

@@ -2,7 +2,7 @@ import pyedflib
 from datetime import datetime, date
 import numpy as np
 
-file_name = 'EDF/Zigmantovich.edf'
+file_name = 'EDF/testeeg.edf'
 
 f = pyedflib.EdfReader(file_name)
 
@@ -24,6 +24,10 @@ for i in sh.items():
     print(i)
 
 print()
+
+tm = f.getStartdatetime()
+
+print(tm.timestamp())
 
 
 
