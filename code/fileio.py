@@ -31,7 +31,8 @@ def read_EDF(file_name):
         'data': d_t.date(),
         'time': d_t.time(),
         'filtered_flag': False if f.getPrefilter(0) == '' else True,
-        'ch_names': f.getSignalLabels()
+        'ch_names': f.getSignalLabels(),
+        's_rate': int(f.getSampleFrequency(0))
     }
 
     dimension = f.getPhysicalDimension(0)
@@ -44,7 +45,7 @@ def read_EDF(file_name):
     table = sigbufs / dimension
 
     signal_len = table.shape[1]
-    sample_dist = 1 / f.getSampleFrequency(0)
+    sample_dist = 1 / file_structure['s_rate']
     d_t = d_t.timestamp()
     temp_buff = np.vstack((np.array(
         [np.linspace(d_t, d_t + signal_len * sample_dist,
