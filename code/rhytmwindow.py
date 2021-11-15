@@ -38,7 +38,7 @@ class RhytmWindow(QWidget):
         self.serieses = []
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.parent.session.get_sample_rate())
         for i in range(ch_num):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -96,7 +96,7 @@ class RhytmWindow(QWidget):
 
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.parent.session.get_sample_rate())
 
     def _rhytms_param_cnd(self):
         self.rhytms = rhytms_param_cnd(self.ui)
@@ -122,7 +122,7 @@ class RhytmWindow(QWidget):
         if self.redraw_pause: self._resume()
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.parent.session.get_sample_rate())
         start(self.ui)
 
     def _stop(self):
@@ -165,7 +165,7 @@ class RhytmWindow(QWidget):
                              start_time=start_time)
             self.chart_buffers = chart_buffers_update(
                 self.chart_amp, self.parent.session.get_eeg_ch_names(),
-                self.chart_duration)
+                self.chart_duration, self.parent.session.get_sample_rate())
             for channel in range(ch_num):
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
