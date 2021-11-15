@@ -1,65 +1,65 @@
-import pyedflib
-from datetime import datetime, date
-import numpy as np
+import math
+import sys
 
-file_name = 'EDF/testeeg.edf'
-
-f = pyedflib.EdfReader(file_name)
-
-# # n = f.signals_in_file
-# # signal_labels = f.getSignalLabels()
-
-header = f.getHeader()
-
-print()
-for i in header.items():
-    print(i)
-
-print()
-print()
-
-sh = f.getSignalHeaders()[0]
-print()
-for i in sh.items():
-    print(i)
-
-print()
-
-tm = f.getStartdatetime()
-
-print(tm.timestamp())
+from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtCore import QPoint, QRect, QTimer, Qt, Slot
+from PySide6.QtGui import (QColor, QPainter, QPaintEvent, QPen, QPointList,
+                           QTransform)
 
 
+WIDTH = 680
+HEIGHT = 480
 
-# n = f.signals_in_file
-# signal_labels = f.getSignalLabels()
-# sigbufs = np.zeros((n, f.getNSamples()[0]))
-# for i in np.arange(n):
-#         sigbufs[i, :] = f.readSignal(i)
 
-# print()
-# print(np.min(sigbufs))
-# print(sigbufs[:, 10])
+class PlotWidget(QWidget):
+    """Illustrates the use of opaque containers. QPointList
+       wraps a C++ QList<QPoint> directly, removing the need to convert
+       a Python list in each call to QPainter.drawPolyline()."""
 
-# # print(f.getPatientName())
-# # print(f.getPatientCode())
-# # print(f.getBirthdate())
-# # print(f.getStartdatetime())
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._timer = QTimer(self)
+        self._timer.setInterval(20)
+        self._timer.timeout.connect(self.shift)
 
-# # sample_freqs = f.getSampleFrequencies()
+        self._points = QPointList()
+        self._x = 0
+        self._delta_x = 0.05
+        self._half_height = HEIGHT / 2
+        self._factor = 0.8 * self._half_height
 
-# # for s in signal_labels:
-# #     print(s)
+        for i in range(WIDTH):
+            self._points.append(QPoint(i, self.next_point()))
 
-# # for sample_freq in sample_freqs:
-# #     print(sample_freq)
+        self.setFixedSize(WIDTH, HEIGHT)
 
-# f.close()
+        self._timer.start()
 
-# # f = pyedflib.EdfWriter('test.edf', 1, file_type=pyedflib.FILETYPE_EDF)
-# # f.setBirthdate(date(1951, 8, 2))
-# # f.close()
+    def next_point(self):
+        result = self._half_height - self._factor * math.sin(self._x)
+        self._x += self._delta_x
+        return result
 
-# # f = pyedflib.EdfReader('test.edf')
+    def shift(self):
+        last_x = self._points[WIDTH - 1].x()
+        self._points.pop_front()
+        self._points.append(QPoint(last_x + 1, self.next_point()))
+        self.update()
 
-# # f.close()
+    def paintEvent(self, event):
+        painter = QPainter()
+        painter.begin(self)
+        rect = QRect(QPoint(0, 0), self.size())
+        painter.fillRect(rect, Qt.white)
+        painter.translate(-self._points[0].x(), 0)
+        painter.drawPolyline(self._points)
+        painter.end()
+
+
+if __name__ == "__main__":
+
+    app = QApplication(sys.argv)
+
+    w = PlotWidget()
+    w.show()
+    sys.exit(app.exec())
