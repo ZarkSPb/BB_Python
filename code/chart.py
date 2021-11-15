@@ -1,7 +1,7 @@
 from PySide6.QtCharts import QCategoryAxis, QChart, QValueAxis
 from PySide6 import QtCore
 from PySide6.QtCore import QDateTime, QPointF
-from settings import MAX_CHART_SIGNAL_DURATION, SAMPLE_RATE
+from settings import MAX_CHART_SIGNAL_DURATION
 
 
 # /////////////////////////////////////////////////////////////////// CHART MAKE
@@ -12,7 +12,7 @@ def chart_init(session, amp, num_ch):
     chart.legend().setVisible(False)
     # /////////////////////////////////////////////////////////////////// axis_x
     axis_x = QValueAxis()
-    axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * SAMPLE_RATE)
+    axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * session.get_sample_rate())
     axis_x.setVisible(False)
     axis_x.setLabelFormat('%i')
     chart.addAxis(axis_x, QtCore.Qt.AlignTop)
@@ -43,13 +43,13 @@ def chart_init(session, amp, num_ch):
     return chart, axis_x, axis_y
 
 
-def chart_buffers_update(amp, ch_name, chart_duration):
+def chart_buffers_update(amp, ch_name, chart_duration, sample_rate):
     ch_buffers = []
     num_ch = len(ch_name)
     for i in range(num_ch):
         ch_buffers.append([
             QPointF(x, amp + (num_ch - 1 - i) * 2 * amp)
-            for x in range(chart_duration * SAMPLE_RATE)
+            for x in range(chart_duration * sample_rate)
         ])
 
     return ch_buffers

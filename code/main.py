@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         self.serieses = []
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.session.get_sample_rate())
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
 
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.session.get_sample_rate())
 
     def redraw_charts(self, data):
         start_tick = data[-2, 0]
@@ -185,6 +185,8 @@ class MainWindow(QMainWindow):
         self.board = BoardShim(BOARD_ID, params)
 
         self.statusBar_main.setText('Connecting...')
+
+        exception = True
         try:
             self.board.prepare_session()
         except BaseException as e:
@@ -200,9 +202,8 @@ class MainWindow(QMainWindow):
             self.statusBar_main.setText('Connecting...')
             try:
                 self.board.prepare_session()
-            except BaseException as exception:
-                self.statusBar_main.setText(
-                    f'Do not connect. Exception: {exception}.')
+            except BaseException as e:
+                self.statusBar_main.setText(f'Do not connect. Exception: {e}.')
                 connect_1(self.ui)
                 exception = True
             else:
@@ -246,7 +247,7 @@ class MainWindow(QMainWindow):
         # CHART buffer renew
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, self.session.get_sample_rate())
 
         self.session.session_start(self.board)
 
@@ -358,28 +359,26 @@ class MainWindow(QMainWindow):
     def _slider_value_cnd(self):
         self.slider_chart_prepare()
 
-        start_index = self.ui.SliderChart.value()
-        end_index = start_index + self.chart_duration * self.session.get_sample_rate(
-        )
+        start_ind = self.ui.SliderChart.value()
+        sample_rate = self.session.get_sample_rate()
+        end_ind = start_ind + self.chart_duration * sample_rate
 
         if self.chart_filt_flag:
             data = self.session.buffer_filtered.get_buff_from(
-                start_index, end_index)
+                start_ind, end_ind)
         else:
-            data = self.session.buffer_main.get_buff_from(
-                start_index, end_index)
+            data = self.session.buffer_main.get_buff_from(start_ind, end_ind)
 
         self.chart_buffers = chart_buffers_update(
             self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration)
+            self.chart_duration, sample_rate)
         self.redraw_charts(data)
 
     def slider_chart_prepare(self):
-        buff_size = self.session.buffer_filtered.get_last_num()
-        slider_maximum = buff_size - self.chart_duration * self.session.get_sample_rate(
-        )
-        if slider_maximum < 0: slider_maximum = 0
-        self.ui.SliderChart.setMaximum(slider_maximum)
+        buff_s = self.session.buffer_filtered.get_last_num()
+        sl_max = buff_s - self.chart_duration * self.session.get_sample_rate()
+        if sl_max < 0: sl_max = 0
+        self.ui.SliderChart.setMaximum(sl_max)
 
     def _checkBoxFilteredChart(self):
         self.chart_filt_flag = self.ui.CheckBoxFilterChart.isChecked()
@@ -451,7 +450,10 @@ class MainWindow(QMainWindow):
             self._chart_redraw_request()
 
             if self.r_window and not self.r_window.isHidden():
-                self.r_window.data = self.session.buffer_filtered if self.filtered else self.session.buffer_main
+                if self.filtered:
+                    self.r_window.data = self.session.buffer_filtered
+                else:
+                    self.r_window.data = self.session.buffer_main
                 self.r_window.buffer_index = self.r_window.data.get_last_num()
                 self.r_window._chart_redraw_request()
                 self.r_window.event_redraw_charts()
@@ -465,10 +467,14 @@ class MainWindow(QMainWindow):
     def _rhytms_window(self):
         if self.ui.actionRhytm_window.isChecked():
             if self.r_window is None: self.r_window = RhytmWindow(self)
-            self.r_window.data = self.session.buffer_filtered if self.filtered else self.session.buffer_main
+            if self.filtered:
+                self.r_window.data = self.session.buffer_filtered
+            else:
+                self.r_window.data = self.session.buffer_main
             self.r_window.update_ui()
             self.r_window.show()
-            self.r_window.event_redraw_charts()
+            if not self.r_window.redraw_pause:
+                self.r_window.event_redraw_charts()
             self.ui.CheckBoxRenew.setChecked(False)
         else:
             self.r_window.hide()
