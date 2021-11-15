@@ -75,7 +75,7 @@ def update_time_axis(chart_duration, axis_t, start_time):
         axis_t.append(time_string, offset + i * 1000)
 
     axis_t.append('  ', (chart_duration - 1) * 1000 + offset)
-    axis_t.append(end_time.toString('hh:mm:ss.zzz'), chart_duration * 1000)
+    axis_t.append(end_time.toString('hh:mm:ss'), chart_duration * 1000)
 
     return axis_t
 

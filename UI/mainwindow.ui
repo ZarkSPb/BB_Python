@@ -22,13 +22,13 @@
      <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>2</number>
+     <number>4</number>
     </property>
     <property name="bottomMargin">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="spacing">
-     <number>2</number>
+     <number>1</number>
     </property>
     <item row="0" column="0">
      <widget class="QWidget" name="WidgetControl" native="true">

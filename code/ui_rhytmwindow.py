@@ -15,21 +15,18 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QFormLayout, QGridLayout,
-    QGroupBox, QLabel, QPushButton, QSizePolicy,
-    QSlider, QSpacerItem, QSpinBox, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QGridLayout,
+    QGroupBox, QLabel, QPushButton, QRadioButton,
+    QSizePolicy, QSlider, QSpacerItem, QSpinBox,
+    QSplitter, QVBoxLayout, QWidget)
 
 class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(1014, 444)
-        self.formLayout = QFormLayout(RhytmWindow)
-        self.formLayout.setObjectName(u"formLayout")
-        self.formLayout.setHorizontalSpacing(4)
-        self.formLayout.setVerticalSpacing(4)
-        self.formLayout.setContentsMargins(4, 4, 4, 4)
+        RhytmWindow.resize(875, 566)
+        self.gridLayout_2 = QGridLayout(RhytmWindow)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.WidgetControl = QWidget(RhytmWindow)
         self.WidgetControl.setObjectName(u"WidgetControl")
         self.WidgetControl.setMinimumSize(QSize(150, 0))
@@ -240,21 +237,41 @@ class Ui_RhytmWindow(object):
 
         self.verticalLayout.addWidget(self.groupBox_2)
 
+        self.groupBox_4 = QGroupBox(self.WidgetControl)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.verticalLayout_3 = QVBoxLayout(self.groupBox_4)
+        self.verticalLayout_3.setSpacing(2)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
+        self.radioButton = QRadioButton(self.groupBox_4)
+        self.radioButton.setObjectName(u"radioButton")
+
+        self.verticalLayout_3.addWidget(self.radioButton)
+
+        self.radioButton_2 = QRadioButton(self.groupBox_4)
+        self.radioButton_2.setObjectName(u"radioButton_2")
+
+        self.verticalLayout_3.addWidget(self.radioButton_2)
+
+        self.radioButton_3 = QRadioButton(self.groupBox_4)
+        self.radioButton_3.setObjectName(u"radioButton_3")
+
+        self.verticalLayout_3.addWidget(self.radioButton_3)
+
+        self.radioButton_4 = QRadioButton(self.groupBox_4)
+        self.radioButton_4.setObjectName(u"radioButton_4")
+
+        self.verticalLayout_3.addWidget(self.radioButton_4)
+
+
+        self.verticalLayout.addWidget(self.groupBox_4)
+
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.WidgetControl)
-
-        self.WidgetCharts = QWidget(RhytmWindow)
-        self.WidgetCharts.setObjectName(u"WidgetCharts")
-        self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
-        self.LayoutCharts.setSpacing(0)
-        self.LayoutCharts.setObjectName(u"LayoutCharts")
-        self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
-
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.WidgetCharts)
+        self.gridLayout_2.addWidget(self.WidgetControl, 0, 0, 1, 1)
 
         self.SliderChart = QSlider(RhytmWindow)
         self.SliderChart.setObjectName(u"SliderChart")
@@ -267,7 +284,37 @@ class Ui_RhytmWindow(object):
         self.SliderChart.setSliderPosition(1000)
         self.SliderChart.setOrientation(Qt.Horizontal)
 
-        self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.SliderChart)
+        self.gridLayout_2.addWidget(self.SliderChart, 1, 0, 1, 2)
+
+        self.splitter = QSplitter(RhytmWindow)
+        self.splitter.setObjectName(u"splitter")
+        self.splitter.setToolTipDuration(-1)
+        self.splitter.setAutoFillBackground(False)
+        self.splitter.setFrameShape(QFrame.NoFrame)
+        self.splitter.setFrameShadow(QFrame.Plain)
+        self.splitter.setLineWidth(0)
+        self.splitter.setMidLineWidth(0)
+        self.splitter.setOrientation(Qt.Horizontal)
+        self.splitter.setHandleWidth(3)
+        self.WidgetCharts = QWidget(self.splitter)
+        self.WidgetCharts.setObjectName(u"WidgetCharts")
+        self.WidgetCharts.setMinimumSize(QSize(0, 0))
+        self.LayoutCharts = QVBoxLayout(self.WidgetCharts)
+        self.LayoutCharts.setSpacing(0)
+        self.LayoutCharts.setObjectName(u"LayoutCharts")
+        self.LayoutCharts.setContentsMargins(0, 0, 0, 0)
+        self.splitter.addWidget(self.WidgetCharts)
+        self.WidgetChartsAnalyse = QWidget(self.splitter)
+        self.WidgetChartsAnalyse.setObjectName(u"WidgetChartsAnalyse")
+        self.WidgetChartsAnalyse.setMinimumSize(QSize(0, 0))
+        self.WidgetChartsAnalyse.setMaximumSize(QSize(16777215, 16777215))
+        self.LayoutChartsAnalyse = QVBoxLayout(self.WidgetChartsAnalyse)
+        self.LayoutChartsAnalyse.setSpacing(0)
+        self.LayoutChartsAnalyse.setObjectName(u"LayoutChartsAnalyse")
+        self.LayoutChartsAnalyse.setContentsMargins(0, 0, 0, 0)
+        self.splitter.addWidget(self.WidgetChartsAnalyse)
+
+        self.gridLayout_2.addWidget(self.splitter, 0, 1, 1, 1)
 
 
         self.retranslateUi(RhytmWindow)
@@ -315,5 +362,10 @@ class Ui_RhytmWindow(object):
         self.groupBox_2.setTitle(QCoreApplication.translate("RhytmWindow", u"Chart settings", None))
         self.LabelDuration.setText(QCoreApplication.translate("RhytmWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("RhytmWindow", u"Amplitude (uV): 20", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("RhytmWindow", u"Second chart", None))
+        self.radioButton.setText(QCoreApplication.translate("RhytmWindow", u"Dynamics of rhythms", None))
+        self.radioButton_2.setText(QCoreApplication.translate("RhytmWindow", u"Period view", None))
+        self.radioButton_3.setText(QCoreApplication.translate("RhytmWindow", u"Pattern view", None))
+        self.radioButton_4.setText(QCoreApplication.translate("RhytmWindow", u"Correlation view", None))
     # retranslateUi
 
