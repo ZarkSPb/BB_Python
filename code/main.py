@@ -185,6 +185,8 @@ class MainWindow(QMainWindow):
         self.board = BoardShim(BOARD_ID, params)
 
         self.statusBar_main.setText('Connecting...')
+
+        exception = True
         try:
             self.board.prepare_session()
         except BaseException as e:
@@ -200,9 +202,8 @@ class MainWindow(QMainWindow):
             self.statusBar_main.setText('Connecting...')
             try:
                 self.board.prepare_session()
-            except BaseException as exception:
-                self.statusBar_main.setText(
-                    f'Do not connect. Exception: {exception}.')
+            except BaseException as e:
+                self.statusBar_main.setText(f'Do not connect. Exception: {e}.')
                 connect_1(self.ui)
                 exception = True
             else:
