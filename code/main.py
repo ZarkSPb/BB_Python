@@ -473,7 +473,8 @@ class MainWindow(QMainWindow):
                 self.r_window.data = self.session.buffer_main
             self.r_window.update_ui()
             self.r_window.show()
-            self.r_window.event_redraw_charts()
+            if not self.r_window.redraw_pause:
+                self.r_window.event_redraw_charts()
             self.ui.CheckBoxRenew.setChecked(False)
         else:
             self.r_window.hide()
