@@ -14,7 +14,6 @@ def init(session, amp, num_ch):
     axis_x = QValueAxis()
     axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * session.get_sample_rate())
     axis_x.setVisible(False)
-    axis_x.setLabelFormat('%i')
     chart.addAxis(axis_x, QtCore.Qt.AlignTop)
     # /////////////////////////////////////////////////////////////////// axis_y
     axis_y = QValueAxis()
