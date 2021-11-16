@@ -16,10 +16,11 @@ class ChartAn(QChartView):
 
         # /////////////////////////////////////////////////////////////// axis_x
         axis_x = QValueAxis()
+        axis_x.setTickType(QValueAxis.TicksDynamic)
+        axis_x.setTickInterval(60)  # 60 second in minute
         axis_x.setRange(0, self.chart_duration_min * 60)
         axis_x.setTickCount(self.chart_duration_min + 1)
-        axis_x.setTickAnchor(200) -------
-        axis_x.setGridLineColor('red')
+        axis_x.setMinorTickCount(3)
         axis_x.setLabelsVisible(False)
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
         # /////////////////////////////////////////////////////////////// axis_y
@@ -42,7 +43,7 @@ class ChartAn(QChartView):
         axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_t.setTruncateLabels(False)
         axis_t = self.update_time_axis(self.chart_duration_min, axis_t,
-                                       QDateTime.currentDateTime())
+                                       QDateTime.currentDateTime(), axis_x)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
 
         # SUPER INIT
@@ -68,9 +69,12 @@ class ChartAn(QChartView):
                 axis_c.append(i * ' ' + str(j), j + start)
         axis_c.append(str(amp), axis_range_max)
 
-    def update_time_axis(self, chart_duration, axis_t, start_time):
+    def update_time_axis(self, chart_duration, axis_t, start_time, axis_x):
         end_time = start_time.addSecs(chart_duration * 60)
         offset = 60 - int(start_time.toString('ss'))
+
+        axis_x.setTickAnchor(offset)
+
         labels = axis_t.categoriesLabels()
         for label in labels:
             axis_t.remove(label)
