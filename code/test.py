@@ -1,65 +1,47 @@
-import math
 import sys
+from PySide6.QtGui import *
+from PySide6.QtCore import *
+from PySide6.QtWidgets import *
 
-from PySide6.QtWidgets import QWidget, QApplication
-from PySide6.QtCore import QPoint, QRect, QTimer, Qt, Slot
-from PySide6.QtGui import (QColor, QPainter, QPaintEvent, QPen, QPointList,
-                           QTransform)
+class Example(QWidget):
 
-
-WIDTH = 680
-HEIGHT = 480
-
-
-class PlotWidget(QWidget):
-    """Illustrates the use of opaque containers. QPointList
-       wraps a C++ QList<QPoint> directly, removing the need to convert
-       a Python list in each call to QPainter.drawPolyline()."""
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._timer = QTimer(self)
-        self._timer.setInterval(20)
-        self._timer.timeout.connect(self.shift)
-
-        self._points = QPointList()
-        self._x = 0
-        self._delta_x = 0.05
-        self._half_height = HEIGHT / 2
-        self._factor = 0.8 * self._half_height
-
-        for i in range(WIDTH):
-            self._points.append(QPoint(i, self.next_point()))
-
-        self.setFixedSize(WIDTH, HEIGHT)
-
-        self._timer.start()
-
-    def next_point(self):
-        result = self._half_height - self._factor * math.sin(self._x)
-        self._x += self._delta_x
-        return result
-
-    def shift(self):
-        last_x = self._points[WIDTH - 1].x()
-        self._points.pop_front()
-        self._points.append(QPoint(last_x + 1, self.next_point()))
-        self.update()
-
-    def paintEvent(self, event):
-        painter = QPainter()
-        painter.begin(self)
-        rect = QRect(QPoint(0, 0), self.size())
-        painter.fillRect(rect, Qt.white)
-        painter.translate(-self._points[0].x(), 0)
-        painter.drawPolyline(self._points)
-        painter.end()
-
-
-if __name__ == "__main__":
-
-    app = QApplication(sys.argv)
-
-    w = PlotWidget()
-    w.show()
-    sys.exit(app.exec())
+   def __init__(self):
+      super(Example, self).__init__()
+		
+      self.initUI()
+	
+   def initUI(self):
+	
+      hbox = QHBoxLayout(self)
+		
+      topleft = QFrame()
+      topleft.setFrameShape(QFrame.StyledPanel)
+      bottom = QFrame()
+      bottom.setFrameShape(QFrame.StyledPanel)
+		
+      splitter1 = QSplitter(Qt.Horizontal)
+      textedit = QTextEdit()
+      splitter1.addWidget(topleft)
+      splitter1.addWidget(textedit)
+      splitter1.setSizes([100,200])
+		
+      splitter2 = QSplitter(Qt.Vertical)
+      splitter2.addWidget(splitter1)
+      splitter2.addWidget(bottom)
+		
+      hbox.addWidget(splitter2)
+		
+      self.setLayout(hbox)
+      QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
+		
+      self.setGeometry(300, 300, 300, 200)
+      self.setWindowTitle('QSplitter demo')
+      self.show()
+		
+def main():
+   app = QApplication(sys.argv)
+   ex = Example()
+   sys.exit(app.exec_())
+	
+if __name__ == '__main__':
+   main()

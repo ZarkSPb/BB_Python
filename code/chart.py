@@ -5,7 +5,7 @@ from settings import MAX_CHART_SIGNAL_DURATION
 
 
 # /////////////////////////////////////////////////////////////////// CHART MAKE
-def chart_init(session, amp, num_ch):
+def init(session, amp, num_ch):
     chart_duration = MAX_CHART_SIGNAL_DURATION
 
     chart = QChart()
@@ -43,7 +43,7 @@ def chart_init(session, amp, num_ch):
     return chart, axis_x, axis_y
 
 
-def chart_buffers_update(amp, ch_name, chart_duration, sample_rate):
+def buffers_update(amp, ch_name, chart_duration, sample_rate):
     ch_buffers = []
     num_ch = len(ch_name)
     for i in range(num_ch):
