@@ -5,13 +5,16 @@ from PySide6.QtCore import QDateTime
 
 class ChartAn(QChartView):
     def __init__(self, session):
+        chart = QChart()
+        # SUPER INIT
+        super(ChartAn, self).__init__(chart)
+
         self.ch_names = session.get_eeg_ch_names()
         self.num_ch = len(self.ch_names)
         self.tick_nums = 5
         self.percent = 100
         self.chart_duration_min = 5
 
-        chart = QChart()
         chart.legend().setVisible(False)
 
         # /////////////////////////////////////////////////////////////// axis_x
@@ -23,13 +26,6 @@ class ChartAn(QChartView):
         axis_x.setMinorTickCount(3)
         axis_x.setLabelsVisible(False)
         chart.addAxis(axis_x, QtCore.Qt.AlignTop)
-        # /////////////////////////////////////////////////////////////// axis_y
-        axis_y = QValueAxis()
-        axis_y.setRange(0, self.num_ch * self.percent)
-        axis_y.setTickCount(self.num_ch + 1)
-        axis_y.setMinorTickCount(self.tick_nums - 1)
-        axis_y.setLabelsVisible(False)
-        chart.addAxis(axis_y, QtCore.Qt.AlignRight)
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setGridLineVisible(False)
@@ -45,9 +41,19 @@ class ChartAn(QChartView):
         axis_t = self.update_time_axis(self.chart_duration_min, axis_t,
                                        QDateTime.currentDateTime(), axis_x)
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+        # /////////////////////////////////////////////////////////////// axis_y
+        axis_y = QValueAxis()
+        axis_y.setRange(0, self.num_ch * self.percent)
+        axis_y.setTickCount(self.num_ch + 1)
+        axis_y.setGridLineColor('black')
+        axis_y.setMinorTickCount(self.tick_nums - 1)
+        axis_y.setLabelsVisible(False)
+        chart.addAxis(axis_y, QtCore.Qt.AlignRight)
 
-        # SUPER INIT
-        super(ChartAn, self).__init__(chart)
+        # ////////////////////////////////////////////////////////////// BUFFERS
+        self.serieses = []
+        self.chart_buffers = 
+        
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c, ch_names, amp):

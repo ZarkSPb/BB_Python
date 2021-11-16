@@ -42,6 +42,7 @@ def init(session, amp, num_ch):
     return chart, axis_x, axis_y
 
 
+# //////////////////////////////////////////////////////////////// BUFFER UPDATE
 def buffers_update(amp, ch_name, chart_duration, sample_rate):
     ch_buffers = []
     num_ch = len(ch_name)

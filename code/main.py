@@ -382,7 +382,7 @@ class MainWindow(QMainWindow):
         buff_s = self.session.buffer_filtered.get_last_num()
         sl_max = buff_s - self.chart_duration * self.session.get_sample_rate()
         if sl_max < 0: sl_max = 0
-        self.ui.SliderChart.setMaximum(sl_max)
+        # self.ui.SliderChart.setMaximum(sl_max)
 
     def _checkBoxFilteredChart(self):
         self.chart_filt_flag = self.ui.CheckBoxFilterChart.isChecked()
