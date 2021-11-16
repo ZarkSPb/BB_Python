@@ -10,7 +10,7 @@ from PySide6.QtCore import QDateTime, QTimer
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
-import fileiogit 
+import fileio
 from board import Board
 import chart as ch
 from main_uiinteraction import *

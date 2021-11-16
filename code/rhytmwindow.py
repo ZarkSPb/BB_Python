@@ -75,7 +75,7 @@ class RhytmWindow(QWidget):
         self.chart_view_analise = ChartAn(self.parent.session)
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
 
-        self.ui.splitter.setSizes((1, 0))
+        # self.ui.splitter.setSizes((1, 0))
 
     def update_ui(self):
         self.buffer_index = self.data.get_last_num()
