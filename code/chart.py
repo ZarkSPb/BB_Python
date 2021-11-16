@@ -33,7 +33,7 @@ def init(session, amp, num_ch):
     chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
     # /////////////////////////////////////////////////////////////////// axis_c
     axis_c = QCategoryAxis()
-    axis_c.setRange(0, 4)
+    axis_c.setRange(0, len(session.get_eeg_ch_names()))
     axis_c.setGridLineVisible(False)
     axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
     axis_c.setTruncateLabels(False)

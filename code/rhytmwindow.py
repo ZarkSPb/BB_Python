@@ -8,6 +8,7 @@ from rhytmwindow_uiinteraction import *
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
+from chart_analize import ChartAn
 
 
 class RhytmWindow(QWidget):
@@ -51,24 +52,27 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        # //////////////////////////////////////////////////////// CHART ANALYSE
-        ch_num = len(self.parent.session.get_eeg_ch_names())
-        chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
-                                        ch_num)
-        self.serieses_analise = []
-        self.chart_buffers_analise = ch.buffers_update(
-            self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration, self.parent.session.get_sample_rate())
-        for i in range(ch_num):
-            series = QLineSeries()
-            series.append(self.chart_buffers[i])
-            self.serieses_analise.append(series)
-            chart.addSeries(self.serieses[-1])
-            self.serieses_analise[-1].attachAxis(axis_x)
-            self.serieses_analise[-1].attachAxis(axis_y)
-        # //////////////////////////////////////////////////// Chart view create
-        self.chart_view_analise = QChartView(chart)
-        self.chart_view_analise.setRenderHint(QPainter.Antialiasing, True)
+        # # //////////////////////////////////////////////////////// CHART ANALYSE
+        # ch_num = len(self.parent.session.get_eeg_ch_names())
+        # chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
+        #                                 ch_num)
+        # self.serieses_analise = []
+        # self.chart_buffers_analise = ch.buffers_update(
+        #     self.chart_amp, self.parent.session.get_eeg_ch_names(),
+        #     self.chart_duration, self.parent.session.get_sample_rate())
+        # for i in range(ch_num):
+        #     series = QLineSeries()
+        #     series.append(self.chart_buffers[i])
+        #     self.serieses_analise.append(series)
+        #     chart.addSeries(self.serieses[-1])
+        #     self.serieses_analise[-1].attachAxis(axis_x)
+        #     self.serieses_analise[-1].attachAxis(axis_y)
+        # # //////////////////////////////////////////////////// Chart view create
+        # self.chart_view_analise = QChartView(chart)
+        # self.chart_view_analise.setRenderHint(QPainter.Antialiasing, True)
+        # self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
+
+        self.chart_view_analise = ChartAn(self.parent.session)
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
 
         self.ui.splitter.setSizes((1, 0))
