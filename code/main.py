@@ -266,7 +266,7 @@ class MainWindow(QMainWindow):
         # INIT and START timer_short_events
         self.short_timer = QTimer()
         self.short_timer.timeout.connect(self.timer_short)
-        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 2)
+        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 4)
 
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)

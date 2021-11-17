@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QWidget
 import chart as ch
 from chart_analize import ChartAn
 from rhytmwindow_uiinteraction import *
-from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC
+from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC, RHYTMS_ANALISE
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
 import numpy as np
@@ -234,7 +234,6 @@ class RhytmWindow(QWidget):
             if data.shape[1] > 0: self.redraw_charts(data)
 
     def new_analyze_data(self):
-        timestart = time.time_ns()
         s_rate = self.parent.session.get_sample_rate()
         ch_names = self.parent.session.get_eeg_ch_names()
         ch_num = len(ch_names)
@@ -248,12 +247,14 @@ class RhytmWindow(QWidget):
                 data, nfft, nfft // 2, s_rate,
                 WindowFunctions.BLACKMAN_HARRIS.value)
             buff = [
-                DataFilter.get_band_power(psd, rhytm[0], rhytm[1])
-                for rhytm in RHYTMS.values()
+                DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
+                                          RHYTMS[rhytm][1])
+                for rhytm in RHYTMS_ANALISE
             ]
             coeff = 100 / sum(buff)
             return [i * coeff for i in buff]
 
+        timestart = time.time_ns()
         while data_num - self.last_analyse_index >= nfft:
             data = self.data.get_buff_from(self.last_analyse_index,
                                            self.last_analyse_index + nfft)

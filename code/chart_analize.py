@@ -1,7 +1,7 @@
 from PySide6.QtCharts import QChartView, QChart, QLineSeries, QSplineSeries, QValueAxis, QCategoryAxis
 from PySide6 import QtCore
 from PySide6.QtCore import QDateTime, QPointF
-from settings import RHYTMS
+from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
 
 
 class ChartAn(QChartView):
@@ -15,7 +15,6 @@ class ChartAn(QChartView):
         self.tick_nums = 5
         self.chart_percent_max = 100
         self.chart_duration_min = 5
-        self.rhytm_num = 5
         self.current_index = 0
 
         chart.legend().setVisible(True)
@@ -59,19 +58,20 @@ class ChartAn(QChartView):
         self.buffer_clear()
 
         rhytms_name = list(RHYTMS.keys())
-        for series_num in range(self.ch_num * self.rhytm_num):
-            # series = QLineSeries()
-            series = QSplineSeries()  # /////////////////// <------------>
+        rhytms_analise_num = len(RHYTMS_ANALISE)
+        for series_num in range(self.ch_num * rhytms_analise_num):
+            series = QLineSeries()
             series.append(self.chart_buffers[series_num])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
 
-            if series_num < self.rhytm_num:
+            if series_num < rhytms_analise_num:
                 self.serieses[-1].setName(rhytms_name[series_num])
-            else:
-                self.serieses[-1].setName('')
+
+            self.serieses[-1].setColor(RHYTMS_COLOR[series_num %
+                                                    rhytms_analise_num])
 
         self.chart_renew()
 
@@ -120,25 +120,30 @@ class ChartAn(QChartView):
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
+        # print(new_data)
         len_data = len(new_data)
+        rhytms_analise_num = len(RHYTMS_ANALISE)
         if len_data == len(self.chart_buffers):
             channel = 0
             for i in range(len_data):
+                if i % rhytms_analise_num == 0 and i > 0: channel += 1
+
                 new_point = QPointF(
                     self.current_index,
                     new_data[i] + channel * self.chart_percent_max)
                 self.chart_buffers[i].append(new_point)
 
-                if i % self.rhytm_num == 0 and i > 0: channel += 1
-
             self.current_index += 1
 
     # ////////////////////////////////////////////////////////////// CHART RENEW
     def chart_renew(self):
-        for i in range(self.ch_num * self.rhytm_num):
+        rhytms_analise_num = len(RHYTMS_ANALISE)
+        for i in range(self.ch_num * rhytms_analise_num):
             self.serieses[i].replace(self.chart_buffers[i])
 
     # ///////////////////////////////////////////////////////////// BUFFER CLEAR
     def buffer_clear(self):
+        rhytms_analise_num = len(RHYTMS_ANALISE)
         self.current_index = 0
-        self.chart_buffers = [[] for i in range(self.ch_num * self.rhytm_num)]
+        self.chart_buffers = [[]
+                              for i in range(self.ch_num * rhytms_analise_num)]

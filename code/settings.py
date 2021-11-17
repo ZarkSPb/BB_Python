@@ -1,8 +1,8 @@
 from brainflow.board_shim import BoardIds, BoardShim
 
 # Configuring BB
-BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
-# BOARD_ID = BoardIds.BRAINBIT_BOARD.value
+# BOARD_ID = BoardIds.SYNTHETIC_BOARD.value
+BOARD_ID = BoardIds.BRAINBIT_BOARD.value
 
 # Getting BB settings
 SAMPLE_RATE = BoardShim.get_sampling_rate(BOARD_ID)  # 250
@@ -19,6 +19,13 @@ BOARD_TIMEOUT = 5
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 4
+RHYTMS_ANALISE = ('delta', 'theta', 'alpha', 'betha')
+# RHYTMS_COLOR = ('orange', 'blue', 'green', 'red',
+#                 'orange', 'blue', 'green', 'red',
+#                 'orange', 'blue', 'green', 'red',
+#                 'orange', 'blue', 'green', 'red')
+
+RHYTMS_COLOR = ('orange', 'blue', 'green', 'red')
 
 UPDATE_IMPEDANCE_SPEED_MS = 500
 UPDATE_BUFFER_SPEED_MS = 10
