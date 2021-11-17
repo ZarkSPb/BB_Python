@@ -1,6 +1,6 @@
-from PySide6.QtCharts import QChartView, QChart, QValueAxis, QCategoryAxis
+from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis, QCategoryAxis
 from PySide6 import QtCore
-from PySide6.QtCore import QDateTime
+from PySide6.QtCore import QDateTime, QPointF
 
 
 class ChartAn(QChartView):
@@ -10,10 +10,12 @@ class ChartAn(QChartView):
         super(ChartAn, self).__init__(chart)
 
         self.ch_names = session.get_eeg_ch_names()
-        self.num_ch = len(self.ch_names)
+        self.ch_num = len(self.ch_names)
         self.tick_nums = 5
-        self.percent = 100
+        self.chart_percent_max = 100
         self.chart_duration_min = 5
+        self.rhytm_num = 5
+        self.current_index = 0
 
         chart.legend().setVisible(False)
 
@@ -31,7 +33,8 @@ class ChartAn(QChartView):
         axis_c.setGridLineVisible(False)
         axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
         axis_c.setTruncateLabels(False)
-        self.update_channels_axis(axis_c, self.ch_names, self.percent)
+        self.update_channels_axis(axis_c, self.ch_names,
+                                  self.chart_percent_max)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # /////////////////////////////////////////////////////////////// axis_t
         axis_t = QCategoryAxis()
@@ -43,8 +46,8 @@ class ChartAn(QChartView):
         chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_y
         axis_y = QValueAxis()
-        axis_y.setRange(0, self.num_ch * self.percent)
-        axis_y.setTickCount(self.num_ch + 1)
+        axis_y.setRange(0, self.ch_num * self.chart_percent_max)
+        axis_y.setTickCount(self.ch_num + 1)
         axis_y.setGridLineColor('black')
         axis_y.setMinorTickCount(self.tick_nums - 1)
         axis_y.setLabelsVisible(False)
@@ -52,8 +55,18 @@ class ChartAn(QChartView):
 
         # ////////////////////////////////////////////////////////////// BUFFERS
         self.serieses = []
-        self.chart_buffers = 
-        
+        self.chart_buffers = [[] for i in range(self.ch_num * self.rhytm_num)]
+
+        for chart_num in range(self.ch_num * self.rhytm_num):
+            series = QLineSeries()
+            series.append(self.chart_buffers[chart_num])
+            self.serieses.append(series)
+            chart.addSeries(self.serieses[-1])
+            self.serieses[-1].attachAxis(axis_x)
+            self.serieses[-1].attachAxis(axis_y)
+
+        for i in range(self.ch_num * self.rhytm_num):
+            self.serieses[i].replace(self.chart_buffers[i])
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c, ch_names, amp):
@@ -97,3 +110,24 @@ class ChartAn(QChartView):
         axis_t.append(end_time.toString('hh:mm:ss'), chart_duration * 60)
 
         return axis_t
+
+    # //////////////////////////////////////////////////////////// BUFFER UPDATE
+    def buffers_add(self, new_data):
+        len_data = len(new_data)
+
+        print()
+
+        if len_data == len(self.chart_buffers):
+            channel = 0
+            for i in range(len_data):
+
+                print(channel)
+
+                new_point = QPointF(
+                    self.current_index,
+                    new_data[i] + channel * self.chart_percent_max)
+                self.chart_buffers[i].append(new_point)
+
+                if i % self.rhytm_num == 0 and i > 0: channel += 1
+
+            self.current_index += 1
