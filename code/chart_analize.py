@@ -115,8 +115,6 @@ class ChartAn(QChartView):
     def buffers_add(self, new_data):
         len_data = len(new_data)
 
-        print()
-
         if len_data == len(self.chart_buffers):
             channel = 0
             for i in range(len_data):

@@ -32,6 +32,8 @@ class RhytmWindow(QWidget):
         self.data = None
         self.buffer_index = 0
 
+        self.last_analyse_index = 0
+
         # //////////////////////////////////////////////////////////////// CHART
         ch_num = len(self.parent.session.get_eeg_ch_names())
         chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
@@ -209,23 +211,34 @@ class RhytmWindow(QWidget):
             self.event_redraw_charts()
 
     def event_redraw_charts(self):
+        s_rate = self.parent.session.get_sample_rate()
+
         data = self.data.get_buff_last(
             (self.chart_duration + SIGNAL_CLIPPING_SEC) *
-            self.parent.session.get_sample_rate())
+            s_rate)
 
         ch_num = len(self.parent.session.get_eeg_ch_names())
         if data.shape[1] > 0:
             for channel in range(ch_num):
                 signal_filtering(data[channel],
-                                 self.parent.session.get_sample_rate(),
+                                 s_rate,
                                  filtering=False)
                 data[channel] = rhytm_constructor(
                     data[channel], self.rhytms,
-                    self.parent.session.get_sample_rate())
+                    s_rate)
 
             data = data[:, SIGNAL_CLIPPING_SEC *
-                        self.parent.session.get_sample_rate():]
+                        s_rate:]
             if data.shape[1] > 0: self.redraw_charts(data)
+
+    def new_analyze_data(self):
+        s_rate = self.parent.session.get_sample_rate()
+        
+        current_index = self.data.get_last_num()
+        while current_index - self.last_analyse_index >= s_rate:
+            self.last_analyse_index += s_rate
+            print(self.last_analyse_index)
+
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

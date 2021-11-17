@@ -181,6 +181,8 @@ class MainWindow(QMainWindow):
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
+        self.r_window.new_analyze_data()
+
     def connect_toBB(self):
         params = BrainFlowInputParams()
         params.timeout = BOARD_TIMEOUT
