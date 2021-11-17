@@ -14,6 +14,7 @@ from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
 import numpy as np
+import time
 
 
 class RhytmWindow(QWidget):
@@ -233,6 +234,7 @@ class RhytmWindow(QWidget):
             if data.shape[1] > 0: self.redraw_charts(data)
 
     def new_analyze_data(self):
+        timestart = time.time_ns()
         s_rate = self.parent.session.get_sample_rate()
         ch_names = self.parent.session.get_eeg_ch_names()
         ch_num = len(ch_names)
@@ -240,11 +242,9 @@ class RhytmWindow(QWidget):
 
         data_num = self.data.get_last_num()
 
-        self.chart_view_analise.buffer_clear()
-
-        current_index = 0
-        while data_num - current_index >= nfft:
-            data = self.data.get_buff_from(current_index, current_index + nfft)
+        while data_num - self.last_analyse_index >= nfft:
+            data = self.data.get_buff_from(self.last_analyse_index,
+                                           self.last_analyse_index + nfft)
             buff_for_send = []
             for channel in range(ch_num):
                 DataFilter.detrend(data[channel],
@@ -253,19 +253,21 @@ class RhytmWindow(QWidget):
                     data[channel], nfft, nfft // 2, s_rate,
                     WindowFunctions.BLACKMAN_HARRIS.value)
 
-                buff = []
-                for rhytm in self.rhytms.values():
-                    rhytm_power = DataFilter.get_band_power(
-                        psd, rhytm[0], rhytm[1])
-                    buff.append(rhytm_power)
-
+                buff = [
+                    DataFilter.get_band_power(psd, rhytm[0], rhytm[1])
+                    for rhytm in RHYTMS.values()
+                ]
                 coeff = 100 / sum(buff)
-                buff = [int(i * coeff) for i in buff]
+                buff = [i * coeff for i in buff]
                 buff_for_send.extend(buff)
 
             self.chart_view_analise.buffers_add(buff_for_send)
-            current_index += s_rate
-            # self.last_analyse_index += s_rate
+            # current_index += s_rate
+            self.last_analyse_index += s_rate
+
+        timeend = time.time_ns()
+
+        print((timeend - timestart) // 1000)
 
         self.chart_view_analise.chart_renew()
 

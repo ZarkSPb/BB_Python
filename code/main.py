@@ -182,7 +182,8 @@ class MainWindow(QMainWindow):
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
     def timer_short(self):
-        self.r_window.new_analyze_data()
+        if self.r_window and not self.r_window.isHidden():
+            self.r_window.new_analyze_data()
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -265,7 +266,7 @@ class MainWindow(QMainWindow):
         # INIT and START timer_short_events
         self.short_timer = QTimer()
         self.short_timer.timeout.connect(self.timer_short)
-        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 5)
+        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 2)
 
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)
@@ -297,7 +298,6 @@ class MainWindow(QMainWindow):
         self.long_timer.stop()
         self.short_timer.stop()
         self.board.stop_stream()
-        self.timer_short()
         if self.save_flag: self.timer_long()
 
 
