@@ -1,6 +1,7 @@
-from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis, QCategoryAxis
+from PySide6.QtCharts import QChartView, QChart, QLineSeries, QSplineSeries, QValueAxis, QCategoryAxis
 from PySide6 import QtCore
 from PySide6.QtCore import QDateTime, QPointF
+from settings import RHYTMS
 
 
 class ChartAn(QChartView):
@@ -17,7 +18,7 @@ class ChartAn(QChartView):
         self.rhytm_num = 5
         self.current_index = 0
 
-        chart.legend().setVisible(False)
+        chart.legend().setVisible(True)
 
         # /////////////////////////////////////////////////////////////// axis_x
         axis_x = QValueAxis()
@@ -57,16 +58,22 @@ class ChartAn(QChartView):
         self.serieses = []
         self.buffer_clear()
 
-        for chart_num in range(self.ch_num * self.rhytm_num):
-            series = QLineSeries()
-            series.append(self.chart_buffers[chart_num])
+        rhytms_name = list(RHYTMS.keys())
+        for series_num in range(self.ch_num * self.rhytm_num):
+            # series = QLineSeries()
+            series = QSplineSeries()  # /////////////////// <------------>
+            series.append(self.chart_buffers[series_num])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
 
-        self.chart_renew()
+            if series_num < self.rhytm_num:
+                self.serieses[-1].setName(rhytms_name[series_num])
+            else:
+                self.serieses[-1].setName('')
 
+        self.chart_renew()
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c, ch_names, amp):

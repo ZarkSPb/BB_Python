@@ -242,24 +242,24 @@ class RhytmWindow(QWidget):
 
         data_num = self.data.get_last_num()
 
+        def channel_buff(data):
+            DataFilter.detrend(data, DetrendOperations.LINEAR.value)
+            psd = DataFilter.get_psd_welch(
+                data, nfft, nfft // 2, s_rate,
+                WindowFunctions.BLACKMAN_HARRIS.value)
+            buff = [
+                DataFilter.get_band_power(psd, rhytm[0], rhytm[1])
+                for rhytm in RHYTMS.values()
+            ]
+            coeff = 100 / sum(buff)
+            return [i * coeff for i in buff]
+
         while data_num - self.last_analyse_index >= nfft:
             data = self.data.get_buff_from(self.last_analyse_index,
                                            self.last_analyse_index + nfft)
             buff_for_send = []
             for channel in range(ch_num):
-                DataFilter.detrend(data[channel],
-                                   DetrendOperations.LINEAR.value)
-                psd = DataFilter.get_psd_welch(
-                    data[channel], nfft, nfft // 2, s_rate,
-                    WindowFunctions.BLACKMAN_HARRIS.value)
-
-                buff = [
-                    DataFilter.get_band_power(psd, rhytm[0], rhytm[1])
-                    for rhytm in RHYTMS.values()
-                ]
-                coeff = 100 / sum(buff)
-                buff = [i * coeff for i in buff]
-                buff_for_send.extend(buff)
+                buff_for_send.extend(channel_buff(data[channel]))
 
             self.chart_view_analise.buffers_add(buff_for_send)
             # current_index += s_rate
