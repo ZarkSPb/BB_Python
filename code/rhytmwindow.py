@@ -238,10 +238,13 @@ class RhytmWindow(QWidget):
         ch_num = len(ch_names)
         nfft = DataFilter.get_nearest_power_of_two(s_rate)
 
-        current_index = self.data.get_last_num()
-        while current_index - self.last_analyse_index >= nfft:
-            data = self.data.get_buff_from(self.last_analyse_index,
-                                           self.last_analyse_index + nfft)
+        data_num = self.data.get_last_num()
+
+        self.chart_view_analise.buffer_clear()
+
+        current_index = 0
+        while data_num - current_index >= nfft:
+            data = self.data.get_buff_from(current_index, current_index + nfft)
             buff_for_send = []
             for channel in range(ch_num):
                 DataFilter.detrend(data[channel],
@@ -261,7 +264,8 @@ class RhytmWindow(QWidget):
                 buff_for_send.extend(buff)
 
             self.chart_view_analise.buffers_add(buff_for_send)
-            self.last_analyse_index += s_rate
+            current_index += s_rate
+            # self.last_analyse_index += s_rate
 
         self.chart_view_analise.chart_renew()
 

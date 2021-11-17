@@ -55,7 +55,7 @@ class ChartAn(QChartView):
 
         # ////////////////////////////////////////////////////////////// BUFFERS
         self.serieses = []
-        self.chart_buffers = [[] for i in range(self.ch_num * self.rhytm_num)]
+        self.buffer_clear()
 
         for chart_num in range(self.ch_num * self.rhytm_num):
             series = QLineSeries()
@@ -66,6 +66,7 @@ class ChartAn(QChartView):
             self.serieses[-1].attachAxis(axis_y)
 
         self.chart_renew()
+
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c, ch_names, amp):
@@ -112,8 +113,6 @@ class ChartAn(QChartView):
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
-        print(new_data)
-
         len_data = len(new_data)
         if len_data == len(self.chart_buffers):
             channel = 0
@@ -131,3 +130,8 @@ class ChartAn(QChartView):
     def chart_renew(self):
         for i in range(self.ch_num * self.rhytm_num):
             self.serieses[i].replace(self.chart_buffers[i])
+
+    # ///////////////////////////////////////////////////////////// BUFFER CLEAR
+    def buffer_clear(self):
+        self.current_index = 0
+        self.chart_buffers = [[] for i in range(self.ch_num * self.rhytm_num)]

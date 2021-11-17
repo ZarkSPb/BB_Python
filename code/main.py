@@ -181,6 +181,7 @@ class MainWindow(QMainWindow):
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
+    def timer_short(self):
         self.r_window.new_analyze_data()
 
     def connect_toBB(self):
@@ -261,6 +262,11 @@ class MainWindow(QMainWindow):
         self.long_timer.timeout.connect(self.timer_long)
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
 
+        # INIT and START timer_short_events
+        self.short_timer = QTimer()
+        self.short_timer.timeout.connect(self.timer_short)
+        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 5)
+
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)
             self.file_name += '.csv'
@@ -289,8 +295,11 @@ class MainWindow(QMainWindow):
         self.chart_redraw_timer.stop()
         self.session.session_stop()
         self.long_timer.stop()
+        self.short_timer.stop()
         self.board.stop_stream()
+        self.timer_short()
         if self.save_flag: self.timer_long()
+
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
@@ -497,6 +506,7 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         try:
             self.long_timer.stop()
+            self.short_timer.stop()
             self.session.session_stop()
         except:
             pass
