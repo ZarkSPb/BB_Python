@@ -113,14 +113,14 @@ class ChartAn(QChartView):
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
+
+        print(new_data)
+
         len_data = len(new_data)
 
         if len_data == len(self.chart_buffers):
             channel = 0
             for i in range(len_data):
-
-                print(channel)
-
                 new_point = QPointF(
                     self.current_index,
                     new_data[i] + channel * self.chart_percent_max)

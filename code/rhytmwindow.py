@@ -1,14 +1,19 @@
+import brainflow
+from brainflow.data_filter import (DataFilter, DetrendOperations,
+                                   WindowFunctions)
+
 from PySide6.QtCharts import QChartView, QLineSeries
 from PySide6.QtCore import QDateTime
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
 import chart as ch
+from chart_analize import ChartAn
 from rhytmwindow_uiinteraction import *
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
-from chart_analize import ChartAn
+import numpy as np
 
 
 class RhytmWindow(QWidget):
@@ -20,6 +25,7 @@ class RhytmWindow(QWidget):
         self.parent = parent
 
         s_rate = self.parent.session.get_sample_rate()
+        ch_names = self.parent.session.get_eeg_ch_names()
 
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
@@ -36,13 +42,12 @@ class RhytmWindow(QWidget):
         self.last_analyse_index = 0
 
         # //////////////////////////////////////////////////////////////// CHART
-        ch_num = len(self.parent.session.get_eeg_ch_names())
+        ch_num = len(ch_names)
         chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
                                         ch_num)
         self.serieses = []
-        self.chart_buffers = ch.buffers_update(
-            self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration, s_rate)
+        self.chart_buffers = ch.buffers_update(self.chart_amp, ch_names,
+                                               self.chart_duration, s_rate)
         for i in range(ch_num):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -83,8 +88,9 @@ class RhytmWindow(QWidget):
             self._slider_value_cnd()
 
     def request_realisation(self):
+        ch_names = self.parent.session.get_eeg_ch_names()
         s_rate = self.parent.session.get_sample_rate()
-        ch_num = len(self.parent.session.get_eeg_ch_names())
+        ch_num = len(ch_names)
 
         # Slider AMPLITUDE
         self.chart_amp = self.ui.SliderAmplitude.value()
@@ -104,9 +110,8 @@ class RhytmWindow(QWidget):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
-        self.chart_buffers = ch.buffers_update(
-            self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration, s_rate)
+        self.chart_buffers = ch.buffers_update(self.chart_amp, ch_names,
+                                               self.chart_duration, s_rate)
 
     def _rhytms_param_cnd(self):
         self.rhytms = rhytms_param_cnd(self.ui)
@@ -144,6 +149,7 @@ class RhytmWindow(QWidget):
 
     def _slider_value_cnd(self):
         s_rate = self.parent.session.get_sample_rate()
+        ch_names = self.parent.session.get_eeg_ch_names()
 
         self.slider_chart_prepare()
 
@@ -157,7 +163,7 @@ class RhytmWindow(QWidget):
 
         data = self.data.get_buff_from(start_index, end_index)
 
-        ch_num = len(self.parent.session.get_eeg_ch_names())
+        ch_num = len(ch_names)
         if data.shape[1] > 0:
             for channel in range(ch_num):
                 signal_filtering(data[channel], s_rate, filtering=False)
@@ -172,9 +178,8 @@ class RhytmWindow(QWidget):
             ch.update_time_axis(self.chart_duration,
                                 axis_t,
                                 start_time=start_time)
-            self.chart_buffers = ch.buffers_update(
-                self.chart_amp, self.parent.session.get_eeg_ch_names(),
-                self.chart_duration, s_rate)
+            self.chart_buffers = ch.buffers_update(self.chart_amp, ch_names,
+                                                   self.chart_duration, s_rate)
             for channel in range(ch_num):
                 self.serieses[channel].replace(self.chart_buffers[channel])
 
@@ -229,14 +234,29 @@ class RhytmWindow(QWidget):
 
     def new_analyze_data(self):
         s_rate = self.parent.session.get_sample_rate()
+        ch_names = self.parent.session.get_eeg_ch_names()
+        ch_num = len(ch_names)
+        nfft = DataFilter.get_nearest_power_of_two(s_rate)
 
         current_index = self.data.get_last_num()
-        while current_index - self.last_analyse_index >= s_rate:
-            end_index = self.last_analyse_index + s_rate
-            data = self.data.get_buff_from(self.last_analyse_index, end_index)
-            print(self.last_analyse_index, end_index, data.shape)
-            self.last_analyse_index += end_index
-            
+        while current_index - self.last_analyse_index >= nfft:
+            data = self.data.get_buff_from(self.last_analyse_index,
+                                           self.last_analyse_index + nfft)
+            buff = []
+            for channel in range(ch_num):
+                DataFilter.detrend(data[channel],
+                                   DetrendOperations.LINEAR.value)
+                psd = DataFilter.get_psd_welch(
+                    data[channel], nfft, nfft // 2, s_rate,
+                    WindowFunctions.BLACKMAN_HARRIS.value)
+                for rhytm in self.rhytms.values():
+                    rhytm_power = DataFilter.get_band_power(
+                        psd, rhytm[0], rhytm[1])
+                    buff.append(rhytm_power)
+            self.chart_view_analise.buffers_add(buff)
+            self.last_analyse_index += s_rate
+        
+
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
