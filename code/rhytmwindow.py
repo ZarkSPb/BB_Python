@@ -242,21 +242,28 @@ class RhytmWindow(QWidget):
         while current_index - self.last_analyse_index >= nfft:
             data = self.data.get_buff_from(self.last_analyse_index,
                                            self.last_analyse_index + nfft)
-            buff = []
+            buff_for_send = []
             for channel in range(ch_num):
                 DataFilter.detrend(data[channel],
                                    DetrendOperations.LINEAR.value)
                 psd = DataFilter.get_psd_welch(
                     data[channel], nfft, nfft // 2, s_rate,
                     WindowFunctions.BLACKMAN_HARRIS.value)
+
+                buff = []
                 for rhytm in self.rhytms.values():
                     rhytm_power = DataFilter.get_band_power(
                         psd, rhytm[0], rhytm[1])
                     buff.append(rhytm_power)
-            self.chart_view_analise.buffers_add(buff)
-            self.last_analyse_index += s_rate
-        
 
+                coeff = 100 / sum(buff)
+                buff = [int(i * coeff) for i in buff]
+                buff_for_send.extend(buff)
+
+            self.chart_view_analise.buffers_add(buff_for_send)
+            self.last_analyse_index += s_rate
+
+        self.chart_view_analise.chart_renew()
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
