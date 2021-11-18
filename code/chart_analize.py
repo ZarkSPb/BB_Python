@@ -21,14 +21,14 @@ class ChartAn(QChartView):
         chart.legend().setVisible(True)
 
         # /////////////////////////////////////////////////////////////// axis_x
-        axis_x = QValueAxis()
-        axis_x.setTickType(QValueAxis.TicksDynamic)
-        axis_x.setTickInterval(60)  # 60 second in minute
-        axis_x.setRange(0, self.chart_duration_min * 60)
-        axis_x.setTickCount(self.chart_duration_min + 1)
-        axis_x.setMinorTickCount(3)
-        axis_x.setLabelsVisible(False)
-        chart.addAxis(axis_x, QtCore.Qt.AlignTop)
+        self.axis_x = QValueAxis()
+        self.axis_x.setTickType(QValueAxis.TicksDynamic)
+        self.axis_x.setTickInterval(60)  # 60 second in minute
+        self.axis_x.setRange(0, self.chart_duration_min * 60)
+        self.axis_x.setTickCount(self.chart_duration_min + 1)
+        self.axis_x.setMinorTickCount(3)
+        self.axis_x.setLabelsVisible(False)
+        chart.addAxis(self.axis_x, QtCore.Qt.AlignTop)
         # /////////////////////////////////////////////////////////////// axis_c
         axis_c = QCategoryAxis()
         axis_c.setGridLineVisible(False)
@@ -38,13 +38,15 @@ class ChartAn(QChartView):
                                   self.chart_percent_max)
         chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
         # /////////////////////////////////////////////////////////////// axis_t
-        axis_t = QCategoryAxis()
-        axis_t.setRange(0, self.chart_duration_min * 60)
-        axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        axis_t.setTruncateLabels(False)
-        axis_t = self.update_time_axis(self.chart_duration_min, axis_t,
-                                       QDateTime.currentDateTime(), axis_x)
-        chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
+        self.axis_t = QCategoryAxis()
+        self.axis_t.setRange(0, self.chart_duration_min * 60)
+        self.axis_t.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        self.axis_t.setTruncateLabels(False)
+        self.axis_t = self.update_time_axis(self.chart_duration_min,
+                                            self.axis_t,
+                                            QDateTime.currentDateTime(),
+                                            self.axis_x)
+        chart.addAxis(self.axis_t, QtCore.Qt.AlignBottom)
         # /////////////////////////////////////////////////////////////// axis_y
         axis_y = QValueAxis()
         axis_y.setRange(0, self.ch_num * self.chart_percent_max)
@@ -65,7 +67,7 @@ class ChartAn(QChartView):
             series.append(self.chart_buffers[series_num])
             self.serieses.append(series)
             chart.addSeries(self.serieses[-1])
-            self.serieses[-1].attachAxis(axis_x)
+            self.serieses[-1].attachAxis(self.axis_x)
             self.serieses[-1].attachAxis(axis_y)
 
             if series_num < rhytms_analise_num:
@@ -131,10 +133,6 @@ class ChartAn(QChartView):
         if datas > 0: rhytms = len(new_data[0])
         rhytms_analise_num = len(RHYTMS_ANALISE)
 
-        print()
-        for dt in new_data:
-            print(dt)
-
         if datas > 0 and rhytms == len(self.chart_buffers):
             for data in new_data:
                 channel = 0
@@ -150,6 +148,12 @@ class ChartAn(QChartView):
 
     # ////////////////////////////////////////////////////////////// CHART RENEW
     def chart_renew(self):
+        buff_len = len(self.chart_buffers[0])
+        if self.chart_duration_min * 60 < buff_len:
+            self.chart_duration_min = 1 + buff_len // 60
+        self.axis_x.setRange(0, self.chart_duration_min * 60)
+        self.axis_t.setRange(0, self.chart_duration_min * 60)
+
         rhytms_analise_num = len(RHYTMS_ANALISE)
         for i in range(self.ch_num * rhytms_analise_num):
             self.serieses[i].replace(self.chart_buffers[i])

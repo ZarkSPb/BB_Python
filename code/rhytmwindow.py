@@ -267,6 +267,8 @@ class RhytmWindow(QWidget):
                         for rhytm in RHYTMS_ANALISE
                     ]
 
+                    buff[0] = buff[0] / 2 # <----------------------------------------------------------
+
                     coeff = 100 / sum(buff)
                     buff_result.extend([int(i * coeff) for i in buff])
                 return buff_result
