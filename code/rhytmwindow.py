@@ -234,41 +234,47 @@ class RhytmWindow(QWidget):
             if data.shape[1] > 0: self.redraw_charts(data)
 
     def new_analyze_data(self):
-        s_rate = self.parent.session.get_sample_rate()
-        ch_names = self.parent.session.get_eeg_ch_names()
-        ch_num = len(ch_names)
-        nfft = DataFilter.get_nearest_power_of_two(s_rate)
-        data_num = self.data.get_last_num()
+        widget_width = self.ui.splitter.sizes()[1]
+        if widget_width > 0:
+            s_rate = self.parent.session.get_sample_rate()
+            ch_names = self.parent.session.get_eeg_ch_names()
+            ch_num = len(ch_names)
+            nfft = DataFilter.get_nearest_power_of_two(s_rate)
+            data_num = self.data.get_last_num()
 
-        def channel_buff(data):
-            DataFilter.detrend(data, DetrendOperations.LINEAR.value)
-            psd = DataFilter.get_psd_welch(
-                data, nfft, nfft // 2, s_rate,
-                WindowFunctions.BLACKMAN_HARRIS.value)
-            buff = [
-                DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
-                                          RHYTMS[rhytm][1])
-                for rhytm in RHYTMS_ANALISE
-            ]
-            coeff = 100 / sum(buff)
-            return [i * coeff for i in buff]
+            def channel_buff(data):
+                DataFilter.detrend(data, DetrendOperations.LINEAR.value)
+                psd = DataFilter.get_psd_welch(
+                    data, nfft, nfft // 2, s_rate,
+                    WindowFunctions.BLACKMAN_HARRIS.value)
+                buff = [
+                    DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
+                                              RHYTMS[rhytm][1])
+                    for rhytm in RHYTMS_ANALISE
+                ]
+                coeff = 100 / sum(buff)
+                return [int(i * coeff) for i in buff]
 
-        timestart = time.time_ns()
+            # timestart = time.time_ns()
 
-        while data_num - self.last_analyse_index >= nfft:
-            data = self.data.get_buff_from(self.last_analyse_index,
-                                           self.last_analyse_index + nfft)
             buff_for_send = []
-            for channel in range(ch_num):
-                buff_for_send.extend(channel_buff(data[channel]))
+            while data_num - self.last_analyse_index >= nfft:
+                data = self.data.get_buff_from(self.last_analyse_index,
+                                               self.last_analyse_index + nfft)
 
-            self.chart_view_analise.buffers_add([buff_for_send])
-            self.last_analyse_index += s_rate
+                buff_prepare = []
+                for channel in range(ch_num):
+                    buff_prepare.extend(channel_buff(data[channel]))
+  
+                buff_for_send.append(buff_prepare)
 
-        timeend = time.time_ns()
-        print((timeend - timestart) // 1000)
+                self.last_analyse_index += s_rate
 
-        self.chart_view_analise.chart_renew()
+            # timeend = time.time_ns()
+            # print((timeend - timestart) // 1000)
+
+            self.chart_view_analise.buffers_add(buff_for_send)
+            self.chart_view_analise.chart_renew()
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

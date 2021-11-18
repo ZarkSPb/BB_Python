@@ -14,7 +14,7 @@ class ChartAn(QChartView):
         self.ch_num = len(self.ch_names)
         self.tick_nums = 5
         self.chart_percent_max = 100
-        self.chart_duration_min = 5
+        self.chart_duration_min = 2
         self.current_index = 0
 
         chart.legend().setVisible(True)
@@ -69,11 +69,17 @@ class ChartAn(QChartView):
 
             if series_num < rhytms_analise_num:
                 self.serieses[-1].setName(rhytms_name[series_num])
+            else:
+                self.serieses[-1].setMarkerSize(50)
 
             self.serieses[-1].setColor(RHYTMS_COLOR[series_num %
                                                     rhytms_analise_num])
 
-        self.chart_renew()
+        # /////////////////////////////// remove unnecessary markers from legend
+        for marker in chart.legend().markers()[rhytms_analise_num:]:
+            marker.setVisible(False)
+
+        # self.chart_renew()
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
     def update_channels_axis(self, axis_c, ch_names, amp):
@@ -121,19 +127,22 @@ class ChartAn(QChartView):
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
         datas = len(new_data)
-        rhytms = len(new_data[0])
-
+        if datas > 0: rhytms = len(new_data[0])
         rhytms_analise_num = len(RHYTMS_ANALISE)
 
-        if rhytms == len(self.chart_buffers):
-            for data in range(datas):
+        print()
+        for dt in new_data:
+            print(dt)
+
+        if datas > 0 and rhytms == len(self.chart_buffers):
+            for data in new_data:
                 channel = 0
                 for i in range(rhytms):
                     if i % rhytms_analise_num == 0 and i > 0: channel += 1
 
                     new_point = QPointF(
                         self.current_index,
-                        new_data[data][i] + channel * self.chart_percent_max)
+                        data[i] + channel * self.chart_percent_max)
                     self.chart_buffers[i].append(new_point)
 
             self.current_index += datas
