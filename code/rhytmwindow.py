@@ -62,7 +62,8 @@ class RhytmWindow(QWidget):
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
         # //////////////////////////////////////////////////////// CHART ANALYSE
-        self.chart_view_analise = ChartAn(self.parent.session)
+        self.chart_view_analise = ChartAn(self.parent.session,
+                                          self._chart_an_dclick)
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
 
         # self.ui.splitter.setSizes((1, 0))
@@ -80,6 +81,13 @@ class RhytmWindow(QWidget):
                 resume(self.ui)
         else:
             open_session_norun(self.ui)
+
+    def _chart_an_dclick(self):
+        size = self.ui.splitter.sizes()[0]
+        if size == 0:
+            self.ui.splitter.setSizes((500, 500))
+        else:
+            self.ui.splitter.setSizes((0, 1))
 
     def _chart_redraw_request(self):
         if self.parent.session.get_status() and not self.redraw_pause:
@@ -242,32 +250,36 @@ class RhytmWindow(QWidget):
             nfft = DataFilter.get_nearest_power_of_two(s_rate)
             data_num = self.data.get_last_num()
 
-            def channel_buff(data):
-                DataFilter.detrend(data, DetrendOperations.LINEAR.value)
-                psd = DataFilter.get_psd_welch(
-                    data, nfft, nfft // 2, s_rate,
-                    WindowFunctions.BLACKMAN_HARRIS.value)
-                buff = [
-                    DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
-                                              RHYTMS[rhytm][1])
-                    for rhytm in RHYTMS_ANALISE
-                ]
-                coeff = 100 / sum(buff)
-                return [int(i * coeff) for i in buff]
+            def cycle_buff(datas):
+
+                buff_result = []
+
+                for data in datas:
+                    DataFilter.detrend(data, DetrendOperations.LINEAR.value)
+
+                    psd = DataFilter.get_psd_welch(
+                        data, nfft, nfft // 2, s_rate,
+                        WindowFunctions.BLACKMAN_HARRIS.value)
+
+                    buff = [
+                        DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
+                                                  RHYTMS[rhytm][1])
+                        for rhytm in RHYTMS_ANALISE
+                    ]
+
+                    coeff = 100 / sum(buff)
+                    buff_result.extend([int(i * coeff) for i in buff])
+                return buff_result
 
             # timestart = time.time_ns()
 
             buff_for_send = []
             while data_num - self.last_analyse_index >= nfft:
-                data = self.data.get_buff_from(self.last_analyse_index,
-                                               self.last_analyse_index + nfft)
+                datas = self.data.get_buff_from(self.last_analyse_index,
+                                                self.last_analyse_index +
+                                                nfft)[:ch_num]
 
-                buff_prepare = []
-                for channel in range(ch_num):
-                    buff_prepare.extend(channel_buff(data[channel]))
-  
-                buff_for_send.append(buff_prepare)
-
+                buff_for_send.append(cycle_buff(datas))
                 self.last_analyse_index += s_rate
 
             # timeend = time.time_ns()

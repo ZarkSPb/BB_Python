@@ -5,7 +5,7 @@ from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
 
 
 class ChartAn(QChartView):
-    def __init__(self, session):
+    def __init__(self, session, maximize_func):
         chart = QChart()
         # SUPER INIT
         super(ChartAn, self).__init__(chart)
@@ -16,6 +16,7 @@ class ChartAn(QChartView):
         self.chart_percent_max = 100
         self.chart_duration_min = 2
         self.current_index = 0
+        self.maximize_func = maximize_func
 
         chart.legend().setVisible(True)
 
@@ -145,7 +146,7 @@ class ChartAn(QChartView):
                         data[i] + channel * self.chart_percent_max)
                     self.chart_buffers[i].append(new_point)
 
-            self.current_index += datas
+                self.current_index += 1
 
     # ////////////////////////////////////////////////////////////// CHART RENEW
     def chart_renew(self):
@@ -159,3 +160,6 @@ class ChartAn(QChartView):
         self.current_index = 0
         self.chart_buffers = [[]
                               for i in range(self.ch_num * rhytms_analise_num)]
+
+    def mouseDoubleClickEvent(self, event):
+        self.maximize_func()
