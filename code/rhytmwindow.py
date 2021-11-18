@@ -238,7 +238,6 @@ class RhytmWindow(QWidget):
         ch_names = self.parent.session.get_eeg_ch_names()
         ch_num = len(ch_names)
         nfft = DataFilter.get_nearest_power_of_two(s_rate)
-
         data_num = self.data.get_last_num()
 
         def channel_buff(data):
@@ -255,6 +254,7 @@ class RhytmWindow(QWidget):
             return [i * coeff for i in buff]
 
         timestart = time.time_ns()
+
         while data_num - self.last_analyse_index >= nfft:
             data = self.data.get_buff_from(self.last_analyse_index,
                                            self.last_analyse_index + nfft)
@@ -262,12 +262,10 @@ class RhytmWindow(QWidget):
             for channel in range(ch_num):
                 buff_for_send.extend(channel_buff(data[channel]))
 
-            self.chart_view_analise.buffers_add(buff_for_send)
-            # current_index += s_rate
+            self.chart_view_analise.buffers_add([buff_for_send])
             self.last_analyse_index += s_rate
 
         timeend = time.time_ns()
-
         print((timeend - timestart) // 1000)
 
         self.chart_view_analise.chart_renew()

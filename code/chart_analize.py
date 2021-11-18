@@ -120,20 +120,23 @@ class ChartAn(QChartView):
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
-        # print(new_data)
-        len_data = len(new_data)
+        datas = len(new_data)
+        rhytms = len(new_data[0])
+
         rhytms_analise_num = len(RHYTMS_ANALISE)
-        if len_data == len(self.chart_buffers):
-            channel = 0
-            for i in range(len_data):
-                if i % rhytms_analise_num == 0 and i > 0: channel += 1
 
-                new_point = QPointF(
-                    self.current_index,
-                    new_data[i] + channel * self.chart_percent_max)
-                self.chart_buffers[i].append(new_point)
+        if rhytms == len(self.chart_buffers):
+            for data in range(datas):
+                channel = 0
+                for i in range(rhytms):
+                    if i % rhytms_analise_num == 0 and i > 0: channel += 1
 
-            self.current_index += 1
+                    new_point = QPointF(
+                        self.current_index,
+                        new_data[data][i] + channel * self.chart_percent_max)
+                    self.chart_buffers[i].append(new_point)
+
+            self.current_index += datas
 
     # ////////////////////////////////////////////////////////////// CHART RENEW
     def chart_renew(self):
