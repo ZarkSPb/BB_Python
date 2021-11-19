@@ -183,7 +183,8 @@ class MainWindow(QMainWindow):
 
     def timer_short(self):
         if self.r_window and not self.r_window.isHidden():
-            self.r_window.new_analyze_data()
+            if self.r_window.ui.splitter.sizes()[1] > 0:
+                self.r_window.new_analyze_data()
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -299,7 +300,6 @@ class MainWindow(QMainWindow):
         self.short_timer.stop()
         self.board.stop_stream()
         if self.save_flag: self.timer_long()
-
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())

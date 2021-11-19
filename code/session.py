@@ -39,6 +39,9 @@ class Buffer:
         self.last = 0
 
     def add(self, add_sample):
+        if type(add_sample) != np.ndarray:
+            add_sample = np.asarray(add_sample)
+
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
@@ -145,6 +148,6 @@ class Session():
 
     def get_connect_status(self):
         return self.connected
-    
+
     def get_sample_rate(self):
         return self.sample_rate

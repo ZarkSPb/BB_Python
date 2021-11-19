@@ -13,8 +13,9 @@ from rhytmwindow_uiinteraction import *
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC, RHYTMS_ANALISE
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
-import numpy as np
 import time
+from session import Buffer
+import numpy as np
 
 
 class RhytmWindow(QWidget):
@@ -27,6 +28,7 @@ class RhytmWindow(QWidget):
 
         s_rate = self.parent.session.get_sample_rate()
         ch_names = self.parent.session.get_eeg_ch_names()
+        ch_num = len(ch_names)
 
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
@@ -40,10 +42,12 @@ class RhytmWindow(QWidget):
         self.data = None
         self.buffer_index = 0
 
-        self.last_analyse_index = 0
+        self.buffer_rhytms = Buffer(buffer_size=2 * 60,
+                                    channels_num=ch_num * len(RHYTMS_ANALISE))
+
+        # self.last_analyse_index = 0
 
         # //////////////////////////////////////////////////////////////// CHART
-        ch_num = len(ch_names)
         chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
                                         ch_num)
         self.serieses = []
@@ -242,53 +246,52 @@ class RhytmWindow(QWidget):
             if data.shape[1] > 0: self.redraw_charts(data)
 
     def new_analyze_data(self):
-        widget_width = self.ui.splitter.sizes()[1]
-        if widget_width > 0:
-            s_rate = self.parent.session.get_sample_rate()
-            ch_names = self.parent.session.get_eeg_ch_names()
-            ch_num = len(ch_names)
-            nfft = DataFilter.get_nearest_power_of_two(s_rate)
-            data_num = self.data.get_last_num()
+        s_rate = self.parent.session.get_sample_rate()
+        ch_names = self.parent.session.get_eeg_ch_names()
+        ch_num = len(ch_names)
+        nfft = DataFilter.get_nearest_power_of_two(s_rate)
+        data_num = self.data.get_last_num()
 
-            def cycle_buff(datas):
+        def cycle_buff(datas):
 
-                buff_result = []
+            buff_result = []
 
-                for data in datas:
-                    DataFilter.detrend(data, DetrendOperations.LINEAR.value)
+            for data in datas:
+                DataFilter.detrend(data, DetrendOperations.LINEAR.value)
 
-                    psd = DataFilter.get_psd_welch(
-                        data, nfft, nfft // 2, s_rate,
-                        WindowFunctions.BLACKMAN_HARRIS.value)
+                psd = DataFilter.get_psd_welch(
+                    data, nfft, nfft // 2, s_rate,
+                    WindowFunctions.BLACKMAN_HARRIS.value)
 
-                    buff = [
+                buff = []
+                for rhytm in RHYTMS_ANALISE:
+                    buff.append(
                         DataFilter.get_band_power(psd, RHYTMS[rhytm][0],
-                                                  RHYTMS[rhytm][1])
-                        for rhytm in RHYTMS_ANALISE
-                    ]
+                                                  RHYTMS[rhytm][1]))
 
-                    buff[0] = buff[0] / 2 # <----------------------------------------------------------
+                # buff[0] = buff[0] / 2 # <----------------------------------------------------------------
 
-                    coeff = 100 / sum(buff)
-                    buff_result.extend([int(i * coeff) for i in buff])
-                return buff_result
+                coeff = 100 / sum(buff)
+                buff_result.extend([int(i * coeff) for i in buff])
+            return buff_result
 
-            # timestart = time.time_ns()
+        # timestart = time.time_ns()
 
-            buff_for_send = []
-            while data_num - self.last_analyse_index >= nfft:
-                datas = self.data.get_buff_from(self.last_analyse_index,
-                                                self.last_analyse_index +
-                                                nfft)[:ch_num]
+        last_index = self.buffer_rhytms.get_last_num()
+        buff_for_send = []
+        while data_num - last_index >= nfft:
+            datas = self.data.get_buff_from(last_index,
+                                            last_index + nfft)[:ch_num]
 
-                buff_for_send.append(cycle_buff(datas))
-                self.last_analyse_index += s_rate
+            buff_for_send.append(cycle_buff(datas))
+            last_index += s_rate
 
-            # timeend = time.time_ns()
-            # print((timeend - timestart) // 1000)
+        # timeend = time.time_ns()
+        # print((timeend - timestart) // 1000)
 
-            self.chart_view_analise.buffers_add(buff_for_send)
-            self.chart_view_analise.chart_renew()
+        self.buffer_rhytms.add(np.asarray(buff_for_send).T)
+        self.chart_view_analise.buffers_add(buff_for_send)
+        self.chart_view_analise.chart_renew()
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
