@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>875</width>
-    <height>566</height>
+    <width>928</width>
+    <height>708</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -450,9 +450,12 @@
           <number>2</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="radioButton">
+          <widget class="QRadioButton" name="radioButton_1">
            <property name="text">
             <string>Dynamics of rhythms</string>
+           </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -461,6 +464,9 @@
            <property name="text">
             <string>Period view</string>
            </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
          <item>
@@ -468,12 +474,38 @@
            <property name="text">
             <string>Pattern view</string>
            </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_4">
            <property name="text">
             <string>Correlation view</string>
+           </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_5">
+           <property name="text">
+            <string>Relaxation view</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_off">
+           <property name="text">
+            <string>Off</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="autoRepeat">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -619,12 +651,12 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>361</y>
+     <x>146</x>
+     <y>357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>170</x>
-     <y>199</y>
+     <x>180</x>
+     <y>344</y>
     </hint>
    </hints>
   </connection>
@@ -635,12 +667,12 @@
    <slot>_chart_redraw_request()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>132</x>
-     <y>408</y>
+     <x>139</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>164</x>
-     <y>247</y>
+     <x>235</x>
+     <y>389</y>
     </hint>
    </hints>
   </connection>
@@ -651,12 +683,12 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>44</x>
-     <y>169</y>
+     <x>51</x>
+     <y>165</y>
     </hint>
     <hint type="destinationlabel">
-     <x>246</x>
-     <y>33</y>
+     <x>255</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
@@ -667,12 +699,12 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>193</y>
+     <x>58</x>
+     <y>189</y>
     </hint>
     <hint type="destinationlabel">
-     <x>245</x>
-     <y>58</y>
+     <x>254</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -683,8 +715,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>217</y>
+     <x>58</x>
+     <y>213</y>
     </hint>
     <hint type="destinationlabel">
      <x>232</x>
@@ -699,8 +731,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>241</y>
+     <x>58</x>
+     <y>237</y>
     </hint>
     <hint type="destinationlabel">
      <x>230</x>
@@ -715,8 +747,8 @@
    <slot>_rhytms_param_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>51</x>
-     <y>265</y>
+     <x>58</x>
+     <y>261</y>
     </hint>
     <hint type="destinationlabel">
      <x>235</x>
@@ -732,7 +764,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>170</y>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>400</x>
@@ -748,7 +780,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>170</y>
+     <y>166</y>
     </hint>
     <hint type="destinationlabel">
      <x>528</x>
@@ -764,7 +796,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>194</y>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>388</x>
@@ -780,7 +812,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>194</y>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>522</x>
@@ -796,7 +828,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>218</y>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -812,7 +844,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>218</y>
+     <y>214</y>
     </hint>
     <hint type="destinationlabel">
      <x>517</x>
@@ -828,7 +860,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>242</y>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>373</x>
@@ -844,7 +876,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>242</y>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
      <x>511</x>
@@ -860,7 +892,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>266</y>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
      <x>369</x>
@@ -876,7 +908,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>266</y>
+     <y>262</y>
     </hint>
     <hint type="destinationlabel">
      <x>520</x>
@@ -891,12 +923,12 @@
    <slot>_reset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>292</y>
+     <x>92</x>
+     <y>288</y>
     </hint>
     <hint type="destinationlabel">
-     <x>271</x>
-     <y>153</y>
+     <x>276</x>
+     <y>277</y>
     </hint>
    </hints>
   </connection>
@@ -907,12 +939,12 @@
    <slot>_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>130</x>
-     <y>72</y>
+     <x>137</x>
+     <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>0</y>
+     <x>239</x>
+     <y>57</y>
     </hint>
    </hints>
   </connection>
@@ -923,12 +955,12 @@
    <slot>_resume()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>98</y>
+     <x>88</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>289</x>
-     <y>0</y>
+     <x>308</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
@@ -939,12 +971,12 @@
    <slot>_slider_value_cnd()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>311</x>
-     <y>583</y>
+     <x>315</x>
+     <y>707</y>
     </hint>
     <hint type="destinationlabel">
-     <x>421</x>
-     <y>394</y>
+     <x>365</x>
+     <y>609</y>
     </hint>
    </hints>
   </connection>
@@ -959,8 +991,8 @@
      <y>34</y>
     </hint>
     <hint type="destinationlabel">
-     <x>526</x>
-     <y>-16</y>
+     <x>451</x>
+     <y>32</y>
     </hint>
    </hints>
   </connection>
@@ -975,8 +1007,104 @@
      <y>119</y>
     </hint>
     <hint type="destinationlabel">
-     <x>280</x>
-     <y>-30</y>
+     <x>275</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_1</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_rhytms_on()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>71</x>
+     <y>438</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>439</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_period_on()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>42</x>
+     <y>455</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>461</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_pattern_on()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>486</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>211</x>
+     <y>484</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_4</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_corellation_on()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>115</x>
+     <y>506</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>505</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_off</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_off()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>73</x>
+     <y>548</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>252</x>
+     <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radioButton_5</sender>
+   <signal>clicked()</signal>
+   <receiver>RhytmWindow</receiver>
+   <slot>_relax_on()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>92</x>
+     <y>521</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -990,5 +1118,11 @@
   <slot>_slider_value_cnd()</slot>
   <slot>_start()</slot>
   <slot>_stop()</slot>
+  <slot>_rhytms_on()</slot>
+  <slot>_period_on()</slot>
+  <slot>_corellation_on()</slot>
+  <slot>_pattern_on()</slot>
+  <slot>_off()</slot>
+  <slot>_relax_on()</slot>
  </slots>
 </ui>

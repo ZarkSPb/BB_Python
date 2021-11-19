@@ -24,7 +24,7 @@ class Ui_RhytmWindow(object):
     def setupUi(self, RhytmWindow):
         if not RhytmWindow.objectName():
             RhytmWindow.setObjectName(u"RhytmWindow")
-        RhytmWindow.resize(875, 566)
+        RhytmWindow.resize(928, 708)
         self.gridLayout_2 = QGridLayout(RhytmWindow)
         self.gridLayout_2.setSpacing(1)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -245,25 +245,41 @@ class Ui_RhytmWindow(object):
         self.verticalLayout_3.setSpacing(2)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(2, 2, 2, 2)
-        self.radioButton = QRadioButton(self.groupBox_4)
-        self.radioButton.setObjectName(u"radioButton")
+        self.radioButton_1 = QRadioButton(self.groupBox_4)
+        self.radioButton_1.setObjectName(u"radioButton_1")
+        self.radioButton_1.setAutoRepeat(False)
 
-        self.verticalLayout_3.addWidget(self.radioButton)
+        self.verticalLayout_3.addWidget(self.radioButton_1)
 
         self.radioButton_2 = QRadioButton(self.groupBox_4)
         self.radioButton_2.setObjectName(u"radioButton_2")
+        self.radioButton_2.setAutoRepeat(False)
 
         self.verticalLayout_3.addWidget(self.radioButton_2)
 
         self.radioButton_3 = QRadioButton(self.groupBox_4)
         self.radioButton_3.setObjectName(u"radioButton_3")
+        self.radioButton_3.setAutoRepeat(False)
 
         self.verticalLayout_3.addWidget(self.radioButton_3)
 
         self.radioButton_4 = QRadioButton(self.groupBox_4)
         self.radioButton_4.setObjectName(u"radioButton_4")
+        self.radioButton_4.setAutoRepeat(False)
 
         self.verticalLayout_3.addWidget(self.radioButton_4)
+
+        self.radioButton_5 = QRadioButton(self.groupBox_4)
+        self.radioButton_5.setObjectName(u"radioButton_5")
+
+        self.verticalLayout_3.addWidget(self.radioButton_5)
+
+        self.radioButton_off = QRadioButton(self.groupBox_4)
+        self.radioButton_off.setObjectName(u"radioButton_off")
+        self.radioButton_off.setChecked(True)
+        self.radioButton_off.setAutoRepeat(False)
+
+        self.verticalLayout_3.addWidget(self.radioButton_off)
 
 
         self.verticalLayout.addWidget(self.groupBox_4)
@@ -343,6 +359,12 @@ class Ui_RhytmWindow(object):
         self.SliderChart.valueChanged.connect(RhytmWindow._slider_value_cnd)
         self.ButtonStart.clicked.connect(RhytmWindow._start)
         self.ButtonStop.clicked.connect(RhytmWindow._stop)
+        self.radioButton_1.clicked.connect(RhytmWindow._rhytms_on)
+        self.radioButton_2.clicked.connect(RhytmWindow._period_on)
+        self.radioButton_3.clicked.connect(RhytmWindow._pattern_on)
+        self.radioButton_4.clicked.connect(RhytmWindow._corellation_on)
+        self.radioButton_off.clicked.connect(RhytmWindow._off)
+        self.radioButton_5.clicked.connect(RhytmWindow._relax_on)
 
         QMetaObject.connectSlotsByName(RhytmWindow)
     # setupUi
@@ -365,9 +387,11 @@ class Ui_RhytmWindow(object):
         self.LabelDuration.setText(QCoreApplication.translate("RhytmWindow", u"Duration (sec): 20", None))
         self.LabelAmplitude.setText(QCoreApplication.translate("RhytmWindow", u"Amplitude (uV): 20", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("RhytmWindow", u"Second chart", None))
-        self.radioButton.setText(QCoreApplication.translate("RhytmWindow", u"Dynamics of rhythms", None))
+        self.radioButton_1.setText(QCoreApplication.translate("RhytmWindow", u"Dynamics of rhythms", None))
         self.radioButton_2.setText(QCoreApplication.translate("RhytmWindow", u"Period view", None))
         self.radioButton_3.setText(QCoreApplication.translate("RhytmWindow", u"Pattern view", None))
         self.radioButton_4.setText(QCoreApplication.translate("RhytmWindow", u"Correlation view", None))
+        self.radioButton_5.setText(QCoreApplication.translate("RhytmWindow", u"Relaxation view", None))
+        self.radioButton_off.setText(QCoreApplication.translate("RhytmWindow", u"Off", None))
     # retranslateUi
 

@@ -2,13 +2,14 @@ import brainflow
 from brainflow.data_filter import (DataFilter, DetrendOperations,
                                    WindowFunctions)
 
-from PySide6.QtCharts import QChartView, QLineSeries
+from PySide6.QtCharts import QLineSeries
 from PySide6.QtCore import QDateTime
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import QWidget
 
 import chart as ch
 from chart_analize import ChartAn
+from chart_filtered import ChartFiltered
 from rhytmwindow_uiinteraction import *
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC, RHYTMS_ANALISE
 from ui_rhytmwindow import Ui_RhytmWindow
@@ -61,13 +62,13 @@ class RhytmWindow(QWidget):
             self.serieses[-1].attachAxis(axis_x)
             self.serieses[-1].attachAxis(axis_y)
         # //////////////////////////////////////////////////// Chart view create
-        self.chart_view = QChartView(chart)
+        self.chart_view = ChartFiltered(chart, self._chart_filtered_dclick)
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
         # //////////////////////////////////////////////////////// CHART ANALYSE
         self.chart_view_analise = ChartAn(self.parent.session,
-                                          self._chart_an_dclick)
+                                          self._chart_rhytm_dclick)
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
 
         # self.ui.splitter.setSizes((1, 0))
@@ -86,12 +87,19 @@ class RhytmWindow(QWidget):
         else:
             open_session_norun(self.ui)
 
-    def _chart_an_dclick(self):
+    def _chart_rhytm_dclick(self):
         size = self.ui.splitter.sizes()[0]
         if size == 0:
             self.ui.splitter.setSizes((500, 500))
         else:
             self.ui.splitter.setSizes((0, 1))
+
+    def _chart_filtered_dclick(self):
+        size = self.ui.splitter.sizes()[1]
+        if size == 0:
+            self.ui.splitter.setSizes((500, 500))
+        else:
+            self.ui.splitter.setSizes((1, 0))
 
     def _chart_redraw_request(self):
         if self.parent.session.get_status() and not self.redraw_pause:
@@ -292,6 +300,24 @@ class RhytmWindow(QWidget):
         self.buffer_rhytms.add(np.asarray(buff_for_send).T)
         self.chart_view_analise.buffers_add(buff_for_send)
         self.chart_view_analise.chart_renew()
+
+    def _rhytms_on(self):
+        pass
+
+    def _period_on(self):
+        pass
+
+    def _pattern_on(self):
+        pass
+
+    def _corellation_on(self):
+        pass
+
+    def _relax_on(self):
+        pass
+
+    def _off(self):
+        pass
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)
