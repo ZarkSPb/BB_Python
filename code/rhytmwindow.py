@@ -45,7 +45,7 @@ class RhytmWindow(QWidget):
         self.buffer_rhytms = Buffer(buffer_size=2 * 60,
                                     channels_num=ch_num * len(RHYTMS_ANALISE))
 
-        # self.last_analyse_index = 0
+        self.last_analyse_index = 0
 
         # //////////////////////////////////////////////////////////////// CHART
         chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
@@ -277,14 +277,14 @@ class RhytmWindow(QWidget):
 
         # timestart = time.time_ns()
 
-        last_index = self.buffer_rhytms.get_last_num()
         buff_for_send = []
-        while data_num - last_index >= nfft:
-            datas = self.data.get_buff_from(last_index,
-                                            last_index + nfft)[:ch_num]
+        while data_num - self.last_analyse_index >= nfft:
+            datas = self.data.get_buff_from(self.last_analyse_index,
+                                            self.last_analyse_index +
+                                            nfft)[:ch_num]
 
             buff_for_send.append(cycle_buff(datas))
-            last_index += s_rate
+            self.last_analyse_index += s_rate
 
         # timeend = time.time_ns()
         # print((timeend - timestart) // 1000)
