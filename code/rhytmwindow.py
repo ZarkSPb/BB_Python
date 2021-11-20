@@ -66,12 +66,11 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        # //////////////////////////////////////////////////////// CHART ANALYSE
         self.chart_view_analise = ChartAn(self.parent.session,
                                           self._chart_rhytm_dclick)
-        self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
 
-        # self.ui.splitter.setSizes((1, 0))
+        self.ui.splitter.setSizes((1, 0))
+        # self.ui.radioButton_1.setChecked(True)
 
     def update_ui(self):
         self.buffer_index = self.data.get_last_num()
@@ -95,11 +94,15 @@ class RhytmWindow(QWidget):
             self.ui.splitter.setSizes((0, 1))
 
     def _chart_filtered_dclick(self):
-        size = self.ui.splitter.sizes()[1]
-        if size == 0:
-            self.ui.splitter.setSizes((500, 500))
+        if self.ui.radioButton_off.isChecked():
+            self.ui.radioButton_1.setChecked(True)
+            self._rhytms_on()
         else:
-            self.ui.splitter.setSizes((1, 0))
+            size = self.ui.splitter.sizes()[1]
+            if size == 0:
+                self.ui.splitter.setSizes((500, 500))
+            else:
+                self.ui.splitter.setSizes((1, 0))
 
     def _chart_redraw_request(self):
         if self.parent.session.get_status() and not self.redraw_pause:
@@ -261,16 +264,12 @@ class RhytmWindow(QWidget):
         data_num = self.data.get_last_num()
 
         def cycle_buff(datas):
-
             buff_result = []
-
             for data in datas:
                 DataFilter.detrend(data, DetrendOperations.LINEAR.value)
-
                 psd = DataFilter.get_psd_welch(
                     data, nfft, nfft // 2, s_rate,
                     WindowFunctions.BLACKMAN_HARRIS.value)
-
                 buff = []
                 for rhytm in RHYTMS_ANALISE:
                     buff.append(
@@ -301,8 +300,10 @@ class RhytmWindow(QWidget):
         self.chart_view_analise.buffers_add(buff_for_send)
         self.chart_view_analise.chart_renew()
 
+    # //////////////////////////////////////////////////////////// CHART ANALYSE
     def _rhytms_on(self):
-        pass
+        self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
+        self.ui.splitter.setSizes((500, 500))
 
     def _period_on(self):
         pass
@@ -317,7 +318,7 @@ class RhytmWindow(QWidget):
         pass
 
     def _off(self):
-        pass
+        self.ui.splitter.setSizes((1, 0))
 
     def closeEvent(self, event):
         self.parent.ui.actionRhytm_window.setChecked(False)

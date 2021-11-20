@@ -104,7 +104,8 @@ class MainWindow(QMainWindow):
             if data.shape[1] > 0: self.redraw_charts(data)
 
         if (self.r_window and not self.r_window.isHidden()
-                and not self.r_window.redraw_pause):
+                and not self.r_window.redraw_pause
+                and self.r_window.ui.splitter.sizes()[0] > 0):
             self.r_window.event_redraw_charts()
 
     def request_realisation(self):
