@@ -289,8 +289,8 @@ class RhytmWindow(QWidget):
             datas = self.data.get_buff_from(self.last_analyse_index,
                                             self.last_analyse_index +
                                             nfft)[:ch_num]
-
-            buff_for_send.append(cycle_buff(datas))
+            if datas[-1, -1] != 0:
+                buff_for_send.append(cycle_buff(datas))
             self.last_analyse_index += s_rate
 
         # timeend = time.time_ns()
