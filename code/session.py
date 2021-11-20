@@ -135,10 +135,18 @@ class Session():
             while self.board.get_board_data().shape[1] == 0:
                 QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
+            flag = True
+            while flag:
+                data = self.board.get_board_data()[0:4]
+                if np.any(data) and data.shape[1] != 0:
+                    if (data[1, -1] != -400000 and data[1, 0] != -400000):
+                        flag = False
+
         while self.get_status():
             data = self.board.get_board_data()
 
             print(data.shape[1], end=' ', flush=True)
+            # print(data[:4].tolist())
 
             if np.any(data):
                 self.add(data[SAVE_CHANNEL, :])
