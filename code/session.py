@@ -144,14 +144,9 @@ class Session():
 
         while self.get_status():
             data = self.board.get_board_data()
-
-            print(data.shape[1], end=' ', flush=True)
-            # print(data[:4].tolist())
-
             if np.any(data):
                 self.add(data[SAVE_CHANNEL, :])
                 self.battery_value = data[BATTERY_CHANNEL, -1]
-
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
     def get_battery_value(self):

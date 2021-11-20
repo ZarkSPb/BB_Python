@@ -95,7 +95,8 @@ class MainWindow(QMainWindow):
                 data = self.session.buffer_main.get_buff_last(
                     self.chart_duration * self.session.get_sample_rate())
 
-                if self.chart_detrend_flag:
+                if (self.chart_detrend_flag and np.any(data)
+                        and data.shape[1] != 0):
                     for channel in range(NUM_CHANNELS):
                         signal_filtering(data[channel],
                                          self.session.get_sample_rate(),
@@ -280,7 +281,6 @@ class MainWindow(QMainWindow):
             self.last_save_index = 0
         else:
             self.statusBar_main.setText(f'No saved')
-
 
         # INIT and START timer_redraw_charts
         self.chart_redraw_timer = QTimer()
