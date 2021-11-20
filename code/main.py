@@ -258,6 +258,9 @@ class MainWindow(QMainWindow):
                                                self.chart_duration,
                                                self.session.get_sample_rate())
 
+        # board start eeg stream
+        self.board.start_stream(1000)
+        self.board.config_board('CommandStartSignal')
         self.session.session_start(self.board)
 
         # INIT and START timer_long_events
@@ -278,9 +281,6 @@ class MainWindow(QMainWindow):
         else:
             self.statusBar_main.setText(f'No saved')
 
-        # board start eeg stream
-        self.board.start_stream(1000)
-        self.board.config_board('CommandStartSignal')
 
         # INIT and START timer_redraw_charts
         self.chart_redraw_timer = QTimer()
@@ -394,7 +394,7 @@ class MainWindow(QMainWindow):
         buff_s = self.session.buffer_filtered.get_last_num()
         sl_max = buff_s - self.chart_duration * self.session.get_sample_rate()
         if sl_max < 0: sl_max = 0
-        # self.ui.SliderChart.setMaximum(sl_max)
+        self.ui.SliderChart.setMaximum(sl_max)
 
     def _checkBoxFilteredChart(self):
         self.chart_filt_flag = self.ui.CheckBoxFilterChart.isChecked()
@@ -445,7 +445,8 @@ class MainWindow(QMainWindow):
                                    first_name=f_struct['first_name'],
                                    last_name=f_struct['last_name'],
                                    eeg_channel_names=f_struct['ch_names'],
-                                   sample_rate=f_struct['s_rate'])
+                                   sample_rate=f_struct.get(
+                                       's_rate', SAMPLE_RATE))
 
             if self.filtered:
                 self.session.buffer_filtered.add(table)

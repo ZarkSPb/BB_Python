@@ -6,6 +6,7 @@ from settings import (BATTERY_CHANNEL, NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
                       EEG_CHANNEL_NAMES)
 from utils import signal_filtering
 from worker import Worker
+from brainflow.board_shim import BoardIds
 
 
 class Patient:
@@ -95,8 +96,8 @@ class Session():
         if self.status:
             print('The thread is already running.')
         else:
-            self.time_start = QDateTime.currentDateTime()
             self.board = board
+            self.time_start = QDateTime.currentDateTime()
             self.worker_buff_main = Worker(self.update_buff)
             self.worker_buff_main.start()
             self.status = True
@@ -126,8 +127,19 @@ class Session():
         self.buffer_filtered.add(data[:, -add_sample:])
 
     def update_buff(self):
+        # Buffer clear
+        if self.board.get_board_id() == BoardIds.BRAINBIT_BOARD.value:
+            for i in range(10):
+                _ = self.board.get_board_data()
+                QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+            while self.board.get_board_data().shape[1] == 0:
+                QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+
         while self.get_status():
             data = self.board.get_board_data()
+
+            print(data.shape[1], end=' ', flush=True)
+
             if np.any(data):
                 self.add(data[SAVE_CHANNEL, :])
                 self.battery_value = data[BATTERY_CHANNEL, -1]
