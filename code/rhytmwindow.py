@@ -162,12 +162,9 @@ class RhytmWindow(QWidget):
         if self.redraw_pause: self._resume()
         self.chart_buffers = ch.buffers_update(self.chart_amp, ch_name,
                                                self.chart_duration, s_rate)
+                                               
         self.last_analyse_index = 0
         self.chart_view_analise.buffer_clear()
-        self.chart_view_analise.chart_renew()
-        self.chart_view_analise.start_time = QDateTime.currentDateTime()
-        self.chart_view_analise.axis_t.setRange(0, 120)
-        self.chart_view_analise.range_cnd(0, 120)
 
         ui.start(self.ui)
 

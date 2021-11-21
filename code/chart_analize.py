@@ -168,6 +168,11 @@ class ChartAn(QChartView):
         self.current_index = 0
         self.chart_buffers = [[]
                               for i in range(self.ch_num * rhytms_analise_num)]
+        self.chart_duration_min = 0
+        self.start_time = QDateTime.currentDateTime()
+
+        self.axis_t.setRange(0, 60)
+        self.range_cnd(0, 60)
 
     def mouseDoubleClickEvent(self, event):
         self.maximize_func()
