@@ -113,8 +113,7 @@ class ChartAn(QChartView):
         end_time = self.start_time.addSecs(self.chart_duration_min * 60)
         offset = 60 - int(self.start_time.toString('ss'))
 
-        if self.axis_x.tickAnchor() == 0.0:
-            self.axis_x.setTickAnchor(offset)
+        self.axis_x.setTickAnchor(offset)
 
         labels = self.axis_t.categoriesLabels()
         for label in labels:
