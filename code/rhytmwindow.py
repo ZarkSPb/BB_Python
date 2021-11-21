@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QWidget
 import chart as ch
 from chart_analize import ChartAn
 from chart_filtered import ChartFiltered
-from rhytmwindow_uiinteraction import *
+import rhytmwindow_uiinteraction as ui
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC, RHYTMS_ANALISE
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
@@ -77,11 +77,11 @@ class RhytmWindow(QWidget):
 
         if self.parent.session.get_status():
             if self.redraw_pause:
-                pause(self.ui)
+                ui.pause(self.ui)
             else:
-                resume(self.ui)
+                ui.resume(self.ui)
         else:
-            open_session_norun(self.ui)
+            ui.open_session_norun(self.ui)
 
     def _chart_rhytm_dclick(self):
         size = self.ui.splitter.sizes()[0]
@@ -135,11 +135,11 @@ class RhytmWindow(QWidget):
                                                self.chart_duration, s_rate)
 
     def _rhytms_param_cnd(self):
-        self.rhytms = rhytms_param_cnd(self.ui)
+        self.rhytms = ui.rhytms_param_cnd(self.ui)
         self._slider_value_cnd()
 
     def _reset(self):
-        reset(self.ui, RHYTMS)
+        ui.reset(self.ui, RHYTMS)
         self._rhytms_param_cnd()
 
     def _pause(self):
@@ -147,31 +147,34 @@ class RhytmWindow(QWidget):
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
-        pause(self.ui)
+        ui.pause(self.ui)
 
     def _resume(self):
         self.redraw_pause = False
-        resume(self.ui)
+        ui.resume(self.ui)
 
     def _start(self):
+        if not self.parent.session.get_status(): self.parent._start_capture()
+
+    def start(self):
         ch_name = self.parent.session.get_eeg_ch_names()
         s_rate = self.parent.session.get_sample_rate()
-
-        if not self.parent.session.get_status(): self.parent._start_capture()
         if self.redraw_pause: self._resume()
         self.chart_buffers = ch.buffers_update(self.chart_amp, ch_name,
                                                self.chart_duration, s_rate)
-
         self.last_analyse_index = 0
         self.chart_view_analise.buffer_clear()
         self.chart_view_analise.chart_renew()
+        self.chart_view_analise.start_time = QDateTime.currentDateTime()
+        self.chart_view_analise.axis_t.setRange(0, 120)
+        self.chart_view_analise.range_cnd(0, 120)
 
-        start(self.ui)
+        ui.start(self.ui)
 
     def _stop(self):
         if self.parent.session.get_status(): self.parent._stop_capture()
         self._pause()
-        stop(self.ui)
+        ui.stop(self.ui)
 
     def _slider_value_cnd(self):
         s_rate = self.parent.session.get_sample_rate()

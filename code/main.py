@@ -294,7 +294,7 @@ class MainWindow(QMainWindow):
 
         if self.r_window:
             self.r_window.data = self.session.buffer_main
-            self.r_window._start()
+            self.r_window.start()
 
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):

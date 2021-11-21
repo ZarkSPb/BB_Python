@@ -1,5 +1,4 @@
-from PySide6.QtCharts import (QChartView, QChart, QLineSeries, QValueAxis,
-                              QCategoryAxis)
+from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis, QCategoryAxis
 from PySide6 import QtCore
 from PySide6.QtCore import QDateTime, QPointF
 from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
