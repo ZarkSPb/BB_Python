@@ -6,6 +6,7 @@ from settings import (BATTERY_CHANNEL, NUM_CHANNELS, SAMPLE_RATE, SAVE_CHANNEL,
                       EEG_CHANNEL_NAMES)
 from utils import signal_filtering
 from worker import Worker
+from brainflow.board_shim import BoardIds
 
 
 class Patient:
@@ -39,6 +40,11 @@ class Buffer:
         self.last = 0
 
     def add(self, add_sample):
+        if type(add_sample) != np.ndarray:
+            add_sample = np.asarray(add_sample)
+
+        # print(add_sample.shape)
+        
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
@@ -92,8 +98,8 @@ class Session():
         if self.status:
             print('The thread is already running.')
         else:
-            self.time_start = QDateTime.currentDateTime()
             self.board = board
+            self.time_start = QDateTime.currentDateTime()
             self.worker_buff_main = Worker(self.update_buff)
             self.worker_buff_main.start()
             self.status = True
@@ -123,12 +129,26 @@ class Session():
         self.buffer_filtered.add(data[:, -add_sample:])
 
     def update_buff(self):
+        # Buffer clear
+        if self.board.get_board_id() == BoardIds.BRAINBIT_BOARD.value:
+            for i in range(10):
+                _ = self.board.get_board_data()
+                QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+            while self.board.get_board_data().shape[1] == 0:
+                QThread.msleep(UPDATE_BUFFER_SPEED_MS)
+
+            flag = True
+            while flag:
+                data = self.board.get_board_data()[0:4]
+                if np.any(data) and data.shape[1] != 0:
+                    if (data[1, -1] != -400000 and data[1, 0] != -400000):
+                        flag = False
+
         while self.get_status():
             data = self.board.get_board_data()
             if np.any(data):
                 self.add(data[SAVE_CHANNEL, :])
                 self.battery_value = data[BATTERY_CHANNEL, -1]
-
             QThread.msleep(UPDATE_BUFFER_SPEED_MS)
 
     def get_battery_value(self):
@@ -145,6 +165,6 @@ class Session():
 
     def get_connect_status(self):
         return self.connected
-    
+
     def get_sample_rate(self):
         return self.sample_rate

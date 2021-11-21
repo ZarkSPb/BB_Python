@@ -5,7 +5,7 @@ from settings import MAX_CHART_SIGNAL_DURATION
 
 
 # /////////////////////////////////////////////////////////////////// CHART MAKE
-def chart_init(session, amp, num_ch):
+def init(session, amp, num_ch):
     chart_duration = MAX_CHART_SIGNAL_DURATION
 
     chart = QChart()
@@ -14,7 +14,6 @@ def chart_init(session, amp, num_ch):
     axis_x = QValueAxis()
     axis_x.setRange(0, MAX_CHART_SIGNAL_DURATION * session.get_sample_rate())
     axis_x.setVisible(False)
-    axis_x.setLabelFormat('%i')
     chart.addAxis(axis_x, QtCore.Qt.AlignTop)
     # /////////////////////////////////////////////////////////////////// axis_y
     axis_y = QValueAxis()
@@ -33,7 +32,7 @@ def chart_init(session, amp, num_ch):
     chart.addAxis(axis_t, QtCore.Qt.AlignBottom)
     # /////////////////////////////////////////////////////////////////// axis_c
     axis_c = QCategoryAxis()
-    axis_c.setRange(0, 4)
+    axis_c.setRange(0, len(session.get_eeg_ch_names()))
     axis_c.setGridLineVisible(False)
     axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
     axis_c.setTruncateLabels(False)
@@ -43,7 +42,8 @@ def chart_init(session, amp, num_ch):
     return chart, axis_x, axis_y
 
 
-def chart_buffers_update(amp, ch_name, chart_duration, sample_rate):
+# //////////////////////////////////////////////////////////////// BUFFER UPDATE
+def buffers_update(amp, ch_name, chart_duration, sample_rate):
     ch_buffers = []
     num_ch = len(ch_name)
     for i in range(num_ch):
@@ -75,7 +75,7 @@ def update_time_axis(chart_duration, axis_t, start_time):
         axis_t.append(time_string, offset + i * 1000)
 
     axis_t.append('  ', (chart_duration - 1) * 1000 + offset)
-    axis_t.append(end_time.toString('hh:mm:ss.zzz'), chart_duration * 1000)
+    axis_t.append(end_time.toString('hh:mm:ss'), chart_duration * 1000)
 
     return axis_t
 

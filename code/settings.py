@@ -19,6 +19,8 @@ BOARD_TIMEOUT = 5
 MAX_CHART_SIGNAL_DURATION = 20  # seconds
 UPDATE_CHART_SPEED_MS = 40
 SIGNAL_CLIPPING_SEC = 4
+RHYTMS_ANALISE = ('delta', 'theta', 'alpha', 'betha')
+RHYTMS_COLOR = ('orange', 'blue', 'green', 'red')
 
 UPDATE_IMPEDANCE_SPEED_MS = 500
 UPDATE_BUFFER_SPEED_MS = 10

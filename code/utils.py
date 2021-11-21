@@ -39,7 +39,7 @@ def save_CSV(session,
     last_name = session.patient.get_last_name()
     header = first_name if first_name != '' else 'no_first_name'
     header += '\n'
-    header += last_name if last_name != '' else 'no_last_name' + '\n'
+    header += last_name if last_name != '' else 'no_last_name'
     header += '\n'
     header += session.time_init.toString('dd.MM.yyyy') + '\n'
     header += session.time_init.toString('hh:mm:ss.zzz') + '\n'

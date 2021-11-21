@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QProgressBar
 
 import fileio
 from board import Board
-from chart import *
+import chart as ch
 from main_uiinteraction import *
 from rhytmwindow import RhytmWindow
 from session import Session
@@ -48,12 +48,13 @@ class MainWindow(QMainWindow):
         self.set_eeg_ch_names()
 
         # //////////////////////////////////////////////////////////////// CHART
-        chart, axis_x, axis_y = chart_init(self.session, self.chart_amp,
-                                           NUM_CHANNELS)
+        chart, axis_x, axis_y = ch.init(self.session, self.chart_amp,
+                                        NUM_CHANNELS)
         self.serieses = []
-        self.chart_buffers = chart_buffers_update(
-            self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration, self.session.get_sample_rate())
+        self.chart_buffers = ch.buffers_update(self.chart_amp,
+                                               self.session.get_eeg_ch_names(),
+                                               self.chart_duration,
+                                               self.session.get_sample_rate())
         for i in range(NUM_CHANNELS):
             series = QLineSeries()
             series.append(self.chart_buffers[i])
@@ -94,7 +95,8 @@ class MainWindow(QMainWindow):
                 data = self.session.buffer_main.get_buff_last(
                     self.chart_duration * self.session.get_sample_rate())
 
-                if self.chart_detrend_flag:
+                if (self.chart_detrend_flag and np.any(data)
+                        and data.shape[1] != 0):
                     for channel in range(NUM_CHANNELS):
                         signal_filtering(data[channel],
                                          self.session.get_sample_rate(),
@@ -103,7 +105,8 @@ class MainWindow(QMainWindow):
             if data.shape[1] > 0: self.redraw_charts(data)
 
         if (self.r_window and not self.r_window.isHidden()
-                and not self.r_window.redraw_pause):
+                and not self.r_window.redraw_pause
+                and self.r_window.ui.splitter.sizes()[0] > 0):
             self.r_window.event_redraw_charts()
 
     def request_realisation(self):
@@ -113,8 +116,8 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
-        update_channels_axis(axis_c, self.session, self.chart_amp,
-                             NUM_CHANNELS)
+        ch.update_channels_axis(axis_c, self.session, self.chart_amp,
+                                NUM_CHANNELS)
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()
@@ -126,9 +129,10 @@ class MainWindow(QMainWindow):
         axis_t = self.chart_view.chart().axes()[2]
         axis_t.setRange(0, self.chart_duration * 1000)
 
-        self.chart_buffers = chart_buffers_update(
-            self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration, self.session.get_sample_rate())
+        self.chart_buffers = ch.buffers_update(self.chart_amp,
+                                               self.session.get_eeg_ch_names(),
+                                               self.chart_duration,
+                                               self.session.get_sample_rate())
 
     def redraw_charts(self, data):
         start_tick = data[-2, 0]
@@ -138,7 +142,7 @@ class MainWindow(QMainWindow):
             start_time = QDateTime.currentDateTime()
 
         axis_t = self.chart_view.chart().axes()[2]
-        update_time_axis(self.chart_duration, axis_t, start_time=start_time)
+        ch.update_time_axis(self.chart_duration, axis_t, start_time=start_time)
         for channel in range(NUM_CHANNELS):
             r_data = data[channel]
             for i in range(r_data.shape[0]):
@@ -178,6 +182,11 @@ class MainWindow(QMainWindow):
             self.save_first = False
 
         self.progressBar_battery.setValue(self.session.get_battery_value())
+
+    def timer_short(self):
+        if self.r_window and not self.r_window.isHidden():
+            if self.r_window.ui.splitter.sizes()[1] > 0:
+                self.r_window.new_analyze_data()
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -245,16 +254,25 @@ class MainWindow(QMainWindow):
         self.save_first = True
 
         # CHART buffer renew
-        self.chart_buffers = chart_buffers_update(
-            self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration, self.session.get_sample_rate())
+        self.chart_buffers = ch.buffers_update(self.chart_amp,
+                                               self.session.get_eeg_ch_names(),
+                                               self.chart_duration,
+                                               self.session.get_sample_rate())
 
+        # board start eeg stream
+        self.board.start_stream(1000)
+        self.board.config_board('CommandStartSignal')
         self.session.session_start(self.board)
 
         # INIT and START timer_long_events
         self.long_timer = QTimer()
         self.long_timer.timeout.connect(self.timer_long)
         self.long_timer.start(LONG_TIMER_INTERVAL_MS)
+
+        # INIT and START timer_short_events
+        self.short_timer = QTimer()
+        self.short_timer.timeout.connect(self.timer_short)
+        self.short_timer.start(LONG_TIMER_INTERVAL_MS / 2)
 
         if self.save_flag:
             self.file_name = file_name_constructor(self.session)
@@ -264,10 +282,6 @@ class MainWindow(QMainWindow):
         else:
             self.statusBar_main.setText(f'No saved')
 
-        # board start eeg stream
-        self.board.start_stream(1000)
-        self.board.config_board('CommandStartSignal')
-
         # INIT and START timer_redraw_charts
         self.chart_redraw_timer = QTimer()
         self.chart_redraw_timer.timeout.connect(self.timer_redraw_charts)
@@ -275,17 +289,24 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
+        # if not self.ui.CheckBoxRenew.isChecked():
+        #     self._chart_redraw_request()
+
         if self.r_window:
             self.r_window.data = self.session.buffer_main
-            self.r_window._start()
+            self.r_window.start()
 
     # ///////////////////////////////////////////////////////////////////// STOP
     def _stop_capture(self):
         self.chart_redraw_timer.stop()
         self.session.session_stop()
         self.long_timer.stop()
+        self.short_timer.stop()
         self.board.stop_stream()
         if self.save_flag: self.timer_long()
+
+        if not self.ui.CheckBoxRenew.isChecked():
+            self._chart_redraw_request()
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
@@ -369,9 +390,10 @@ class MainWindow(QMainWindow):
         else:
             data = self.session.buffer_main.get_buff_from(start_ind, end_ind)
 
-        self.chart_buffers = chart_buffers_update(
-            self.chart_amp, self.session.get_eeg_ch_names(),
-            self.chart_duration, sample_rate)
+        self.chart_buffers = ch.buffers_update(self.chart_amp,
+                                               self.session.get_eeg_ch_names(),
+                                               self.chart_duration,
+                                               sample_rate)
         self.redraw_charts(data)
 
     def slider_chart_prepare(self):
@@ -429,7 +451,8 @@ class MainWindow(QMainWindow):
                                    first_name=f_struct['first_name'],
                                    last_name=f_struct['last_name'],
                                    eeg_channel_names=f_struct['ch_names'],
-                                   sample_rate=f_struct['s_rate'])
+                                   sample_rate=f_struct.get(
+                                       's_rate', SAMPLE_RATE))
 
             if self.filtered:
                 self.session.buffer_filtered.add(table)
@@ -491,6 +514,7 @@ class MainWindow(QMainWindow):
         # Release all BB resources
         try:
             self.long_timer.stop()
+            self.short_timer.stop()
             self.session.session_stop()
         except:
             pass
