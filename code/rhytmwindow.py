@@ -43,9 +43,6 @@ class RhytmWindow(QWidget):
         self.data = None
         self.buffer_index = 0
 
-        self.buffer_rhytms = Buffer(buffer_size=2 * 60,
-                                    channels_num=ch_num * len(RHYTMS_ANALISE))
-
         self.last_analyse_index = 0
 
         # //////////////////////////////////////////////////////////////// CHART
@@ -157,13 +154,18 @@ class RhytmWindow(QWidget):
         resume(self.ui)
 
     def _start(self):
+        ch_name = self.parent.session.get_eeg_ch_names()
         s_rate = self.parent.session.get_sample_rate()
 
         if not self.parent.session.get_status(): self.parent._start_capture()
         if self.redraw_pause: self._resume()
-        self.chart_buffers = ch.buffers_update(
-            self.chart_amp, self.parent.session.get_eeg_ch_names(),
-            self.chart_duration, s_rate)
+        self.chart_buffers = ch.buffers_update(self.chart_amp, ch_name,
+                                               self.chart_duration, s_rate)
+
+        self.last_analyse_index = 0
+        self.chart_view_analise.buffer_clear()
+        self.chart_view_analise.chart_renew()
+
         start(self.ui)
 
     def _stop(self):
@@ -296,12 +298,17 @@ class RhytmWindow(QWidget):
         # timeend = time.time_ns()
         # print((timeend - timestart) // 1000)
 
-        self.buffer_rhytms.add(np.asarray(buff_for_send).T)
-        self.chart_view_analise.buffers_add(buff_for_send)
-        self.chart_view_analise.chart_renew()
+        if len(buff_for_send) > 0:
+            self.buffer_rhytms.add(np.asarray(buff_for_send).T)
+            self.chart_view_analise.buffers_add(buff_for_send)
+            self.chart_view_analise.chart_renew()
 
     # //////////////////////////////////////////////////////////// CHART ANALYSE
     def _rhytms_on(self):
+        ch_num = len(self.parent.session.get_eeg_ch_names())
+        self.buffer_rhytms = Buffer(buffer_size=120,
+                                    channels_num=ch_num * len(RHYTMS_ANALISE))
+
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
         self.ui.splitter.setSizes((500, 500))
 

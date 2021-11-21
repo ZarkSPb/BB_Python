@@ -289,6 +289,9 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
+        # if not self.ui.CheckBoxRenew.isChecked():
+        #     self._chart_redraw_request()
+
         if self.r_window:
             self.r_window.data = self.session.buffer_main
             self.r_window._start()
@@ -301,6 +304,9 @@ class MainWindow(QMainWindow):
         self.short_timer.stop()
         self.board.stop_stream()
         if self.save_flag: self.timer_long()
+
+        if not self.ui.CheckBoxRenew.isChecked():
+            self._chart_redraw_request()
 
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())

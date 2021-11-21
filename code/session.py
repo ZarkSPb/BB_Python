@@ -43,6 +43,8 @@ class Buffer:
         if type(add_sample) != np.ndarray:
             add_sample = np.asarray(add_sample)
 
+        # print(add_sample.shape)
+        
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
