@@ -44,7 +44,7 @@ class Buffer:
             add_sample = np.asarray(add_sample)
 
         # print(add_sample.shape)
-        
+
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
@@ -168,3 +168,18 @@ class Session():
 
     def get_sample_rate(self):
         return self.sample_rate
+
+    def info(self):
+        first_name = self.patient.get_first_name()
+        last_name = self.patient.get_last_name()
+        info = {
+            'first_name': first_name if first_name != '' else 'no_first_name',
+            'last_name': last_name if last_name != '' else 'no_last_name',
+            'data': self.time_init.toString('dd.MM.yyyy'),
+            'time': self.time_init.toString('hh:mm:ss.zzz'),
+            'filtered_flag': self.save_filtered,
+            's_rate': self.sample_rate,
+            'ch_names': self.eeg_channel_names
+        }
+
+        return info

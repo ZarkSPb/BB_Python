@@ -1,20 +1,26 @@
 import pyedflib
 import numpy as np
+import json
 
 
 def read_CSV(file_name):
     delim = ';'
     file_structure = {}
     with open(file_name) as f:
-        file_structure['first_name'] = f.readline().rstrip().lstrip('#')
-        file_structure['last_name'] = f.readline().rstrip().lstrip('#')
-        file_structure['data'] = f.readline().rstrip().lstrip('#')
-        file_structure['time'] = f.readline().rstrip().lstrip('#')
-        f_flag = f.readline().rstrip().lstrip('#')
-        header = f.readline().rstrip().lstrip('#').split(delim)
+        fs = f.readline().rstrip().lstrip('#')
 
-    file_structure['filtered_flag'] = True if f_flag == 'filtered' else False
-    file_structure['ch_names'] = [i.split(',')[0] for i in header[:-2]]
+    file_structure = json.loads(fs)
+
+    #     file_structure['first_name'] = f.readline().rstrip().lstrip('#')
+    #     file_structure['last_name'] = f.readline().rstrip().lstrip('#')
+    #     file_structure['data'] = f.readline().rstrip().lstrip('#')
+    #     file_structure['time'] = f.readline().rstrip().lstrip('#')
+    #     f_flag = f.readline().rstrip().lstrip('#')
+    #     header = f.readline().rstrip().lstrip('#').split(delim)
+
+    # file_structure['filtered_flag'] = True if f_flag == 'filtered' else False
+    # file_structure['ch_names'] = [i.split(',')[0] for i in header[:-2]]
+
     file_structure['table'] = np.loadtxt(file_name, delimiter=delim).T
 
     return file_structure
