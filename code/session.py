@@ -43,8 +43,6 @@ class Buffer:
         if type(add_sample) != np.ndarray:
             add_sample = np.asarray(add_sample)
 
-        # print(add_sample.shape)
-
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
@@ -52,7 +50,10 @@ class Buffer:
             self.last = self.last + add_size
         else:
             # increase buffer size
-            self.buff = np.hstack((self.buff, np.zeros(self.buff.shape)))
+            # self.buff = np.hstack((self.buff, np.zeros(self.buff.shape)))
+
+            self.buff = np.hstack(
+                (self.buff, np.zeros(max(add_sample.shape, self.buff.shape))))
             self.buff[:, self.last:self.last + add_size] = add_sample
             self.last = self.last + add_size
 
@@ -183,3 +184,6 @@ class Session():
         }
 
         return info
+
+    def get_time_start(self):
+        return self.time_start

@@ -63,8 +63,7 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        self.chart_view_analise = ChartAn(self.parent.session,
-                                          self._chart_rhytm_dclick)
+        self.chart_view_analise = None
 
         self.ui.splitter.setSizes((1, 0))
         # self.ui.radioButton_1.setChecked(True)
@@ -308,6 +307,14 @@ class RhytmWindow(QWidget):
         ch_num = len(self.parent.session.get_eeg_ch_names())
         self.buffer_rhytms = Buffer(buffer_size=120,
                                     channels_num=ch_num * len(RHYTMS_ANALISE))
+
+        if self.chart_view_analise == None:
+            self.chart_view_analise = ChartAn(
+                self.parent.session.get_eeg_ch_names(),
+                self._chart_rhytm_dclick,
+                start_time=self.parent.session.get_time_start())
+            self.chart_view_analise.buffer_clear()
+            self.new_analyze_data()
 
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
         self.ui.splitter.setSizes((500, 500))

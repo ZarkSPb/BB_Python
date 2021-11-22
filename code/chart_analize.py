@@ -6,14 +6,14 @@ from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
 
 class ChartAn(QChartView):
     def __init__(self,
-                 session,
+                 ch_names,
                  maximize_func,
                  start_time=QDateTime.currentDateTime()):
         chart = QChart()
         # SUPER INIT
         super(ChartAn, self).__init__(chart)
 
-        self.ch_names = session.get_eeg_ch_names()
+        self.ch_names = ch_names
         self.ch_num = len(self.ch_names)
         self.tick_nums = 5
         self.chart_percent_max = 100
