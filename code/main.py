@@ -446,19 +446,14 @@ class MainWindow(QMainWindow):
                 f_struct = fileio.read_EDF(file_name)
 
             table = f_struct['table']
-            self.filtered = True if (f_struct['filtered_flag']
-                                     == 'filtered') else False
+            self.filtered = f_struct['filtered_flag']
             self.session = Session(buffer_size=table.shape[1],
                                    first_name=f_struct['first_name'],
                                    last_name=f_struct['last_name'],
                                    eeg_channel_names=f_struct['ch_names'],
                                    sample_rate=f_struct.get(
                                        's_rate', SAMPLE_RATE))
-
-            if self.filtered:
-                self.session.buffer_filtered.add(table)
-            else:
-                self.session.add(table)
+            self.session.add(table)
 
             f_struct.clear()
 

@@ -22,6 +22,8 @@ class ChartAn(QChartView):
         self.maximize_func = maximize_func
         self.start_time = start_time
 
+        # print(start_time)
+
         chart.legend().setVisible(True)
 
         # /////////////////////////////////////////////////////////////// axis_x
