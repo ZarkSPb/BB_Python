@@ -42,7 +42,7 @@ class RhytmWindow(QWidget):
         self.ui.SliderChart.setMinimum(SIGNAL_CLIPPING_SEC * s_rate)
         self.data = None
         self.buffer_index = 0
-        self.time_renew_request = False
+        self.renew_request = False
 
         self.last_analyse_index = 0
 
@@ -166,7 +166,7 @@ class RhytmWindow(QWidget):
         self.last_analyse_index = 0
         self.chart_view_analise.buffer_clear()
         self.chart_view_analise.chart_renew()
-        self.time_renew_request = True
+        self.renew_request = True
 
         ui.start(self.ui)
 
@@ -304,9 +304,10 @@ class RhytmWindow(QWidget):
             self.buffer_rhytms.add(np.asarray(buff_for_send).T)
             self.chart_view_analise.buffers_add(buff_for_send)
 
-            if self.time_renew_request:
-                self.chart_view_analise.set_start_time(
-                    self.parent.session.get_time_start())
+            if self.renew_request:
+                self.chart_view_analise.set_params(
+                    self.parent.session.get_time_start(),
+                    self.parent.session.get_eeg_ch_names())
 
             self.chart_view_analise.chart_renew()
 

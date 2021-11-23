@@ -30,13 +30,12 @@ class ChartAn(QChartView):
         self.axis_x.setLabelsVisible(False)
         chart.addAxis(self.axis_x, QtCore.Qt.AlignTop)
         # /////////////////////////////////////////////////////////////// axis_c
-        axis_c = QCategoryAxis()
-        axis_c.setGridLineVisible(False)
-        axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
-        axis_c.setTruncateLabels(False)
-        self.update_channels_axis(axis_c, self.ch_names,
-                                  self.chart_percent_max)
-        chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
+        self.axis_c = QCategoryAxis()
+        self.axis_c.setGridLineVisible(False)
+        self.axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
+        self.axis_c.setTruncateLabels(False)
+        self.update_channels_axis()
+        chart.addAxis(self.axis_c, QtCore.Qt.AlignLeft)
         # /////////////////////////////////////////////////////////////// axis_t
         self.axis_t = QCategoryAxis()
         self.axis_t.rangeChanged.connect(self.range_cnd)
@@ -87,24 +86,24 @@ class ChartAn(QChartView):
         self.update_time_axis()
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
-    def update_channels_axis(self, axis_c, ch_names, amp):
-        num_ch = len(ch_names)
-        axis_range_max = num_ch * amp
-        axis_c.setRange(0, axis_range_max)
-        interval = amp // self.tick_nums
+    def update_channels_axis(self):
+        num_ch = len(self.ch_names)
+        axis_range_max = num_ch * self.chart_percent_max
+        self.axis_c.setRange(0, axis_range_max)
+        interval = self.chart_percent_max // self.tick_nums
 
         # clear ticks
-        labels = axis_c.categoriesLabels()
+        labels = self.axis_c.categoriesLabels()
         for i in range(len(labels)):
-            axis_c.remove(labels[i])
+            self.axis_c.remove(labels[i])
 
         # Add new ticks
-        for i, ch_name in enumerate(ch_names[num_ch - 1::-1]):
-            start = i * amp
-            axis_c.append(f'--{ch_name}--', start)
-            for j in range(interval, amp, interval):
-                axis_c.append(i * ' ' + str(j), j + start)
-        axis_c.append(str(amp), axis_range_max)
+        for i, ch_name in enumerate(self.ch_names[num_ch - 1::-1]):
+            start = i * self.chart_percent_max
+            self.axis_c.append(f'--{ch_name}--', start)
+            for j in range(interval, self.chart_percent_max, interval):
+                self.axis_c.append(i * ' ' + str(j), j + start)
+        self.axis_c.append(str(self.chart_percent_max), axis_range_max)
 
     def update_time_axis(self):
         if self.start_time:
@@ -175,6 +174,8 @@ class ChartAn(QChartView):
     def mouseDoubleClickEvent(self, event):
         self.maximize_func()
 
-    def set_start_time(self, start_time):
+    def set_params(self, start_time, ch_names):
         self.start_time = start_time
+        self.ch_names = ch_names
         self.update_time_axis()
+        self.update_channels_axis()
