@@ -174,8 +174,10 @@ class ChartAn(QChartView):
     def mouseDoubleClickEvent(self, event):
         self.maximize_func()
 
-    def set_params(self, start_time, ch_names):
+    def set_time_start(self, start_time):
         self.start_time = start_time
-        self.ch_names = ch_names
         self.update_time_axis()
+
+    def set_channel_names(self, ch_names):
+        self.ch_names = ch_names
         self.update_channels_axis()

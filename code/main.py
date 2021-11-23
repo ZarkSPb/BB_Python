@@ -114,8 +114,7 @@ class MainWindow(QMainWindow):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
-        ch.update_channels_axis(axis_c, self.session, self.chart_amp,
-                                NUM_CHANNELS)
+        ch.update_channels_axis(axis_c, self.session, self.chart_amp)
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()
@@ -466,10 +465,10 @@ class MainWindow(QMainWindow):
             self._chart_redraw_request()
 
             if self.r_window:
-                if self.filtered:
-                    self.r_window.data = self.session.buffer_filtered
-                else:
-                    self.r_window.data = self.session.buffer_main
+                self.r_window.data = self.session.buffer_filtered if self.filtered else self.session.buffer_main
+
+                self.r_window.start()
+                self.r_window.new_analyze_data()
 
                 self.r_window.buffer_index = self.r_window.data.get_last_num()
                 self.r_window._chart_redraw_request()
