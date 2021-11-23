@@ -286,8 +286,7 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
-        # if not self.ui.CheckBoxRenew.isChecked():
-        #     self._chart_redraw_request()
+        self._chart_redraw_request()
 
         if self.r_window:
             self.r_window.data = self.session.buffer_main

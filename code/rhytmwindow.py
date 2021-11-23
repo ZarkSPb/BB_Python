@@ -117,7 +117,6 @@ class RhytmWindow(QWidget):
     def request_realisation(self):
         ch_names = self.parent.session.get_eeg_ch_names()
         s_rate = self.parent.session.get_sample_rate()
-        ch_num = len(ch_names)
 
         # Slider AMPLITUDE
         self.chart_amp = self.ui.SliderAmplitude.value()
@@ -160,6 +159,7 @@ class RhytmWindow(QWidget):
 
     def _start(self):
         if not self.parent.session.get_status(): self.parent._start_capture()
+        
 
     def start(self):
         ch_name = self.parent.session.get_eeg_ch_names()
