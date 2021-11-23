@@ -1,2 +1,1 @@
-class Cl:
-    
+print(max((22,4), (2,4)))

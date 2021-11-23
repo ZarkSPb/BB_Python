@@ -42,8 +42,12 @@ class RhytmWindow(QWidget):
         self.ui.SliderChart.setMinimum(SIGNAL_CLIPPING_SEC * s_rate)
         self.data = None
         self.buffer_index = 0
+        self.renew_request = False
 
         self.last_analyse_index = 0
+
+        self.buffer_rhytms = Buffer(buffer_size=120,
+                                    channels_num=ch_num * len(RHYTMS_ANALISE))
 
         # //////////////////////////////////////////////////////////////// CHART
         chart, axis_x, axis_y = ch.init(self.parent.session, self.chart_amp,
@@ -63,8 +67,10 @@ class RhytmWindow(QWidget):
         self.chart_view.setRenderHint(QPainter.Antialiasing, True)
         self.ui.LayoutCharts.addWidget(self.chart_view)
 
-        self.chart_view_analise = ChartAn(self.parent.session,
-                                          self._chart_rhytm_dclick)
+        self.chart_view_analise = ChartAn(
+            self.parent.session.get_eeg_ch_names(),
+            self._chart_rhytm_dclick,
+            start_time=self.parent.session.get_time_start())
 
         self.ui.splitter.setSizes((1, 0))
         # self.ui.radioButton_1.setChecked(True)
@@ -119,8 +125,7 @@ class RhytmWindow(QWidget):
         self.ui.LabelAmplitude.setText(text)
         self.chart_view.chart().axisY().setRange(0, 8 * self.chart_amp)
         axis_c = self.chart_view.chart().axes()[3]
-        ch.update_channels_axis(axis_c, self.parent.session, self.chart_amp,
-                                ch_num)
+        ch.update_channels_axis(axis_c, self.parent.session, self.chart_amp)
 
         # Slider DURATION
         self.chart_duration = self.ui.SliderDuration.value()
@@ -164,7 +169,16 @@ class RhytmWindow(QWidget):
                                                self.chart_duration, s_rate)
 
         self.last_analyse_index = 0
+
         self.chart_view_analise.buffer_clear()
+        self.chart_view_analise.chart_renew()
+        self.chart_view_analise.set_channel_names(
+            self.parent.session.get_eeg_ch_names())
+
+        self.renew_request = True
+
+        axis_c = self.chart_view.chart().axes()[3]
+        ch.update_channels_axis(axis_c, self.parent.session, self.chart_amp)
 
         ui.start(self.ui)
 
@@ -301,6 +315,10 @@ class RhytmWindow(QWidget):
         if len(buff_for_send) > 0:
             self.buffer_rhytms.add(np.asarray(buff_for_send).T)
             self.chart_view_analise.buffers_add(buff_for_send)
+            if self.renew_request:
+                self.chart_view_analise.set_time_start(
+                    self.parent.session.get_time_start())
+
             self.chart_view_analise.chart_renew()
 
     # //////////////////////////////////////////////////////////// CHART ANALYSE
@@ -308,6 +326,8 @@ class RhytmWindow(QWidget):
         ch_num = len(self.parent.session.get_eeg_ch_names())
         self.buffer_rhytms = Buffer(buffer_size=120,
                                     channels_num=ch_num * len(RHYTMS_ANALISE))
+
+        self.new_analyze_data()
 
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)
         self.ui.splitter.setSizes((500, 500))

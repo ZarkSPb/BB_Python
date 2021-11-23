@@ -36,7 +36,7 @@ def init(session, amp, num_ch):
     axis_c.setGridLineVisible(False)
     axis_c.setLabelsPosition(QCategoryAxis.AxisLabelsPositionOnValue)
     axis_c.setTruncateLabels(False)
-    update_channels_axis(axis_c, session, amp, num_ch)
+    update_channels_axis(axis_c, session, amp)
     chart.addAxis(axis_c, QtCore.Qt.AlignLeft)
 
     return chart, axis_x, axis_y
@@ -81,13 +81,14 @@ def update_time_axis(chart_duration, axis_t, start_time):
 
 
 # ///////////////////////////////////////////////////////// Update CHANNELS axis
-def update_channels_axis(axis_c, session, chart_amp, num_ch):
+def update_channels_axis(axis_c, session, chart_amp):
     labels = axis_c.categoriesLabels()
     for i in range(len(labels)):
         axis_c.remove(labels[i])
 
     axis_c.append(f'{-chart_amp}', 0)
     channel_names = session.get_eeg_ch_names()
+    num_ch = len(channel_names)
     for i, ch_name in enumerate(channel_names[num_ch - 1::-1]):
         axis_c.append(f'{-chart_amp // 2}' + i * ' ', i + 0.25)
         axis_c.append(f'--{ch_name}--', i + 0.5)

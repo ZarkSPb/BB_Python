@@ -43,8 +43,6 @@ class Buffer:
         if type(add_sample) != np.ndarray:
             add_sample = np.asarray(add_sample)
 
-        # print(add_sample.shape)
-        
         add_size = add_sample.shape[1]
 
         if add_size + self.last < int(self.buff.shape[1] * 3 / 4):
@@ -52,7 +50,8 @@ class Buffer:
             self.last = self.last + add_size
         else:
             # increase buffer size
-            self.buff = np.hstack((self.buff, np.zeros(self.buff.shape)))
+            self.buff = np.hstack(
+                (self.buff, np.zeros(max(add_sample.shape, self.buff.shape))))
             self.buff[:, self.last:self.last + add_size] = add_sample
             self.last = self.last + add_size
 
@@ -84,7 +83,7 @@ class Session():
         self.connected = False
         self.save_filtered = save_filtered
         self.status = False
-        self.time_init = QDateTime.currentDateTime()
+        # self.time_init = QDateTime.currentDateTime()
         self.patient = Patient(first_name, last_name)
         self.buffer_main = Buffer(buffer_size=buffer_size,
                                   channels_num=len(SAVE_CHANNEL))
@@ -93,13 +92,13 @@ class Session():
         self.eeg_channel_names = eeg_channel_names
         self.sample_rate = sample_rate
         self.battery_value = 0
+        self.time_start = None
 
     def session_start(self, board):
         if self.status:
             print('The thread is already running.')
         else:
             self.board = board
-            self.time_start = QDateTime.currentDateTime()
             self.worker_buff_main = Worker(self.update_buff)
             self.worker_buff_main.start()
             self.status = True
@@ -114,8 +113,12 @@ class Session():
     def get_status(self):
         return self.status
 
-    def add(self, data):
-        self.buffer_main.add(data)
+    def add(self, data, filtered=False):
+        if not self.time_start:
+            self.time_start = QDateTime.fromMSecsSinceEpoch(
+                int(data[4, 0] * 1000))
+
+        if not filtered: self.buffer_main.add(data)
 
         add_sample = data.shape[1]
         if add_sample != 0:
@@ -168,3 +171,21 @@ class Session():
 
     def get_sample_rate(self):
         return self.sample_rate
+
+    def info(self):
+        first_name = self.patient.get_first_name()
+        last_name = self.patient.get_last_name()
+        info = {
+            'first_name': first_name if first_name != '' else 'no_first_name',
+            'last_name': last_name if last_name != '' else 'no_last_name',
+            'data': self.time_start.toString('dd.MM.yyyy'),
+            'time': self.time_start.toString('hh:mm:ss.zzz'),
+            'filtered_flag': self.save_filtered,
+            's_rate': self.sample_rate,
+            'ch_names': self.eeg_channel_names
+        }
+
+        return info
+
+    def get_time_start(self):
+        return self.time_start

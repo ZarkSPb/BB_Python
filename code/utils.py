@@ -5,6 +5,7 @@ import os
 import pyedflib
 from datetime import datetime
 from math import floor, ceil
+import json
 
 
 def save_CSV(session,
@@ -14,10 +15,9 @@ def save_CSV(session,
              start_index=0,
              auto=True):
     def save(filtered=False):
-        h = header
-        h += 'filtered\n' if filtered else 'no filtered\n'
-        ch_names = session.get_eeg_ch_names()
-        for ch_name in ch_names:
+        header['filtered_flag'] = 'filtered' if filtered else 'no filtered'
+        h = json.dumps(header) + '\n'
+        for ch_name in header['ch_names']:
             h += f'{ch_name}, uV;'
         h += 'LinuxTime, sec.;BoardIndex, 0-255'
 
@@ -34,15 +34,7 @@ def save_CSV(session,
             else:
                 savetxt(file_object, data.T, fmt=format, delimiter=';')
 
-    # ////////////////////////////////////////////////////////////// MAKE HEADER
-    first_name = session.patient.get_first_name()
-    last_name = session.patient.get_last_name()
-    header = first_name if first_name != '' else 'no_first_name'
-    header += '\n'
-    header += last_name if last_name != '' else 'no_last_name'
-    header += '\n'
-    header += session.time_init.toString('dd.MM.yyyy') + '\n'
-    header += session.time_init.toString('hh:mm:ss.zzz') + '\n'
+    header = session.info()
 
     format = ['%.3f', '%.3f', '%.3f', '%.3f', '%.3f', '%3.0f']
 
