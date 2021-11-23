@@ -107,26 +107,28 @@ class ChartAn(QChartView):
         axis_c.append(str(amp), axis_range_max)
 
     def update_time_axis(self):
-        end_time = self.start_time.addSecs(self.chart_duration_min * 60)
-        offset = 60 - int(self.start_time.toString('ss'))
+        if self.start_time:
+            end_time = self.start_time.addSecs(self.chart_duration_min * 60)
+            offset = 60 - int(self.start_time.toString('ss'))
 
-        self.axis_x.setTickAnchor(offset)
+            self.axis_x.setTickAnchor(offset)
 
-        labels = self.axis_t.categoriesLabels()
-        for label in labels:
-            self.axis_t.remove(label)
+            labels = self.axis_t.categoriesLabels()
+            for label in labels:
+                self.axis_t.remove(label)
 
-        self.axis_t.append(self.start_time.toString('hh:mm:ss'), 0)
-        self.axis_t.append(' ', offset)
+            self.axis_t.append(self.start_time.toString('hh:mm:ss'), 0)
+            self.axis_t.append(' ', offset)
 
-        for i in range(1, self.chart_duration_min - 1):
-            shifted_time = self.start_time.addSecs(i * 60 + offset)
-            time_string = shifted_time.toString('mm')
-            self.axis_t.append(time_string, offset + i * 60)
+            for i in range(1, self.chart_duration_min - 1):
+                shifted_time = self.start_time.addSecs(i * 60 + offset)
+                time_string = shifted_time.toString('mm')
+                self.axis_t.append(time_string, offset + i * 60)
 
-        self.axis_t.append('  ', (self.chart_duration_min - 1) * 60 + offset)
-        self.axis_t.append(end_time.toString('hh:mm:ss'),
-                           self.chart_duration_min * 60)
+            self.axis_t.append('  ',
+                               (self.chart_duration_min - 1) * 60 + offset)
+            self.axis_t.append(end_time.toString('hh:mm:ss'),
+                               self.chart_duration_min * 60)
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):

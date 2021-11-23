@@ -321,7 +321,6 @@ class RhytmWindow(QWidget):
                 self.parent.session.get_eeg_ch_names(),
                 self._chart_rhytm_dclick,
                 start_time=self.parent.session.get_time_start())
-            # self.chart_view_analise.buffer_clear()
             self.new_analyze_data()
 
         self.ui.LayoutChartsAnalyse.addWidget(self.chart_view_analise)

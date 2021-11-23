@@ -104,9 +104,7 @@ class MainWindow(QMainWindow):
 
             if data.shape[1] > 0: self.redraw_charts(data)
 
-        if (self.r_window and not self.r_window.isHidden()
-                and not self.r_window.redraw_pause
-                and self.r_window.ui.splitter.sizes()[0] > 0):
+        if self.r_window and not self.r_window.redraw_pause:
             self.r_window.event_redraw_charts()
 
     def request_realisation(self):
@@ -190,9 +188,8 @@ class MainWindow(QMainWindow):
         self.progressBar_battery.setValue(self.session.get_battery_value())
 
     def timer_short(self):
-        if self.r_window and not self.r_window.isHidden():
-            if self.r_window.ui.splitter.sizes()[1] > 0:
-                self.r_window.new_analyze_data()
+        if self.r_window and self.r_window.ui.splitter.sizes()[1] > 0:
+            self.r_window.new_analyze_data()
 
     def connect_toBB(self):
         params = BrainFlowInputParams()
@@ -229,8 +226,7 @@ class MainWindow(QMainWindow):
             self.statusBar_main.setText('Connected.')
             connect_2(self.ui)
 
-            if self.r_window and not self.r_window.isHidden():
-                self.r_window.ui.ButtonStart.setEnabled(True)
+            if self.r_window: self.r_window.ui.ButtonStart.setEnabled(True)
 
             self.filtered = False
 
@@ -315,8 +311,7 @@ class MainWindow(QMainWindow):
 
         stop(self.ui)
 
-        if self.r_window and not self.r_window.isHidden():
-            self.r_window._stop()
+        if self.r_window: self.r_window._stop()
 
     def _disconnect(self):
         # Release all BB resources
@@ -470,11 +465,12 @@ class MainWindow(QMainWindow):
             self.slider_chart_prepare()
             self._chart_redraw_request()
 
-            if self.r_window and not self.r_window.isHidden():
+            if self.r_window:
                 if self.filtered:
                     self.r_window.data = self.session.buffer_filtered
                 else:
                     self.r_window.data = self.session.buffer_main
+
                 self.r_window.buffer_index = self.r_window.data.get_last_num()
                 self.r_window._chart_redraw_request()
                 self.r_window.event_redraw_charts()
