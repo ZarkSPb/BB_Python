@@ -171,6 +171,12 @@ class MainWindow(QMainWindow):
                     int(data[3]) if data[3] <= 500 else 500)
 
     def timer_long(self):
+
+        if not self.file_name:
+            self.file_name = file_name_constructor(self.session)
+            self.file_name += '.csv'
+            self.statusBar_main.setText(f'Saved in: {self.file_name}')
+
         if self.save_flag:
             self.last_save_index += save_CSV(
                 self.session,
@@ -274,13 +280,9 @@ class MainWindow(QMainWindow):
         self.short_timer.timeout.connect(self.timer_short)
         self.short_timer.start(LONG_TIMER_INTERVAL_MS / 2)
 
-        if self.save_flag:
-            self.file_name = file_name_constructor(self.session)
-            self.file_name += '.csv'
-            self.statusBar_main.setText(f'Saved in: {self.file_name}')
-            self.last_save_index = 0
-        else:
-            self.statusBar_main.setText(f'No saved')
+        self.file_name = None
+        self.last_save_index = 0
+        if not self.save_flag: self.statusBar_main.setText(f'No saved')
 
         # INIT and START timer_redraw_charts
         self.chart_redraw_timer = QTimer()

@@ -5,10 +5,7 @@ from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
 
 
 class ChartAn(QChartView):
-    def __init__(self,
-                 ch_names,
-                 maximize_func,
-                 start_time=QDateTime.currentDateTime()):
+    def __init__(self, ch_names, maximize_func, start_time):
         chart = QChart()
         # SUPER INIT
         super(ChartAn, self).__init__(chart)
@@ -21,8 +18,6 @@ class ChartAn(QChartView):
         self.current_index = 0
         self.maximize_func = maximize_func
         self.start_time = start_time
-
-        # print(start_time)
 
         chart.legend().setVisible(True)
 
@@ -170,10 +165,14 @@ class ChartAn(QChartView):
         self.chart_buffers = [[]
                               for i in range(self.ch_num * rhytms_analise_num)]
         self.chart_duration_min = 0
-        self.start_time = QDateTime.currentDateTime()
+        # self.start_time = QDateTime.currentDateTime()
 
         self.axis_t.setRange(0, 60)
         self.range_cnd(0, 60)
 
     def mouseDoubleClickEvent(self, event):
         self.maximize_func()
+
+    def set_start_time(self, start_time):
+        self.start_time = start_time
+        self.update_time_axis()

@@ -92,7 +92,7 @@ class Session():
         self.eeg_channel_names = eeg_channel_names
         self.sample_rate = sample_rate
         self.battery_value = 0
-        self.time_start = QDateTime.currentDateTime()
+        self.time_start = None
 
     def session_start(self, board):
         if self.status:
@@ -115,9 +115,8 @@ class Session():
 
     def add(self, data, filtered=False):
         if not self.time_start:
-            self.time_start = QDateTime.fromMSecsSinceEpoch(data[4, 0] * 1000)
-
-        print(self.time_start)
+            self.time_start = QDateTime.fromMSecsSinceEpoch(
+                int(data[4, 0] * 1000))
 
         if not filtered: self.buffer_main.add(data)
 
