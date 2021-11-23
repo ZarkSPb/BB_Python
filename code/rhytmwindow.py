@@ -148,7 +148,9 @@ class RhytmWindow(QWidget):
 
     def _pause(self):
         self.redraw_pause = True
+
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
+
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
         ui.pause(self.ui)
@@ -159,7 +161,6 @@ class RhytmWindow(QWidget):
 
     def _start(self):
         if not self.parent.session.get_status(): self.parent._start_capture()
-        
 
     def start(self):
         ch_name = self.parent.session.get_eeg_ch_names()
