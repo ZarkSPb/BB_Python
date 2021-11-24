@@ -168,6 +168,7 @@ class RhytmWindow(QWidget):
         if self.redraw_pause: self._resume()
         self.chart_buffers = ch.buffers_update(self.chart_amp, ch_name,
                                                self.chart_duration, s_rate)
+        self._slider_value_cnd()
 
         self.last_analyse_index = 0
 
