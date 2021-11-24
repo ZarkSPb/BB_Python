@@ -286,8 +286,7 @@ class MainWindow(QMainWindow):
 
         start(self.ui)
 
-        # if not self.ui.CheckBoxRenew.isChecked():
-        #     self._chart_redraw_request()
+        self._chart_redraw_request()
 
         if self.r_window:
             self.r_window.data = self.session.buffer_main
@@ -429,7 +428,8 @@ class MainWindow(QMainWindow):
             self,
             'Open eeg data (*.csv)',
             dir=FOLDER,
-            filter="EEG file (*.csv *.edf)")
+            filter="EEG file (*.csv *.edf);;EDF file (*.edf);;CSV file (*.csv)"
+        )
 
         file_name = file_name[0]
 

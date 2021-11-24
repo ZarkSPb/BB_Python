@@ -117,7 +117,6 @@ class RhytmWindow(QWidget):
     def request_realisation(self):
         ch_names = self.parent.session.get_eeg_ch_names()
         s_rate = self.parent.session.get_sample_rate()
-        ch_num = len(ch_names)
 
         # Slider AMPLITUDE
         self.chart_amp = self.ui.SliderAmplitude.value()
@@ -149,7 +148,9 @@ class RhytmWindow(QWidget):
 
     def _pause(self):
         self.redraw_pause = True
+
         self.buffer_index = self.parent.session.buffer_main.get_last_num()
+
         self.slider_chart_prepare()
         self.ui.SliderChart.setValue(self.ui.SliderChart.maximum())
         ui.pause(self.ui)
@@ -167,6 +168,7 @@ class RhytmWindow(QWidget):
         if self.redraw_pause: self._resume()
         self.chart_buffers = ch.buffers_update(self.chart_amp, ch_name,
                                                self.chart_duration, s_rate)
+        self._slider_value_cnd()
 
         self.last_analyse_index = 0
 
