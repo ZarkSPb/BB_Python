@@ -153,7 +153,8 @@ class ChartAn(QChartView):
         buff_len = len(self.chart_buffers[0])
         if self.chart_duration_min * 60 < buff_len:
             self.chart_duration_min = 1 + buff_len // 60
-        self.axis_t.setRange(0, self.chart_duration_min * 60)
+            self.axis_t.setRange(0, self.chart_duration_min * 60)
+            # self.axis_t.setRange(0, buff_len + 10)
 
         rhytms_analise_num = len(RHYTMS_ANALISE)
         for i in range(self.ch_num * rhytms_analise_num):
@@ -166,8 +167,6 @@ class ChartAn(QChartView):
         self.chart_buffers = [[]
                               for i in range(self.ch_num * rhytms_analise_num)]
         self.chart_duration_min = 0
-        # self.start_time = QDateTime.currentDateTime()
-
         self.axis_t.setRange(0, 60)
         self.range_cnd(0, 60)
 
