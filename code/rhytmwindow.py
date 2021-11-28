@@ -1,4 +1,3 @@
-import brainflow
 from brainflow.data_filter import (DataFilter, DetrendOperations,
                                    WindowFunctions)
 
@@ -14,7 +13,6 @@ import rhytmwindow_uiinteraction as ui
 from settings import MAX_CHART_SIGNAL_DURATION, RHYTMS, SIGNAL_CLIPPING_SEC, RHYTMS_ANALISE
 from ui_rhytmwindow import Ui_RhytmWindow
 from utils import rhytm_constructor, signal_filtering
-import time
 from session import Buffer
 import numpy as np
 
@@ -31,6 +29,8 @@ class RhytmWindow(QWidget):
         ch_names = self.parent.session.get_eeg_ch_names()
         ch_num = len(ch_names)
 
+        self.buffer_index = 0
+        self.data = None
         self.ui.SliderDuration.setMaximum(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setValue(MAX_CHART_SIGNAL_DURATION)
         self.ui.SliderDuration.setSliderPosition(MAX_CHART_SIGNAL_DURATION)
@@ -40,8 +40,6 @@ class RhytmWindow(QWidget):
         self.redraw_pause = False
         self.rhytms = RHYTMS.copy()
         self.ui.SliderChart.setMinimum(SIGNAL_CLIPPING_SEC * s_rate)
-        self.data = None
-        self.buffer_index = 0
         self.renew_request = False
 
         self.last_analyse_index = 0
@@ -203,32 +201,35 @@ class RhytmWindow(QWidget):
                                    SIGNAL_CLIPPING_SEC) * s_rate
         if end_index > self.buffer_index: end_index = self.buffer_index
 
-        data = self.data.get_buff_from(start_index, end_index)
+        if self.data:
+            data = self.data.get_buff_from(start_index, end_index)
+            ch_num = len(ch_names)
+            if data.shape[1] > 0:
+                for channel in range(ch_num):
+                    signal_filtering(data[channel], s_rate, filtering=False)
+                    data[channel] = rhytm_constructor(data[channel],
+                                                      self.rhytms, s_rate)
+                data = data[:, SIGNAL_CLIPPING_SEC * s_rate:]
 
-        ch_num = len(ch_names)
-        if data.shape[1] > 0:
-            for channel in range(ch_num):
-                signal_filtering(data[channel], s_rate, filtering=False)
-                data[channel] = rhytm_constructor(data[channel], self.rhytms,
-                                                  s_rate)
-            data = data[:, SIGNAL_CLIPPING_SEC * s_rate:]
-
-        if data.shape[1] > 0: self.redraw_charts(data)
-        else:
-            start_time = QDateTime.currentDateTime()
-            axis_t = self.chart_view.chart().axes()[2]
-            ch.update_time_axis(self.chart_duration,
-                                axis_t,
-                                start_time=start_time)
-            self.chart_buffers = ch.buffers_update(self.chart_amp, ch_names,
-                                                   self.chart_duration, s_rate)
-            for channel in range(ch_num):
-                self.serieses[channel].replace(self.chart_buffers[channel])
+            if data.shape[1] > 0: self.redraw_charts(data)
+            else:
+                start_time = QDateTime.currentDateTime()
+                axis_t = self.chart_view.chart().axes()[2]
+                ch.update_time_axis(self.chart_duration,
+                                    axis_t,
+                                    start_time=start_time)
+                self.chart_buffers = ch.buffers_update(self.chart_amp,
+                                                       ch_names,
+                                                       self.chart_duration,
+                                                       s_rate)
+                for channel in range(ch_num):
+                    self.serieses[channel].replace(self.chart_buffers[channel])
 
     def slider_chart_prepare(self):
         s_rate = self.parent.session.get_sample_rate()
 
         slider_min = self.ui.SliderChart.minimum()
+
         slider_max = self.buffer_index - (self.chart_duration) * s_rate
         if slider_max < slider_min: slider_max = slider_min
 
