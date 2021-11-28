@@ -14,7 +14,7 @@ class ChartAn(QChartView):
         self.ch_num = len(self.ch_names)
         self.tick_nums = 5
         self.chart_percent_max = 100
-        self.chart_duration_min = 0
+        self.chart_duration_sec = 0
         self.current_index = 0
         self.maximize_func = maximize_func
         self.start_time = start_time
@@ -25,7 +25,7 @@ class ChartAn(QChartView):
         self.axis_x = QValueAxis()
         self.axis_x.setTickType(QValueAxis.TicksDynamic)
         self.axis_x.setTickInterval(60)  # 60 second in minute
-        self.axis_x.setTickCount(self.chart_duration_min + 1)
+        self.axis_x.setTickCount(self.chart_duration_sec + 60)
         self.axis_x.setMinorTickCount(3)
         self.axis_x.setLabelsVisible(False)
         chart.addAxis(self.axis_x, QtCore.Qt.AlignTop)
@@ -77,12 +77,10 @@ class ChartAn(QChartView):
         for marker in chart.legend().markers()[rhytms_analise_num:]:
             marker.setVisible(False)
 
-        # self.chart_renew()
-
     # //////////////////////////////////////////////////////////// RANGE CHANGED
     def range_cnd(self, min, max):
-        self.chart_duration_min = int((max - min) // 60)
-        self.axis_x.setRange(0, self.chart_duration_min * 60)
+        self.chart_duration_sec = int(max - min)
+        self.axis_x.setRange(0, self.chart_duration_sec)
         self.update_time_axis()
 
     # ///////////////////////////////////////////////////// Update CHANNELS axis
@@ -107,7 +105,7 @@ class ChartAn(QChartView):
 
     def update_time_axis(self):
         if self.start_time:
-            end_time = self.start_time.addSecs(self.chart_duration_min * 60)
+            end_time = self.start_time.addSecs(self.chart_duration_sec)
             offset = 60 - int(self.start_time.toString('ss'))
 
             self.axis_x.setTickAnchor(offset)
@@ -119,15 +117,16 @@ class ChartAn(QChartView):
             self.axis_t.append(self.start_time.toString('hh:mm:ss'), 0)
             self.axis_t.append(' ', offset)
 
-            for i in range(1, self.chart_duration_min - 1):
+            for i in range(1, (self.chart_duration_sec - offset) // 60):
                 shifted_time = self.start_time.addSecs(i * 60 + offset)
                 time_string = shifted_time.toString('mm')
                 self.axis_t.append(time_string, offset + i * 60)
 
-            self.axis_t.append('  ',
-                               (self.chart_duration_min - 1) * 60 + offset)
+            # self.axis_t.append('  ',
+            #                    (self.chart_duration_sec - 60) * 60 + offset)
+
             self.axis_t.append(end_time.toString('hh:mm:ss'),
-                               self.chart_duration_min * 60)
+                               self.chart_duration_sec)
 
     # //////////////////////////////////////////////////////////// BUFFER UPDATE
     def buffers_add(self, new_data):
@@ -151,10 +150,10 @@ class ChartAn(QChartView):
     # ////////////////////////////////////////////////////////////// CHART RENEW
     def chart_renew(self):
         buff_len = len(self.chart_buffers[0])
-        if self.chart_duration_min * 60 < buff_len:
-            self.chart_duration_min = 1 + buff_len // 60
-            self.axis_t.setRange(0, self.chart_duration_min * 60)
-            # self.axis_t.setRange(0, buff_len + 10)
+        if self.chart_duration_sec < buff_len:
+            self.chart_duration_sec = 60 + buff_len
+            # self.axis_t.setRange(0, self.chart_duration_min * 60)
+            self.axis_t.setRange(0, buff_len + 10)
 
         rhytms_analise_num = len(RHYTMS_ANALISE)
         for i in range(self.ch_num * rhytms_analise_num):
@@ -166,7 +165,7 @@ class ChartAn(QChartView):
         self.current_index = 0
         self.chart_buffers = [[]
                               for i in range(self.ch_num * rhytms_analise_num)]
-        self.chart_duration_min = 0
+        self.chart_duration_sec = 0
         self.axis_t.setRange(0, 60)
         self.range_cnd(0, 60)
 
