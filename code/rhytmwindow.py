@@ -316,7 +316,7 @@ class RhytmWindow(QWidget):
         # print((timeend - timestart) // 1000)
 
         if len(buff_for_send) > 0:
-            self.buffer_rhytms.add(np.asarray(buff_for_send).T)
+            self.buffer_rhytms.add(np.asarray(buff_for_send).T) # <----------------------------------
             self.chart_view_analise.buffers_add(buff_for_send)
             if self.renew_request:
                 self.chart_view_analise.set_time_start(
