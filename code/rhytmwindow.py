@@ -141,7 +141,7 @@ class RhytmWindow(QWidget):
         self._slider_value_cnd()
 
     def _reset(self):
-        ui.reset(self.ui, RHYTMS)
+        ui.reset(self.ui)
         self._rhytms_param_cnd()
 
     def _pause(self):

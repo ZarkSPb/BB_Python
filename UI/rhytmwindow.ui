@@ -308,7 +308,7 @@
          <item row="0" column="1">
           <widget class="QSpinBox" name="SpinBox1_1">
            <property name="minimum">
-            <number>1</number>
+            <number>2</number>
            </property>
            <property name="maximum">
             <number>48</number>

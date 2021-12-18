@@ -178,7 +178,7 @@ class Ui_RhytmWindow(object):
 
         self.SpinBox1_1 = QSpinBox(self.groupBox)
         self.SpinBox1_1.setObjectName(u"SpinBox1_1")
-        self.SpinBox1_1.setMinimum(1)
+        self.SpinBox1_1.setMinimum(2)
         self.SpinBox1_1.setMaximum(48)
 
         self.gridLayout.addWidget(self.SpinBox1_1, 0, 1, 1, 1)

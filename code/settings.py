@@ -38,7 +38,7 @@ SAVE_CHANNEL.append(TIMESTAMP_CHANNEL)
 SAVE_CHANNEL.append(PACKAGE_NUM_CHANNEL)
 
 RHYTMS = {
-    'delta': [1, 4, True],
+    'delta': [2, 4, True],
     'theta': [4, 8, True],
     'alpha': [8, 13, True],
     'betha': [13, 40, True],
