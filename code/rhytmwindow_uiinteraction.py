@@ -1,5 +1,7 @@
+from settings import RHYTMS
+
 def rhytms_param_cnd(ui):
-    ui.SpinBox1_1.setMinimum(1)
+    ui.SpinBox1_1.setMinimum(RHYTMS['delta'][0]) # <-----------------------------------------------
     ui.SpinBox1_1.setMaximum(ui.SpinBox1_2.value() - 1)
     ui.SpinBox1_2.setMinimum(ui.SpinBox1_1.value() + 1)
     ui.SpinBox1_2.setMaximum(ui.SpinBox2_1.value())
@@ -53,17 +55,17 @@ def rhytms_param_cnd(ui):
     }
 
 
-def reset(ui, rhytms):
-    ui.SpinBox1_1.setValue(rhytms['delta'][0])
-    ui.SpinBox2_1.setValue(rhytms['theta'][0])
-    ui.SpinBox3_1.setValue(rhytms['alpha'][0])
-    ui.SpinBox4_1.setValue(rhytms['betha'][0])
-    ui.SpinBox5_1.setValue(rhytms['gamma'][0])
-    ui.SpinBox1_2.setValue(rhytms['delta'][1])
-    ui.SpinBox2_2.setValue(rhytms['theta'][1])
-    ui.SpinBox3_2.setValue(rhytms['alpha'][1])
-    ui.SpinBox4_2.setValue(rhytms['betha'][1])
-    ui.SpinBox5_2.setValue(rhytms['gamma'][1])
+def reset(ui):
+    ui.SpinBox1_1.setValue(RHYTMS['delta'][0])
+    ui.SpinBox2_1.setValue(RHYTMS['theta'][0])
+    ui.SpinBox3_1.setValue(RHYTMS['alpha'][0])
+    ui.SpinBox4_1.setValue(RHYTMS['betha'][0])
+    ui.SpinBox5_1.setValue(RHYTMS['gamma'][0])
+    ui.SpinBox1_2.setValue(RHYTMS['delta'][1])
+    ui.SpinBox2_2.setValue(RHYTMS['theta'][1])
+    ui.SpinBox3_2.setValue(RHYTMS['alpha'][1])
+    ui.SpinBox4_2.setValue(RHYTMS['betha'][1])
+    ui.SpinBox5_2.setValue(RHYTMS['gamma'][1])
 
 
 def open_session_norun(ui):

@@ -141,7 +141,7 @@ class RhytmWindow(QWidget):
         self._slider_value_cnd()
 
     def _reset(self):
-        ui.reset(self.ui, RHYTMS)
+        ui.reset(self.ui)
         self._rhytms_param_cnd()
 
     def _pause(self):
@@ -316,7 +316,7 @@ class RhytmWindow(QWidget):
         # print((timeend - timestart) // 1000)
 
         if len(buff_for_send) > 0:
-            self.buffer_rhytms.add(np.asarray(buff_for_send).T)
+            self.buffer_rhytms.add(np.asarray(buff_for_send).T) # <----------------------------------
             self.chart_view_analise.buffers_add(buff_for_send)
             if self.renew_request:
                 self.chart_view_analise.set_time_start(
