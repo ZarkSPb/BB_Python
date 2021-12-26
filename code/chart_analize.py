@@ -1,7 +1,7 @@
 from PySide6.QtCharts import QChartView, QChart, QLineSeries, QValueAxis, QCategoryAxis
 from PySide6 import QtCore
 from PySide6.QtCore import QPointF
-from settings import RHYTMS, RHYTMS_ANALISE, RHYTMS_COLOR
+from settings import RHYTMS_ANALISE, RHYTMS_COLOR
 
 
 class ChartAn(QChartView):
@@ -18,6 +18,7 @@ class ChartAn(QChartView):
         self.current_index = 0
         self.maximize_func = maximize_func
         self.start_time = start_time
+        self.rhytms_analise_num = len(RHYTMS_ANALISE)
 
         chart.legend().setVisible(True)
 
@@ -55,9 +56,8 @@ class ChartAn(QChartView):
         self.serieses = []
         self.buffer_clear()
 
-        rhytms_name = list(RHYTMS.keys())
-        rhytms_analise_num = len(RHYTMS_ANALISE)
-        for series_num in range(self.ch_num * rhytms_analise_num):
+        # rhytms_name = list(RHYTMS.keys())
+        for series_num in range(self.ch_num * self.rhytms_analise_num):
             series = QLineSeries()
             series.append(self.chart_buffers[series_num])
             self.serieses.append(series)
@@ -65,16 +65,16 @@ class ChartAn(QChartView):
             self.serieses[-1].attachAxis(self.axis_x)
             self.serieses[-1].attachAxis(axis_y)
 
-            if series_num < rhytms_analise_num:
-                self.serieses[-1].setName(rhytms_name[series_num])
+            if series_num < self.rhytms_analise_num:
+                self.serieses[-1].setName(RHYTMS_ANALISE[series_num])
             else:
                 self.serieses[-1].setMarkerSize(50)
 
             self.serieses[-1].setColor(RHYTMS_COLOR[series_num %
-                                                    rhytms_analise_num])
+                                                    self.rhytms_analise_num])
 
         # /////////////////////////////// remove unnecessary markers from legend
-        for marker in chart.legend().markers()[rhytms_analise_num:]:
+        for marker in chart.legend().markers()[self.rhytms_analise_num:]:
             marker.setVisible(False)
 
     # //////////////////////////////////////////////////////////// RANGE CHANGED
@@ -132,13 +132,13 @@ class ChartAn(QChartView):
     def buffers_add(self, new_data):
         datas = len(new_data)
         if datas > 0: rhytms = len(new_data[0])
-        rhytms_analise_num = len(RHYTMS_ANALISE)
+        # rhytms_analise_num = len(RHYTMS_ANALISE)
 
         if datas > 0 and rhytms == len(self.chart_buffers):
             for data in new_data:
                 channel = 0
                 for i in range(rhytms):
-                    if i % rhytms_analise_num == 0 and i > 0: channel += 1
+                    if i % self.rhytms_analise_num == 0 and i > 0: channel += 1
 
                     new_point = QPointF(
                         self.current_index,
@@ -155,16 +155,16 @@ class ChartAn(QChartView):
             # self.axis_t.setRange(0, self.chart_duration_min * 60)
             self.axis_t.setRange(0, buff_len + 10)
 
-        rhytms_analise_num = len(RHYTMS_ANALISE)
-        for i in range(self.ch_num * rhytms_analise_num):
+        # rhytms_analise_num = len(RHYTMS_ANALISE)
+        for i in range(self.ch_num * self.rhytms_analise_num):
             self.serieses[i].replace(self.chart_buffers[i])
 
     # ///////////////////////////////////////////////////////////// BUFFER CLEAR
     def buffer_clear(self):
-        rhytms_analise_num = len(RHYTMS_ANALISE)
+        # rhytms_analise_num = len(RHYTMS_ANALISE)
         self.current_index = 0
-        self.chart_buffers = [[]
-                              for i in range(self.ch_num * rhytms_analise_num)]
+        self.chart_buffers = [[] for i in range(self.ch_num *
+                                                self.rhytms_analise_num)]
         self.chart_duration_sec = 0
         self.axis_t.setRange(0, 60)
         self.range_cnd(0, 60)
